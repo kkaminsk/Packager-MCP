@@ -1,0 +1,31 @@
+# Intune Packaging Assistant MCP Server Configuration
+# Copy this file to packager-mcp.yaml and customize as needed
+
+# Server identification
+name: intune-packaging-assistant
+version: 1.0.0
+
+# Cache settings
+cache:
+  # Maximum number of items in the cache
+  maxSize: 1000
+  # Default TTL for cached items (15 minutes)
+  defaultTtlMs: 900000
+  # TTL for Winget manifest cache (1 hour)
+  manifestTtlMs: 3600000
+  # TTL for search results cache (15 minutes)
+  searchTtlMs: 900000
+
+# Logging configuration
+logging:
+  # Log level: debug, info, warn, error
+  level: info
+  # Output format: json or text
+  format: json
+
+# GitHub API settings (for Winget repository access)
+github:
+  # Personal Access Token for higher rate limits (optional)
+  # token: ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  # Number of retries on rate limit errors
+  rateLimitRetries: 3

@@ -1,0 +1,44 @@
+{
+  "name": "packager-mcp",
+  "version": "1.0.0",
+  "description": "MCP server for Windows application packaging assistance with Microsoft Intune",
+  "main": "dist/server.js",
+  "type": "module",
+  "bin": {
+    "packager-mcp": "dist/server.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "dev": "tsc --watch",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kkaminsk/Packager-MCP.git"
+  },
+  "keywords": [
+    "mcp",
+    "intune",
+    "psadt",
+    "packaging",
+    "windows"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kkaminsk/Packager-MCP/issues"
+  },
+  "homepage": "https://github.com/kkaminsk/Packager-MCP#readme",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.24.3",
+    "yaml": "^2.8.2",
+    "zod": "^4.1.13"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.15"
+  }
+}

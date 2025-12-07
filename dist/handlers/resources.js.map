@@ -1,0 +1,1 @@
+{"version":3,"file":"resources.js","sourceRoot":"","sources":["../../src/handlers/resources.ts"],"names":[],"mappings":"AACA,OAAO,EAAE,SAAS,EAAE,MAAM,oBAAoB,CAAC;AAE/C,MAAM,UAAU,wBAAwB,CAAC,MAAiB;IACxD,MAAM,MAAM,GAAG,SAAS,EAAE,CAAC,KAAK,CAAC,EAAE,OAAO,EAAE,WAAW,EAAE,CAAC,CAAC;IAC3D,MAAM,CAAC,KAAK,CAAC,uDAAuD,CAAC,CAAC;IACtE,uDAAuD;AACzD,CAAC"}
