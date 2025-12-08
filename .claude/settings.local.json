@@ -9,7 +9,13 @@
       "Bash(npm run build:*)",
       "Bash(npm show:*)",
       "Bash(npm run test)",
-      "Bash(openspec archive:*)"
+      "Bash(openspec archive:*)",
+      "Bash(dir:*)",
+      "Bash(node test-mcp-prompts.mjs:*)",
+      "Bash(node dist/server.js:*)",
+      "Bash(node debug-mcp.mjs:*)",
+      "Bash(findstr:*)",
+      "Bash(node test-mcp-sdk.mjs:*)"
     ],
     "deny": [],
     "ask": []

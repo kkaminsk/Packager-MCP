@@ -1,0 +1,152 @@
+# validation-service Specification
+
+## Purpose
+TBD - created by archiving change 4-add-validation-engine. Update Purpose after archive.
+## Requirements
+### Requirement: Validate Package Script
+The system SHALL provide a `validate_package` MCP tool that checks PSADT scripts against best practices and common issues.
+
+#### Scenario: Validate valid script
+- **WHEN** the user invokes `validate_package` with a valid PSADT script
+- **THEN** the system SHALL return `is_valid: true`
+- **AND** the system SHALL return a score between 0 and 100
+
+#### Scenario: Validate invalid script
+- **WHEN** the user invokes `validate_package` with a script containing errors
+- **THEN** the system SHALL return `is_valid: false`
+- **AND** the response SHALL include an array of issues
+
+#### Scenario: Issue details include location
+- **WHEN** an issue is detected in the script
+- **THEN** the issue SHALL include `line_number` where applicable
+- **AND** the issue SHALL include a `suggestion` for remediation
+
+#### Scenario: Issue categorization
+- **WHEN** issues are returned
+- **THEN** each issue SHALL have a `category` (structure, psadt, intune, security, best-practice)
+- **AND** each issue SHALL have a `severity` (error, warning, info)
+
+### Requirement: Validation Levels
+The system SHALL support multiple validation levels for different use cases.
+
+#### Scenario: Basic validation level
+- **WHEN** the user specifies `validation_level: "basic"`
+- **THEN** the system SHALL check only for critical errors
+- **AND** the system SHALL NOT report warnings or informational issues
+
+#### Scenario: Standard validation level
+- **WHEN** the user specifies `validation_level: "standard"`
+- **THEN** the system SHALL check for errors and warnings
+- **AND** the system SHALL NOT report informational issues
+
+#### Scenario: Strict validation level
+- **WHEN** the user specifies `validation_level: "strict"`
+- **THEN** the system SHALL check for all issue types including informational
+
+#### Scenario: Default validation level
+- **WHEN** no validation level is specified
+- **THEN** the system SHALL use "standard" as the default
+
+### Requirement: Target Environment Configuration
+The system SHALL support environment-specific validation rules.
+
+#### Scenario: Intune environment
+- **WHEN** the user specifies `target_environment: "intune"`
+- **THEN** the system SHALL apply Intune-specific validation rules
+- **AND** the system SHALL verify the script supports silent installation
+
+#### Scenario: SCCM environment
+- **WHEN** the user specifies `target_environment: "sccm"`
+- **THEN** the system SHALL apply SCCM/ConfigMgr-specific validation rules
+
+#### Scenario: Standalone environment
+- **WHEN** the user specifies `target_environment: "standalone"`
+- **THEN** the system SHALL skip deployment-system-specific rules
+
+### Requirement: PSADT Structure Validation
+The system SHALL validate PSADT script structure.
+
+#### Scenario: Check param block exists
+- **WHEN** validating a PSADT script
+- **THEN** the system SHALL verify a Param block exists with DeploymentType parameter
+
+#### Scenario: Check try-catch exists
+- **WHEN** validating a PSADT script
+- **THEN** the system SHALL verify try-catch error handling is present
+
+#### Scenario: Check PSADT import
+- **WHEN** validating a PSADT script
+- **THEN** the system SHALL verify `Import-Module` for PSAppDeployToolkit is present
+
+#### Scenario: Check initialization
+- **WHEN** validating a PSADT script
+- **THEN** the system SHALL verify `Initialize-ADTDeployment` is called
+
+#### Scenario: Check completion
+- **WHEN** validating a PSADT script
+- **THEN** the system SHALL verify `Complete-ADTDeployment` is called
+
+### Requirement: Security Validation
+The system SHALL check scripts for security issues.
+
+#### Scenario: Detect hardcoded paths
+- **WHEN** validating a script with user-specific hardcoded paths (e.g., C:\Users\username)
+- **THEN** the system SHALL report a warning about hardcoded paths
+- **AND** the suggestion SHALL recommend using environment variables
+
+#### Scenario: Detect plaintext credentials
+- **WHEN** validating a script containing patterns that appear to be credentials
+- **THEN** the system SHALL report an error about potential credential exposure
+- **AND** the suggestion SHALL recommend secure credential storage
+
+#### Scenario: Detect unsafe execution patterns
+- **WHEN** validating a script using `Invoke-Expression` with variable input
+- **THEN** the system SHALL report a warning about potential command injection
+- **AND** the suggestion SHALL recommend using `Start-ADTProcess` instead
+
+### Requirement: Intune Compatibility Validation
+The system SHALL validate scripts for Intune deployment compatibility.
+
+#### Scenario: Check silent installation support
+- **WHEN** validating for Intune environment
+- **THEN** the system SHALL verify the script handles Silent deployment mode
+
+#### Scenario: Check detection rule feasibility
+- **WHEN** validating for Intune environment
+- **THEN** the system SHALL verify detection rule generation is possible
+
+#### Scenario: Check exit code handling
+- **WHEN** validating for Intune environment
+- **THEN** the system SHALL verify proper exit codes are returned
+
+### Requirement: Quality Score Calculation
+The system SHALL calculate a quality score based on validation results.
+
+#### Scenario: Perfect score
+- **WHEN** no issues are found during validation
+- **THEN** the system SHALL return a score of 100
+
+#### Scenario: Score penalties for errors
+- **WHEN** errors are found
+- **THEN** the system SHALL deduct 10 points per error from the score
+
+#### Scenario: Score penalties for warnings
+- **WHEN** warnings are found
+- **THEN** the system SHALL deduct 3 points per warning from the score
+
+#### Scenario: Score penalties for info
+- **WHEN** informational issues are found
+- **THEN** the system SHALL deduct 1 point per info item from the score
+
+#### Scenario: Minimum score
+- **WHEN** many issues are found
+- **THEN** the score SHALL NOT go below 0
+
+### Requirement: Passed Checks Reporting
+The system SHALL report which validation checks passed.
+
+#### Scenario: Include passed checks
+- **WHEN** validation completes
+- **THEN** the response SHALL include a `passed_checks` array
+- **AND** each entry SHALL describe a rule that the script passed
+

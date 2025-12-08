@@ -1,0 +1,239 @@
+{
+  "installerTypes": [
+    {
+      "type": "msi",
+      "silent": "/qn /norestart",
+      "silentWithProgress": "/qb /norestart",
+      "log": "/qn /norestart /l*v \"<logpath>\"",
+      "uninstall": "/x {productCode} /qn /norestart",
+      "notes": "Windows Installer packages. Use msiexec.exe with these switches."
+    },
+    {
+      "type": "nullsoft",
+      "silent": "/S",
+      "silentWithProgress": "/S",
+      "log": "/S /D=<installpath>",
+      "uninstall": "/S",
+      "notes": "NSIS (Nullsoft Scriptable Install System). The /S switch is case-sensitive.",
+      "patterns": ["nsis", "nullsoft", "NSIS"]
+    },
+    {
+      "type": "inno",
+      "silent": "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-",
+      "silentWithProgress": "/SILENT /SUPPRESSMSGBOXES /NORESTART /SP-",
+      "log": "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP- /LOG=\"<logpath>\"",
+      "uninstall": "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART",
+      "notes": "Inno Setup installer. /SP- skips the 'This will install...' prompt."
+    },
+    {
+      "type": "wix",
+      "silent": "/quiet /norestart",
+      "silentWithProgress": "/passive /norestart",
+      "log": "/quiet /norestart /log \"<logpath>\"",
+      "uninstall": "/x {productCode} /quiet /norestart",
+      "notes": "WiX Toolset (creates MSI/EXE). Often same as MSI switches.",
+      "patterns": ["wix", "WiX"]
+    },
+    {
+      "type": "burn",
+      "silent": "/quiet /norestart",
+      "silentWithProgress": "/passive /norestart",
+      "log": "/quiet /norestart /log \"<logpath>\"",
+      "uninstall": "/uninstall /quiet /norestart",
+      "notes": "WiX Burn bootstrapper/chainer. Wraps multiple MSIs.",
+      "patterns": ["burn", "bootstrapper"]
+    },
+    {
+      "type": "exe",
+      "silent": "/S /s /silent /quiet -s -silent -quiet",
+      "notes": "Generic EXE installer. Try common switches in order. May require detection of specific installer type.",
+      "patterns": []
+    },
+    {
+      "type": "msix",
+      "silent": "Add-AppxPackage -Path \"<installerpath>\"",
+      "uninstall": "Remove-AppxPackage -Package \"<packagefullname>\"",
+      "notes": "Modern Windows app package. Use PowerShell cmdlets for installation."
+    },
+    {
+      "type": "zip",
+      "silent": "Expand-Archive -Path \"<zippath>\" -DestinationPath \"<installpath>\" -Force",
+      "notes": "ZIP archive. Extract and run setup if present, or xcopy deployment."
+    },
+    {
+      "type": "portable",
+      "silent": "",
+      "notes": "Portable application. No installation required, just extract/copy."
+    }
+  ],
+  "applicationOverrides": [
+    {
+      "packageId": "Google.Chrome",
+      "silent": "/silent /install",
+      "uninstall": "--uninstall --force-uninstall --system-level",
+      "notes": "Chrome uses custom installer switches"
+    },
+    {
+      "packageId": "Google.Chrome.Beta",
+      "silent": "/silent /install",
+      "uninstall": "--uninstall --force-uninstall --system-level",
+      "notes": "Chrome Beta uses same switches as stable"
+    },
+    {
+      "packageId": "Google.Chrome.Dev",
+      "silent": "/silent /install",
+      "uninstall": "--uninstall --force-uninstall --system-level",
+      "notes": "Chrome Dev uses same switches as stable"
+    },
+    {
+      "packageId": "Mozilla.Firefox",
+      "silent": "/S",
+      "uninstall": "/S",
+      "notes": "Firefox uses NSIS installer"
+    },
+    {
+      "packageId": "Mozilla.Firefox.ESR",
+      "silent": "/S",
+      "uninstall": "/S",
+      "notes": "Firefox ESR uses NSIS installer"
+    },
+    {
+      "packageId": "7zip.7zip",
+      "silent": "/S",
+      "uninstall": "/S",
+      "notes": "7-Zip uses NSIS installer"
+    },
+    {
+      "packageId": "VideoLAN.VLC",
+      "silent": "/S /L=1033",
+      "uninstall": "/S",
+      "notes": "VLC uses NSIS installer, /L sets language"
+    },
+    {
+      "packageId": "Notepad++.Notepad++",
+      "silent": "/S",
+      "uninstall": "/S",
+      "notes": "Notepad++ uses NSIS installer"
+    },
+    {
+      "packageId": "Adobe.Acrobat.Reader.64-bit",
+      "silent": "/sAll /msi /norestart /quiet ALLUSERS=1 EULA_ACCEPT=YES",
+      "uninstall": "/sAll /msi /norestart /quiet",
+      "notes": "Adobe Reader uses custom bootstrapper with MSI"
+    },
+    {
+      "packageId": "Adobe.Acrobat.Reader.32-bit",
+      "silent": "/sAll /msi /norestart /quiet ALLUSERS=1 EULA_ACCEPT=YES",
+      "uninstall": "/sAll /msi /norestart /quiet",
+      "notes": "Adobe Reader 32-bit uses same switches"
+    },
+    {
+      "packageId": "Microsoft.VisualStudioCode",
+      "silent": "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP- /MERGETASKS=\"!runcode,addcontextmenufiles,addcontextmenufolders,associatewithfiles,addtopath\"",
+      "uninstall": "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART",
+      "notes": "VS Code uses Inno Setup with merge tasks for context menu and PATH"
+    },
+    {
+      "packageId": "Microsoft.VisualStudioCode.Insiders",
+      "silent": "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP- /MERGETASKS=\"!runcode,addcontextmenufiles,addcontextmenufolders,associatewithfiles,addtopath\"",
+      "uninstall": "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART",
+      "notes": "VS Code Insiders uses same switches"
+    },
+    {
+      "packageId": "Git.Git",
+      "silent": "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-",
+      "uninstall": "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART",
+      "notes": "Git for Windows uses Inno Setup"
+    },
+    {
+      "packageId": "Python.Python.3.12",
+      "silent": "/quiet InstallAllUsers=1 PrependPath=1 Include_test=0",
+      "uninstall": "/quiet /uninstall",
+      "notes": "Python uses custom installer with MSI-like switches"
+    },
+    {
+      "packageId": "Python.Python.3.11",
+      "silent": "/quiet InstallAllUsers=1 PrependPath=1 Include_test=0",
+      "uninstall": "/quiet /uninstall",
+      "notes": "Python uses custom installer with MSI-like switches"
+    },
+    {
+      "packageId": "OpenJS.NodeJS.LTS",
+      "silent": "/qn /norestart",
+      "uninstall": "/qn /norestart",
+      "notes": "Node.js LTS uses MSI installer"
+    },
+    {
+      "packageId": "OpenJS.NodeJS",
+      "silent": "/qn /norestart",
+      "uninstall": "/qn /norestart",
+      "notes": "Node.js Current uses MSI installer"
+    },
+    {
+      "packageId": "JetBrains.IntelliJIDEA.Community",
+      "silent": "/S /D=<installpath>",
+      "uninstall": "/S",
+      "notes": "JetBrains IDEs use NSIS-like installer"
+    },
+    {
+      "packageId": "JetBrains.IntelliJIDEA.Ultimate",
+      "silent": "/S /D=<installpath>",
+      "uninstall": "/S",
+      "notes": "JetBrains IDEs use NSIS-like installer"
+    },
+    {
+      "packageId": "JetBrains.PyCharm.Community",
+      "silent": "/S /D=<installpath>",
+      "uninstall": "/S",
+      "notes": "JetBrains IDEs use NSIS-like installer"
+    },
+    {
+      "packageId": "JetBrains.PyCharm.Professional",
+      "silent": "/S /D=<installpath>",
+      "uninstall": "/S",
+      "notes": "JetBrains IDEs use NSIS-like installer"
+    },
+    {
+      "packageId": "SlackTechnologies.Slack",
+      "silent": "/S",
+      "uninstall": "/S",
+      "notes": "Slack uses Squirrel installer with NSIS switches"
+    },
+    {
+      "packageId": "Zoom.Zoom",
+      "silent": "/silent /install",
+      "uninstall": "/silent /uninstall",
+      "notes": "Zoom uses custom installer"
+    },
+    {
+      "packageId": "Microsoft.Teams",
+      "silent": "-s",
+      "uninstall": "-s --uninstall",
+      "notes": "Teams (new) uses MSIX, but bootstrapper accepts these switches"
+    },
+    {
+      "packageId": "Docker.DockerDesktop",
+      "silent": "install --quiet --accept-license",
+      "uninstall": "uninstall --quiet",
+      "notes": "Docker Desktop uses custom installer with subcommands"
+    },
+    {
+      "packageId": "WinSCP.WinSCP",
+      "silent": "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-",
+      "uninstall": "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART",
+      "notes": "WinSCP uses Inno Setup"
+    },
+    {
+      "packageId": "PuTTY.PuTTY",
+      "silent": "/qn /norestart",
+      "uninstall": "/qn /norestart",
+      "notes": "PuTTY uses MSI installer"
+    },
+    {
+      "packageId": "Greenshot.Greenshot",
+      "silent": "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-",
+      "uninstall": "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART",
+      "notes": "Greenshot uses Inno Setup"
+    }
+  ]
+}

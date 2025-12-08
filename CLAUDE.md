@@ -33,12 +33,17 @@ src/
 ├── services/
 │   ├── winget.ts       # Winget API integration
 │   ├── psadt.ts        # PSADT template generation
-│   └── validation.ts   # Package validation
+│   ├── validation.ts   # Package validation
+│   └── detection.ts    # Intune detection rule generation
 ├── knowledge/          # Embedded documentation
 │   ├── psadt/          # PSADT v4 docs and patterns
 │   ├── installers/     # Installer type guides
 │   └── reference/      # Silent args, exit codes
 └── types/              # TypeScript type definitions
+    ├── winget.ts       # Winget types
+    ├── psadt.ts        # PSADT types
+    ├── validation.ts   # Validation types
+    └── intune.ts       # Intune detection types
 ```
 
 ## MCP Tools to Implement
@@ -150,11 +155,11 @@ The project is built through 6 sequential proposals. Each proposal has full spec
 | # | Proposal | Capability | Status |
 |---|----------|------------|--------|
 | 1 | `1-add-mcp-server-foundation` | MCP server core, config, caching, logging | Complete |
-| 2 | `2-add-winget-integration` | `search_winget`, `get_silent_install_args` tools | Pending |
-| 3 | `3-add-psadt-templates` | `get_psadt_template` tool, knowledge base resources | Pending |
-| 4 | `4-add-validation-engine` | `validate_package` tool | Pending |
-| 5 | `5-add-intune-detection` | `generate_intune_detection` tool | Pending |
-| 6 | `6-add-mcp-prompts` | `/package-app`, `/convert-legacy`, `/troubleshoot`, `/bulk-lookup` | Pending |
+| 2 | `2-add-winget-integration` | `search_winget`, `get_silent_install_args` tools | Complete |
+| 3 | `3-add-psadt-templates` | `get_psadt_template` tool, knowledge base resources | Complete |
+| 4 | `4-add-validation-engine` | `validate_package` tool | Complete |
+| 5 | `5-add-intune-detection` | `generate_intune_detection` tool | Complete |
+| 6 | `6-add-mcp-prompts` | `/package-app`, `/convert-legacy`, `/troubleshoot`, `/bulk-lookup` | Complete |
 
 ### Execution Order
 

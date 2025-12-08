@@ -1,0 +1,237 @@
+{{> header}}
+
+{{> initialize}}
+
+#region Variables
+# ZIP Package Configuration
+$ZipFile = '{{installerFileName}}'
+$ExtractPath = "$env:ProgramFiles\{{applicationVendor}}\{{applicationName}}"  # CUSTOMIZE: Set installation directory
+
+# Main executable (for shortcuts and detection)
+$MainExecutable = '{{applicationName}}.exe'  # CUSTOMIZE: Set actual executable name
+
+# Registry key for tracking installation
+$RegistryPath = "HKLM:\SOFTWARE\{{applicationVendor}}\{{applicationName}}"
+#endregion
+
+#region Helper Functions
+function Expand-ZipArchive {
+    param (
+        [string]$SourcePath,
+        [string]$DestinationPath
+    )
+
+    Write-ADTLogEntry -Message "Extracting $SourcePath to $DestinationPath"
+
+    # Create destination directory
+    New-ADTFolder -Path $DestinationPath
+
+    # Use .NET for extraction (more reliable than Expand-Archive on older systems)
+    try {
+        Add-Type -AssemblyName System.IO.Compression.FileSystem
+        [System.IO.Compression.ZipFile]::ExtractToDirectory($SourcePath, $DestinationPath)
+    }
+    catch {
+        # Fallback to Expand-Archive
+        Expand-Archive -Path $SourcePath -DestinationPath $DestinationPath -Force
+    }
+
+    Write-ADTLogEntry -Message "Extraction completed"
+}
+
+function Register-Application {
+    <#
+    .SYNOPSIS
+        Registers the application in Add/Remove Programs
+    #>
+    $uninstallKey = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{{applicationVendor}}.{{applicationName}}"
+
+    Write-ADTLogEntry -Message "Registering application in Add/Remove Programs"
+
+    # Create uninstall registry entry
+    Set-ADTRegistryKey -Key $uninstallKey -Name 'DisplayName' -Value '{{applicationName}}'
+    Set-ADTRegistryKey -Key $uninstallKey -Name 'DisplayVersion' -Value '{{applicationVersion}}'
+    Set-ADTRegistryKey -Key $uninstallKey -Name 'Publisher' -Value '{{applicationVendor}}'
+    Set-ADTRegistryKey -Key $uninstallKey -Name 'InstallLocation' -Value $ExtractPath
+    Set-ADTRegistryKey -Key $uninstallKey -Name 'UninstallString' -Value "powershell.exe -ExecutionPolicy Bypass -File `"$ExtractPath\Uninstall.ps1`""
+    Set-ADTRegistryKey -Key $uninstallKey -Name 'NoModify' -Value 1 -Type 'DWord'
+    Set-ADTRegistryKey -Key $uninstallKey -Name 'NoRepair' -Value 1 -Type 'DWord'
+
+    # Set icon if available
+    $iconPath = Join-Path $ExtractPath $MainExecutable
+    if (Test-Path $iconPath) {
+        Set-ADTRegistryKey -Key $uninstallKey -Name 'DisplayIcon' -Value "$iconPath,0"
+    }
+
+    # Store installation info
+    Set-ADTRegistryKey -Key $RegistryPath -Name 'InstallPath' -Value $ExtractPath
+    Set-ADTRegistryKey -Key $RegistryPath -Name 'Version' -Value '{{applicationVersion}}'
+    Set-ADTRegistryKey -Key $RegistryPath -Name 'InstallDate' -Value (Get-Date -Format 'yyyyMMdd')
+}
+
+function Unregister-Application {
+    <#
+    .SYNOPSIS
+        Removes application from Add/Remove Programs
+    #>
+    $uninstallKey = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{{applicationVendor}}.{{applicationName}}"
+
+    Remove-ADTRegistryKey -Key $uninstallKey -Recurse -ContinueOnError
+    Remove-ADTRegistryKey -Key $RegistryPath -Recurse -ContinueOnError
+}
+#endregion
+
+#region Main Deployment Logic
+try {
+    switch ($DeploymentType) {
+        'Install' {
+            #region Pre-Installation
+            Write-ADTLogEntry -Message "=== Pre-Installation Phase ==="
+
+            {{#if closeApps}}
+            Show-ADTInstallationWelcome -CloseApps '{{closeApps}}' -CloseAppsCountdown 60
+            {{/if}}
+
+            # Check for existing installation
+            if (Test-Path $ExtractPath) {
+                Write-ADTLogEntry -Message "Removing existing installation at $ExtractPath"
+                Remove-ADTFolder -Path $ExtractPath -ContinueOnError
+            }
+
+            {{#if requiredDiskSpace}}
+            # Check disk space
+            $diskSpace = Get-ADTDiskSpace -Drive 'C:'
+            if ($diskSpace.FreeMB -lt {{requiredDiskSpace}}) {
+                throw "Insufficient disk space. Required: {{requiredDiskSpace}} MB, Available: $($diskSpace.FreeMB) MB"
+            }
+            {{/if}}
+
+            Show-ADTInstallationProgress -StatusMessage 'Installing {{applicationName}}...'
+            #endregion
+
+            #region Installation
+            Write-ADTLogEntry -Message "=== Installation Phase ==="
+
+            # Extract ZIP archive
+            $zipPath = Join-Path -Path $ADTSession.FilesDirectory -ChildPath $ZipFile
+            Expand-ZipArchive -SourcePath $zipPath -DestinationPath $ExtractPath
+
+            Write-ADTLogEntry -Message "Files extracted successfully"
+            #endregion
+
+            #region Post-Installation
+            Write-ADTLogEntry -Message "=== Post-Installation Phase ==="
+
+            # Verify installation
+            $exePath = Join-Path $ExtractPath $MainExecutable
+            if (-not (Test-Path $exePath)) {
+                # Check if files are in a subfolder
+                $subFolder = Get-ChildItem -Path $ExtractPath -Directory | Select-Object -First 1
+                if ($subFolder) {
+                    $altPath = Join-Path $subFolder.FullName $MainExecutable
+                    if (Test-Path $altPath) {
+                        Write-ADTLogEntry -Message "Found executable in subfolder, reorganizing..."
+                        Get-ChildItem -Path $subFolder.FullName | Move-Item -Destination $ExtractPath -Force
+                        Remove-ADTFolder -Path $subFolder.FullName -ContinueOnError
+                    }
+                }
+            }
+
+            if (-not (Test-Path $exePath)) {
+                Write-ADTLogEntry -Message "Warning: Main executable not found at $exePath" -Severity 2
+            }
+
+            # Register in Add/Remove Programs
+            Register-Application
+
+            # Create shortcuts
+            $targetPath = Join-Path $ExtractPath $MainExecutable
+            if (Test-Path $targetPath) {
+                # Desktop shortcut
+                New-ADTShortcut -Path "$env:PUBLIC\Desktop\{{applicationName}}.lnk" `
+                    -TargetPath $targetPath `
+                    -WorkingDirectory $ExtractPath `
+                    -Description '{{applicationName}}'
+
+                # Start menu shortcut
+                $startMenuPath = "$env:ProgramData\Microsoft\Windows\Start Menu\Programs\{{applicationVendor}}"
+                New-ADTFolder -Path $startMenuPath
+                New-ADTShortcut -Path "$startMenuPath\{{applicationName}}.lnk" `
+                    -TargetPath $targetPath `
+                    -WorkingDirectory $ExtractPath `
+                    -Description '{{applicationName}}'
+            }
+
+            # CUSTOMIZE: Add additional configuration here
+            # - Set file associations
+            # - Configure environment variables
+            # - Run post-install scripts
+
+            Write-ADTLogEntry -Message "Post-installation completed"
+            #endregion
+        }
+
+        'Uninstall' {
+            #region Uninstallation
+            Write-ADTLogEntry -Message "=== Uninstallation Phase ==="
+
+            {{#if closeApps}}
+            Show-ADTInstallationWelcome -CloseApps '{{closeApps}}'
+            {{/if}}
+
+            Show-ADTInstallationProgress -StatusMessage 'Uninstalling {{applicationName}}...'
+
+            # Get install path from registry or use default
+            $installPath = (Get-ADTRegistryKey -Key $RegistryPath -Name 'InstallPath') ?? $ExtractPath
+
+            # Remove shortcuts
+            Remove-ADTFile -Path "$env:PUBLIC\Desktop\{{applicationName}}.lnk" -ContinueOnError
+            Remove-ADTFolder -Path "$env:ProgramData\Microsoft\Windows\Start Menu\Programs\{{applicationVendor}}" -ContinueOnError
+
+            # Remove application files
+            if (Test-Path $installPath) {
+                Write-ADTLogEntry -Message "Removing application files from $installPath"
+                Remove-ADTFolder -Path $installPath
+            }
+
+            # Unregister from Add/Remove Programs
+            Unregister-Application
+
+            Write-ADTLogEntry -Message "Uninstallation completed"
+            #endregion
+        }
+        {{#if includeRepair}}
+
+        'Repair' {
+            #region Repair
+            Write-ADTLogEntry -Message "=== Repair Phase ==="
+
+            {{#if closeApps}}
+            Show-ADTInstallationWelcome -CloseApps '{{closeApps}}'
+            {{/if}}
+
+            Show-ADTInstallationProgress -StatusMessage 'Repairing {{applicationName}}...'
+
+            # For ZIP packages, repair means re-extract
+            Write-ADTLogEntry -Message "Re-extracting application files"
+
+            # Remove existing files but keep user data
+            $exePath = Join-Path $ExtractPath $MainExecutable
+            if (Test-Path $exePath) {
+                # Just re-extract over existing
+                $zipPath = Join-Path -Path $ADTSession.FilesDirectory -ChildPath $ZipFile
+                Expand-ZipArchive -SourcePath $zipPath -DestinationPath $ExtractPath
+            }
+
+            # Re-register
+            Register-Application
+
+            Write-ADTLogEntry -Message "Repair completed"
+            #endregion
+        }
+        {{/if}}
+    }
+
+    Complete-ADTDeployment -DeploymentStatus 'Complete'
+}
+{{> error-handling}}
