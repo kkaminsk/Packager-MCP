@@ -30,11 +30,19 @@ When you connect this server to Claude CLI (or another MCP-compatible client), C
 ### Prerequisites
 
 - **Node.js 20** or higher ([download](https://nodejs.org/))
-- **Claude CLI** or another MCP-compatible client
+- **VSCode**
+- **Copilot CLI** or another MCP-compatible client
+- **Git**
 
 ### Installation
 
 ```bash
+# Install Git
+winget install git.git
+
+#Install VisualStudio Code
+winget install Microsoft.VisualStudioCode
+
 # Clone the repository
 git clone https://github.com/kkaminsk/Packager-MCP.git
 cd Packager-MCP
@@ -44,23 +52,35 @@ npm install
 
 # Build the project
 npm run build
+
+# Install Copilot CLI
+npm install -g @github/copilot
 ```
 
 ### Connect to Claude CLI
 
 ```bash
-# Add the server to Claude CLI
-claude mcp add packager-mcp node /path/to/Packager-MCP/dist/server.js
+# Add the server to VSCode
 
-# Example on Windows:
-claude mcp add packager-mcp node C:/Projects/Packager-MCP/dist/server.js
+{
+  "mcpServers": {
+    "packager-mcp": {
+      "command": "node",
+      "args": [
+        "/path/to/Packager-MCP/dist/server.js"
+      ],
+      "disabled": false,
+      "autoApprove": []
+    }
+  }
+}
 ```
 
 ### Verify It's Working
 
 ```bash
 # List your MCP servers
-claude mcp list
+Go to the chat window and look for @packager-mcp
 
 # You should see packager-mcp in the list
 ```
