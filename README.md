@@ -43,6 +43,12 @@ winget install git.git
 #Install VisualStudio Code
 winget install Microsoft.VisualStudioCode
 
+#Install PowerShell 7
+winget install 9MZ1SNWT0N5D
+
+#Install Node.js 21
+winget install OpenJS.NodeJS.21
+
 # Clone the repository
 git clone https://github.com/kkaminsk/Packager-MCP.git
 cd Packager-MCP
@@ -57,11 +63,34 @@ npm run build
 npm install -g @github/copilot
 ```
 
-### Connect to Claude CLI
+### Add MCP to VS Code
 
 ```bash
-# Add the server to VSCode
+# Add the server to VSCode JSON
+{
+  "mcpServers": {
+    "packager-mcp": {
+      "command": "node",
+      "args": [
+        "/path/to/Packager-MCP/dist/server.js"
+      ],
+      "disabled": false,
+      "autoApprove": []
+    }
+  }
+}
 
+#Github CLI #1
+/mcp add
+
+Name: packager-mcp
+Command: node
+Arguments: /path/to/Packager-MCP/dist/server.js
+
+#Github CLI #2
+Prompt:
+Configure the vscode mcp servers using the following template for this MCP server.
+Edit the configuration: %APPDATA%\Code\User\globalStorage\mcp-servers.json
 {
   "mcpServers": {
     "packager-mcp": {
@@ -80,7 +109,8 @@ npm install -g @github/copilot
 
 ```bash
 # List your MCP servers
-Go to the chat window and look for @packager-mcp
+# Make sure VSCode is logged into Github
+Launch VSCode and open the chat Window and look for @packager-mcp
 
 # You should see packager-mcp in the list
 ```
