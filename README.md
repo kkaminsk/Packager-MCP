@@ -368,10 +368,10 @@ npm run validate:knowledge
 ## How It Works Under the Hood
 
 ```
-┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
+┌─────────────────┐      ┌──────────────────┐     ┌─────────────────┐
 │   Claude CLI    │────▶│  Packager-MCP    │────▶│  GitHub API     │
 │   (MCP Client)  │◀────│  (MCP Server)    │◀────│  (Winget Repo)  │
-└─────────────────┘     └──────────────────┘     └─────────────────┘
+└─────────────────┘      └──────────────────┘     └─────────────────┘
                                │
                                ▼
                         ┌──────────────────┐
@@ -405,7 +405,7 @@ A: Yes, any MCP-compatible client works. Add the server to your MCP config.
 A: Arguments come from Microsoft's Winget repository with confidence levels (verified, high, medium, low).
 
 **Q: Can I download the actual installers?**
-A: Yes! The `download_installer` tool downloads from Winget with SHA256 verification.
+A: Yes! The `download_installer` tool downloads from Winget with SHA256 verification. Files too large will have a download URL.
 
 ---
 
@@ -421,7 +421,7 @@ Contributions welcome! See the project structure above and feel free to:
 
 ## License
 
-ISC
+MIT
 
 ---
 
