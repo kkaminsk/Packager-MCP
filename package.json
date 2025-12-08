@@ -12,7 +12,8 @@
     "start": "node dist/server.js",
     "dev": "tsc --watch",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "validate:knowledge": "node scripts/validate-knowledge.mjs"
   },
   "repository": {
     "type": "git",

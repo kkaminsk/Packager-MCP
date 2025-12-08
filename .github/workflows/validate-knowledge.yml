@@ -1,0 +1,48 @@
+name: Validate Knowledge Base
+
+on:
+  push:
+    paths:
+      - 'src/knowledge/**'
+      - 'ReferenceKnowledge/**'
+      - 'scripts/validate-knowledge.mjs'
+  pull_request:
+    paths:
+      - 'src/knowledge/**'
+      - 'ReferenceKnowledge/**'
+      - 'scripts/validate-knowledge.mjs'
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate knowledge base
+        run: npm run validate:knowledge
+
+      - name: Check for markdownlint (optional)
+        id: check-mdl
+        run: |
+          if command -v markdownlint &> /dev/null; then
+            echo "available=true" >> $GITHUB_OUTPUT
+          else
+            echo "available=false" >> $GITHUB_OUTPUT
+          fi
+        continue-on-error: true
+
+      - name: Run markdownlint (if available)
+        if: steps.check-mdl.outputs.available == 'true'
+        run: markdownlint 'src/knowledge/**/*.md' --config .markdownlint.json
+        continue-on-error: true

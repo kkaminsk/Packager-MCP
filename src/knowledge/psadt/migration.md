@@ -1,3 +1,13 @@
+---
+title: "PSADT v3 to v4 Migration Guide"
+id: "psadt-migration"
+psadt_target: "4.0.x"
+last_updated: "2024-12-07"
+verified_by: "maintainer"
+source_ref: "ReferenceKnowledge/V3DOCS.md, ReferenceKnowledge/V4DOCS.md"
+tags: ["psadt", "migration", "v3", "v4", "upgrade"]
+---
+
 # PSADT v3 to v4 Migration Guide
 
 This guide helps you migrate existing PSADT v3 scripts to the v4 module-based architecture.

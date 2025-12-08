@@ -15,7 +15,9 @@
       "Bash(node dist/server.js:*)",
       "Bash(node debug-mcp.mjs:*)",
       "Bash(findstr:*)",
-      "Bash(node test-mcp-sdk.mjs:*)"
+      "Bash(node test-mcp-sdk.mjs:*)",
+      "Bash(node scripts/validate-knowledge.mjs:*)",
+      "Bash(npx openspec:*)"
     ],
     "deny": [],
     "ask": []

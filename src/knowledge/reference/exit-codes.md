@@ -1,3 +1,13 @@
+---
+title: "Installer Exit Codes Reference"
+id: "ref-exit-codes"
+psadt_target: "4.0.x"
+last_updated: "2024-12-07"
+verified_by: "maintainer"
+source_ref: "ReferenceKnowledge/V4DOCS.md#exit-codes"
+tags: ["exit-codes", "reference", "msi", "troubleshooting"]
+---
+
 # Installer Exit Codes Reference
 
 Understanding exit codes is critical for proper error handling and deployment automation.

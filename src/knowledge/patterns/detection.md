@@ -1,3 +1,13 @@
+---
+title: "Detection Rule Patterns"
+id: "kb-patterns-detection"
+psadt_target: "4.0.x"
+last_updated: "2024-12-07"
+verified_by: "maintainer"
+source_ref: "ReferenceKnowledge/Examples/"
+tags: ["detection", "patterns", "intune", "registry", "file"]
+---
+
 # Detection Rule Patterns
 
 Detection rules determine whether an application is already installed. Proper detection is critical for Intune deployments to work correctly.

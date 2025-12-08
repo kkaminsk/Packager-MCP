@@ -1,349 +1,354 @@
+---
+title: "PSADT v4 Best Practices"
+id: "psadt-best-practices"
+psadt_target: "4.1.x"
+last_updated: "2024-12-07"
+verified_by: "maintainer"
+source_ref: "ReferenceKnowledge/Examples/"
+tags: ["psadt", "best-practices", "patterns", "deployment", "v4.1"]
+---
+
 # PSADT v4 Best Practices
 
-This guide covers best practices for creating reliable, maintainable PSADT v4 deployment packages.
+Best practices for creating reliable, maintainable PSADT v4.1 deployment packages, derived from real-world examples.
 
-## Script Structure
+## Script Structure (v4.1)
 
-### Use Proper Error Handling
+### Use Function-Based Structure
 
-Always wrap your deployment logic in try/catch and use `Complete-ADTDeployment`:
+In v4.1, use separate functions for each deployment type:
 
 ```powershell
+function Install-ADTDeployment {
+    # Pre-Install
+    $adtSession.InstallPhase = "Pre-$($adtSession.DeploymentType)"
+    Show-ADTInstallationWelcome @saiwParams
+    Show-ADTInstallationProgress
+
+    # Install
+    $adtSession.InstallPhase = $adtSession.DeploymentType
+    Start-ADTProcess -FilePath 'setup.exe' -ArgumentList '/S'
+
+    # Post-Install
+    $adtSession.InstallPhase = "Post-$($adtSession.DeploymentType)"
+    # Cleanup, configuration
+}
+
+function Uninstall-ADTDeployment {
+    # Similar structure
+}
+
+function Repair-ADTDeployment {
+    # Similar structure
+}
+```
+
+### Use AppProcessesToClose (v4.1)
+
+Define processes to close once in the session, reuse everywhere:
+
+```powershell
+$adtSession = @{
+    AppProcessesToClose = @(
+        @{ Name = 'vlc'; Description = 'VLC media player' },
+        @{ Name = 'winword'; Description = 'Microsoft Word' }
+    )
+    # other properties...
+}
+
+# In Install-ADTDeployment:
+if ($adtSession.AppProcessesToClose.Count -gt 0) {
+    $saiwParams.Add('CloseProcesses', $adtSession.AppProcessesToClose)
+}
+Show-ADTInstallationWelcome @saiwParams
+```
+
+### Use Parameter Splatting
+
+v4.1 recommends splatting for cleaner code:
+
+```powershell
+$saiwParams = @{
+    AllowDeferCloseProcesses = $true
+    DeferTimes = 3
+    PersistPrompt = $true
+}
+if ($adtSession.AppProcessesToClose.Count -gt 0) {
+    $saiwParams.Add('CloseProcesses', $adtSession.AppProcessesToClose)
+}
+Show-ADTInstallationWelcome @saiwParams
+```
+
+## Error Handling
+
+### Proper Try/Catch Pattern
+
+```powershell
+# Initialization
 try {
-    # All deployment logic here
-    Complete-ADTDeployment -DeploymentStatus 'Complete'
+    $adtSession = Open-ADTSession @adtSession -PassThru
 }
 catch {
-    Write-ADTLogEntry -Message "Error: $($_.Exception.Message)" -Severity 3
-    Complete-ADTDeployment -DeploymentStatus 'Failed' -ErrorMessage $_.Exception.Message
-}
-```
-
-### Organize Code by Phase
-
-Keep your script organized by deployment phase:
-
-```powershell
-switch ($DeploymentType) {
-    'Install' {
-        #region Pre-Installation
-        Show-ADTInstallationWelcome -CloseApps 'appname'
-        # Prerequisites checks here
-        #endregion
-
-        #region Installation
-        Start-ADTProcess -FilePath 'installer.exe' -Arguments '/S'
-        #endregion
-
-        #region Post-Installation
-        # Configuration, shortcuts, cleanup
-        #endregion
-    }
-    'Uninstall' {
-        # Uninstall logic
-    }
-    'Repair' {
-        # Repair logic
-    }
-}
-```
-
-## Application Detection
-
-### Always Verify Installation
-
-Check that the application actually installed:
-
-```powershell
-# After installation
-$installed = Get-ADTInstalledApplication -Name 'Application Name'
-if (-not $installed) {
-    throw "Installation verification failed - application not found"
+    $Host.UI.WriteErrorLine((Out-String -InputObject $_ -Width ([System.Int32]::MaxValue)))
+    exit 60008
 }
 
-# Check version if needed
-if ($installed.DisplayVersion -ne $ADTSession.InstallVersion) {
-    Write-ADTLogEntry -Message "Warning: Installed version ($($installed.DisplayVersion)) differs from expected ($($ADTSession.InstallVersion))" -Severity 2
+# Invocation
+try {
+    & "$($adtSession.DeploymentType)-ADTDeployment"
+    Close-ADTSession
 }
-```
-
-### Use Multiple Detection Methods
-
-For critical applications, use multiple detection methods:
-
-```powershell
-function Test-ApplicationInstalled {
-    # Method 1: Registry detection
-    $regApp = Get-ADTInstalledApplication -Name 'Application'
-
-    # Method 2: File detection
-    $fileExists = Test-Path -Path "$env:ProgramFiles\Application\app.exe"
-
-    # Method 3: Service detection (if applicable)
-    $serviceExists = Get-Service -Name 'AppService' -ErrorAction SilentlyContinue
-
-    return ($regApp -and $fileExists)
+catch {
+    $mainErrorMessage = "Deployment failed: $(Resolve-ADTErrorRecord -ErrorRecord $_)"
+    Write-ADTLogEntry -Message $mainErrorMessage -Severity 3
+    Show-ADTInstallationPrompt -Message "Installation failed." -ButtonRightText OK -Icon Error -NoWait
+    Close-ADTSession -ExitCode 60001
 }
 ```
 
 ## Process Management
 
-### Close Applications Gracefully
+### Graceful App Closing with Defer
 
-Give users time to save their work:
+Give users time to save work:
 
 ```powershell
-# Allow deferral for non-critical updates
-Show-ADTInstallationWelcome -CloseApps 'outlook,excel,word' `
-    -AllowDefer -DeferTimes 3 `
-    -CloseAppsCountdown 300 `
-    -PersistPrompt
+$saiwParams = @{
+    AllowDeferCloseProcesses = $true
+    DeferTimes = 3
+    PersistPrompt = $true
+}
+if ($adtSession.AppProcessesToClose.Count -gt 0) {
+    $saiwParams.Add('CloseProcesses', $adtSession.AppProcessesToClose)
+}
+Show-ADTInstallationWelcome @saiwParams
 ```
 
-### Handle Running Processes
+### Force Close for Uninstall
 
-Check for and handle running processes appropriately:
+For uninstalls, use countdown instead of defer:
 
 ```powershell
-$runningApps = Get-ADTRunningProcesses -ProcessName 'appname'
-if ($runningApps) {
-    Write-ADTLogEntry -Message "Found running processes: $($runningApps.ProcessName -join ', ')"
+# In Uninstall-ADTDeployment
+if ($adtSession.AppProcessesToClose.Count -gt 0) {
+    Show-ADTInstallationWelcome -CloseProcesses $adtSession.AppProcessesToClose -CloseProcessesCountdown 60
+}
+```
 
-    if ($ADTSession.DeployMode -eq 'Silent') {
-        # Force close in silent mode (Intune deployment)
-        Stop-ADTProcess -Name 'appname'
-    } else {
-        # Prompt user in interactive mode
-        Show-ADTInstallationWelcome -CloseApps 'appname' -CloseAppsCountdown 120
+## Installation Patterns
+
+### EXE Installation (VLC Example)
+
+```powershell
+function Install-ADTDeployment {
+    $adtSession.InstallPhase = "Pre-$($adtSession.DeploymentType)"
+
+    $saiwParams = @{
+        AllowDeferCloseProcesses = $true
+        DeferTimes = 3
+        PersistPrompt = $true
+    }
+    if ($adtSession.AppProcessesToClose.Count -gt 0) {
+        $saiwParams.Add('CloseProcesses', $adtSession.AppProcessesToClose)
+    }
+    Show-ADTInstallationWelcome @saiwParams
+    Show-ADTInstallationProgress
+
+    $adtSession.InstallPhase = $adtSession.DeploymentType
+
+    # Install with language and silent switch
+    Start-ADTProcess -FilePath "vlc-$($adtSession.AppVersion)-win64.exe" -ArgumentList '/L=1033 /S'
+
+    $adtSession.InstallPhase = "Post-$($adtSession.DeploymentType)"
+
+    # Remove unwanted shortcuts
+    Remove-ADTFile -Path "$envCommonDesktop\VLC media player.lnk","$envCommonStartMenuPrograms\VideoLAN\Release Notes.lnk"
+
+    # Copy user settings
+    Copy-ADTFileToUserProfiles -Path "$($adtSession.DirSupportFiles)\vlc" -Destination 'AppData\Roaming' -Recurse
+
+    # Show completion (non-blocking)
+    if (!$adtSession.UseDefaultMsi) {
+        Show-ADTInstallationPrompt -Message "$($adtSession.AppName) installation complete." -ButtonRightText 'OK' -Icon Information -NoWait
     }
 }
 ```
 
-## Logging
-
-### Log Important Events
-
-Log key milestones and decisions:
+### EXE Uninstallation (WinRAR Example)
 
 ```powershell
-Write-ADTLogEntry -Message "=== Starting $($ADTSession.DeploymentType) of $($ADTSession.InstallTitle) ==="
-Write-ADTLogEntry -Message "Deployment Mode: $($ADTSession.DeployMode)"
-Write-ADTLogEntry -Message "Running as: $(if ($ADTSession.IsSystemAccount) {'SYSTEM'} else {$env:USERNAME})"
+function Uninstall-ADTDeployment {
+    $adtSession.InstallPhase = "Pre-$($adtSession.DeploymentType)"
 
-# Log before critical operations
-Write-ADTLogEntry -Message "Executing installer with arguments: /S /norestart"
+    if ($adtSession.AppProcessesToClose.Count -gt 0) {
+        Show-ADTInstallationWelcome -CloseProcesses $adtSession.AppProcessesToClose -CloseProcessesCountdown 60
+    }
+    Show-ADTInstallationProgress
 
-# Log results
-Write-ADTLogEntry -Message "Installer completed with exit code: $exitCode"
-```
+    $adtSession.InstallPhase = 'Uninstall'
 
-### Use Appropriate Severity Levels
+    # Try vendor uninstaller first
+    $uninstPath = Join-Path $env:ProgramFiles 'WinRAR\uninstall.exe'
+    if (Test-Path -LiteralPath $uninstPath) {
+        Start-ADTProcess -FilePath $uninstPath -ArgumentList '/S'
+    }
+    else {
+        # Fallback: use Uninstall-ADTApplication
+        Uninstall-ADTApplication -FilterScript { $_.DisplayName -match 'WinRAR' } -ApplicationType EXE -ArgumentList '/S' -ErrorAction SilentlyContinue
+    }
 
-- **Severity 1 (Info)**: Normal operations, progress updates
-- **Severity 2 (Warning)**: Non-fatal issues, unexpected but handled conditions
-- **Severity 3 (Error)**: Failures, exceptions
-
-```powershell
-Write-ADTLogEntry -Message "Installation started" -Severity 1
-Write-ADTLogEntry -Message "Config file not found, using defaults" -Severity 2
-Write-ADTLogEntry -Message "Installation failed: $errorMessage" -Severity 3
-```
-
-## Silent Deployment (Intune)
-
-### Design for Silent First
-
-Always ensure your script works in silent mode:
-
-```powershell
-# Skip UI elements in silent mode
-if ($ADTSession.DeployMode -ne 'Silent') {
-    Show-ADTInstallationProgress -StatusMessage 'Installing...'
-}
-
-# Force close apps in silent mode instead of prompting
-if ($ADTSession.DeployMode -eq 'Silent') {
-    Stop-ADTProcess -Name 'appname' -IgnoreErrors
-} else {
-    Show-ADTInstallationWelcome -CloseApps 'appname'
+    $adtSession.InstallPhase = 'Post-Uninstall'
 }
 ```
 
-### Handle Reboots Appropriately
+### Zero-Config MSI Handling
 
-For Intune deployments, typically suppress reboots and let Intune handle them:
+When using zero-config (empty AppName), handle MSI in Install function:
 
 ```powershell
-# Suppress installer reboot
-Start-ADTProcess -FilePath 'setup.exe' -Arguments '/S /norestart'
+$adtSession.InstallPhase = $adtSession.DeploymentType
 
-# Or for MSI
-Start-ADTMsiProcess -Action Install -Path 'app.msi' -Parameters 'REBOOT=ReallySuppress'
-
-# Return appropriate exit code for Intune
-if ($rebootRequired) {
-    Complete-ADTDeployment -DeploymentStatus 'RestartRequired'  # Returns 3010
+# Handle Zero-Config MSI installations
+if ($adtSession.UseDefaultMsi) {
+    $ExecuteDefaultMSISplat = @{ Action = $adtSession.DeploymentType; FilePath = $adtSession.DefaultMsiFile }
+    if ($adtSession.DefaultMstFile) {
+        $ExecuteDefaultMSISplat.Add('Transforms', $adtSession.DefaultMstFile)
+    }
+    Start-ADTMsiProcess @ExecuteDefaultMSISplat
+    if ($adtSession.DefaultMspFiles) {
+        $adtSession.DefaultMspFiles | Start-ADTMsiProcess -Action Patch
+    }
 }
 ```
 
-## Prerequisites and Dependencies
+## Silent/Intune Deployment
 
-### Check Prerequisites Before Installation
+### No ServiceUI Required (v4.1)
+
+v4.1 handles user interaction without ServiceUI:
 
 ```powershell
-#region Prerequisites Check
-# Check disk space
-$diskSpace = Get-ADTDiskSpace -Drive 'C:'
-if ($diskSpace.FreeMB -lt 500) {
-    throw "Insufficient disk space. Required: 500 MB, Available: $($diskSpace.FreeMB) MB"
-}
+# Install command for Intune:
+Invoke-AppDeployToolkit.exe -DeploymentType Install -DeployMode Silent
 
-# Check Windows version
-if ($envOSVersionBuild -lt 17763) {
-    throw "This application requires Windows 10 1809 or later"
-}
-
-# Check for required dependency
-$dotNet = Get-ADTInstalledApplication -Name '.NET*Runtime*6*'
-if (-not $dotNet) {
-    Write-ADTLogEntry -Message "Installing .NET 6 Runtime prerequisite"
-    Start-ADTProcess -FilePath "$($ADTSession.FilesDirectory)\dotnet-6-runtime.exe" -Arguments '/install /quiet /norestart'
-}
-#endregion
+# Uninstall command:
+Invoke-AppDeployToolkit.exe -DeploymentType Uninstall -DeployMode Silent
 ```
 
-### Install Prerequisites Separately
+### DeployMode Auto (v4.1 Default)
 
-For complex dependencies, consider separate packages:
+Let PSADT decide when to show UI:
 
 ```powershell
-# Check for prerequisite, but don't install (handled by dependency in Intune)
-$vcRuntime = Get-ADTInstalledApplication -Name '*Visual C++*2019*'
-if (-not $vcRuntime) {
-    Write-ADTLogEntry -Message "Visual C++ 2019 Runtime not found. This should be installed as a dependency." -Severity 2
-    # Continue anyway - Intune dependency should have installed it
+# With Auto mode (default in v4.1):
+# - Shows UI if user is logged on AND not in OOBE/ESP AND processes to close are running
+# - Silent otherwise
+Invoke-AppDeployToolkit.exe -DeploymentType Install
+```
+
+### Conditional UI Display
+
+```powershell
+# Only show completion message in interactive modes
+if ($adtSession.DeployMode -ne 'Silent') {
+    Show-ADTInstallationPrompt -Message "$($adtSession.AppName) installation complete." -Icon Information -ButtonRightText 'OK' -NoWait
 }
 ```
 
-## MSI Best Practices
+## Logging Best Practices
 
-### Use Consistent MSI Parameters
+### Log Context at Start
 
 ```powershell
-# Standard MSI install
-Start-ADTMsiProcess -Action Install -Path "$($ADTSession.FilesDirectory)\app.msi" `
-    -Parameters 'ALLUSERS=1 REBOOT=ReallySuppress'
-
-# With logging
-Start-ADTMsiProcess -Action Install -Path "$($ADTSession.FilesDirectory)\app.msi" `
-    -Parameters 'ALLUSERS=1' `
-    -LoggingOptions '/l*v'
+Write-ADTLogEntry -Message "=== Deployment Context ==="
+Write-ADTLogEntry -Message "App: $($adtSession.AppVendor) $($adtSession.AppName) $($adtSession.AppVersion)"
+Write-ADTLogEntry -Message "Type: $($adtSession.DeploymentType)"
+Write-ADTLogEntry -Message "Mode: $($adtSession.DeployMode)"
+Write-ADTLogEntry -Message "Computer: $envComputerName"
+Write-ADTLogEntry -Message "IsAdmin: $($adtSession.IsAdmin)"
+Write-ADTLogEntry -Message "IsSystem: $($adtSession.IsSystemAccount)"
 ```
 
-### Uninstall by Product Code
-
-For reliable uninstalls, use the product code:
+### Log Key Operations
 
 ```powershell
-# Store product code as variable
-$productCode = '{12345678-1234-1234-1234-123456789012}'
-
-# Uninstall
-Start-ADTMsiProcess -Action Uninstall -Path $productCode
+Write-ADTLogEntry -Message "Executing: setup.exe /S"
+$result = Start-ADTProcess -FilePath 'setup.exe' -ArgumentList '/S' -PassThru
+Write-ADTLogEntry -Message "Exit code: $($result.ExitCode)"
 ```
 
-## EXE Installer Best Practices
+## Post-Installation Cleanup
 
-### Detect Installer Type
-
-Handle different EXE installer types appropriately:
+### Remove Unwanted Shortcuts
 
 ```powershell
-# Inno Setup
-Start-ADTProcess -FilePath 'setup.exe' -Arguments '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART'
+$adtSession.InstallPhase = "Post-$($adtSession.DeploymentType)"
 
-# NSIS / Nullsoft
-Start-ADTProcess -FilePath 'setup.exe' -Arguments '/S'
+# Remove desktop shortcuts
+Remove-ADTFile -Path "$envCommonDesktop\Application.lnk"
 
-# InstallShield
-Start-ADTProcess -FilePath 'setup.exe' -Arguments '/s /v"/qn REBOOT=ReallySuppress"'
-
-# Unknown - try common flags
-Start-ADTProcess -FilePath 'setup.exe' -Arguments '/S /silent /quiet /q' -IgnoreExitCodes '1'
+# Remove unnecessary Start Menu items
+Remove-ADTFile -Path @(
+    "$envCommonStartMenuPrograms\Vendor\Release Notes.lnk",
+    "$envCommonStartMenuPrograms\Vendor\Website.lnk",
+    "$envCommonStartMenuPrograms\Vendor\Uninstall.lnk"
+)
 ```
 
-## File and Registry Operations
-
-### Use Safe Path Construction
+### Copy User Configuration
 
 ```powershell
-# Use Join-Path instead of string concatenation
-$configPath = Join-Path -Path $env:ProgramData -ChildPath 'MyApp\config.xml'
-
-# Handle spaces in paths
-Start-ADTProcess -FilePath "`"$($ADTSession.FilesDirectory)\My Installer.exe`"" -Arguments '/S'
+# Copy preconfigured settings to all user profiles
+Copy-ADTFileToUserProfiles -Path "$($adtSession.DirSupportFiles)\config" -Destination 'AppData\Roaming\AppName' -Recurse
 ```
 
-### Clean Up Temporary Files
+## Repair Implementation
+
+Repair typically reinstalls over existing:
 
 ```powershell
-# In Post-Installation
-try {
-    Remove-ADTFile -Path "$env:TEMP\MyAppInstaller*" -Recurse -ContinueOnError
-    Remove-ADTFolder -Path "$env:TEMP\MyAppSetup" -ContinueOnError
+function Repair-ADTDeployment {
+    $adtSession.InstallPhase = "Pre-$($adtSession.DeploymentType)"
+
+    if ($adtSession.AppProcessesToClose.Count -gt 0) {
+        Show-ADTInstallationWelcome -CloseProcesses $adtSession.AppProcessesToClose -CloseProcessesCountdown 60
+    }
+    Show-ADTInstallationProgress
+
+    $adtSession.InstallPhase = $adtSession.DeploymentType
+
+    # Uninstall first
+    Uninstall-ADTApplication -Name $adtSession.AppName -NameMatch 'Exact' -ArgumentList '/S'
+
+    # Reinstall
+    Start-ADTProcess -FilePath "setup-$($adtSession.AppVersion).exe" -ArgumentList '/S'
+
+    $adtSession.InstallPhase = "Post-$($adtSession.DeploymentType)"
+
+    # Reapply post-install config
+    Remove-ADTFile -Path "$envCommonDesktop\$($adtSession.AppName).lnk"
 }
-catch {
-    Write-ADTLogEntry -Message "Cleanup warning: $($_.Exception.Message)" -Severity 2
-}
 ```
 
-## Testing Recommendations
+## Testing Checklist
 
-### Test All Scenarios
+Before deployment, verify:
 
-1. **Interactive Install** - Verify all UI elements
-2. **Silent Install** - Test Intune deployment scenario
-3. **Uninstall** - Ensure clean removal
-4. **Upgrade** - Test over previous version
-5. **Repair** - If implemented
+- [ ] **Silent Install** works (`-DeployMode Silent`)
+- [ ] **Silent Uninstall** works
+- [ ] **Detection** returns correct result in Intune
+- [ ] **Processes close** gracefully with countdown
+- [ ] **Exit codes** are appropriate (0, 3010, etc.)
+- [ ] **Logs** provide useful troubleshooting info
+- [ ] **Cleanup** removes shortcuts/temp files
+- [ ] **Repair** (if implemented) works correctly
 
-### Test on Clean Systems
+## Common Pitfalls
 
-- Use VM snapshots
-- Test on different Windows versions
-- Test with and without admin rights (if applicable)
-- Test with applications running
-
-### Validate in Intune
-
-Before production deployment:
-1. Upload to Intune test group
-2. Verify detection rules work
-3. Check logs in `C:\ProgramData\Microsoft\IntuneManagementExtension\Logs`
-4. Verify application appears in "Apps & Features"
-
-## Common Pitfalls to Avoid
-
-1. **Don't hardcode paths** - Use environment variables and `$ADTSession`
-2. **Don't skip error handling** - Always use try/catch
-3. **Don't ignore exit codes** - Check installer return codes
-4. **Don't forget uninstall** - Every install should have a matching uninstall
-5. **Don't assume admin rights** - Check `$ADTSession.IsAdmin`
-6. **Don't forget x86 apps on x64** - Check both Program Files locations
-7. **Don't leave debug code** - Remove testing commands before production
-8. **Don't skip logging** - Future you will thank present you
-
-## Template Checklist
-
-Before deploying, verify:
-
-- [ ] Script runs without errors in silent mode
-- [ ] All file paths use variables, not hardcoded strings
-- [ ] Error handling wraps all critical operations
-- [ ] Exit codes are handled appropriately
-- [ ] Uninstall logic is implemented and tested
-- [ ] Detection method returns accurate results
-- [ ] Log entries provide useful troubleshooting info
-- [ ] Prerequisites are checked or documented
-- [ ] Cleanup removes temporary files
-- [ ] Script is tested on clean VM
+1. **Don't hardcode paths** - Use `$adtSession.DirFiles`, `$envProgramFiles`
+2. **Don't skip uninstall** - Every install needs matching uninstall
+3. **Don't ignore exit codes** - Check and handle appropriately
+4. **Don't assume interactive** - Design for silent first
+5. **Don't use ServiceUI** - v4.1 handles user interaction natively
+6. **Don't duplicate process lists** - Use `AppProcessesToClose`
+7. **Don't skip logging** - Future troubleshooting depends on it

@@ -1,249 +1,248 @@
+---
+title: "PSADT v4 Built-in Variables"
+id: "psadt-variables"
+psadt_target: "4.1.x"
+last_updated: "2024-12-07"
+verified_by: "maintainer"
+source_ref: "ReferenceKnowledge/V4DOCS.md#variables"
+tags: ["psadt", "variables", "session", "environment", "v4.1"]
+---
+
 # PSADT v4 Built-in Variables
 
-PSADT v4 provides several built-in variables through the `$ADTSession` object and other automatic variables.
+PSADT v4 provides variables through the `$adtSession` object and environment variables that become available after opening a session.
 
-## Session Object ($ADTSession)
+## Session Object ($adtSession)
 
-The `$ADTSession` object is the primary state container in PSADT v4.
+In v4.1, you define `$adtSession` as a hashtable, then it becomes the session object after `Open-ADTSession`.
 
-### Deployment Information
+### Session Variables (v4.1)
 
 ```powershell
-$ADTSession.InstallName        # Application name (e.g., "Google Chrome")
-$ADTSession.InstallVersion     # Version being deployed (e.g., "120.0.6099.109")
-$ADTSession.Publisher          # Application publisher (e.g., "Google LLC")
-$ADTSession.InstallTitle       # Full title: "Publisher InstallName InstallVersion"
-$ADTSession.DeploymentType     # Current operation: Install, Uninstall, Repair
-$ADTSession.DeployMode         # Interaction mode: Interactive, Silent, NonInteractive
+# Initial hashtable definition
+$adtSession = @{
+    # Application info
+    AppVendor = 'Microsoft'
+    AppName = 'Office 365'
+    AppVersion = '16.0'
+    AppArch = 'x64'
+    AppLang = 'EN'
+    AppRevision = '01'
+
+    # Exit codes
+    AppSuccessExitCodes = @(0)
+    AppRebootExitCodes = @(1641, 3010)
+
+    # v4.1: Processes to close (used in Install/Uninstall/Repair)
+    AppProcessesToClose = @(
+        @{ Name = 'winword'; Description = 'Microsoft Word' },
+        @{ Name = 'excel'; Description = 'Microsoft Excel' }
+    )
+
+    # v4.1: Admin requirement (moved from config)
+    RequireAdmin = $true
+
+    # UI titles (optional overrides)
+    InstallName = ''
+    InstallTitle = ''
+
+    # Script metadata
+    AppScriptVersion = '1.0.0'
+    AppScriptDate = '2025-01-01'
+    AppScriptAuthor = 'IT Admin'
+}
+
+# After Open-ADTSession, these become session properties:
+$adtSession = Open-ADTSession @adtSession -PassThru
 ```
 
-### Paths
+### Session Properties (After Open-ADTSession)
 
 ```powershell
-$ADTSession.ScriptDirectory    # Directory containing Deploy-Application.ps1
-$ADTSession.FilesDirectory     # Path to Files subfolder
-$ADTSession.SupportFilesDirectory  # Path to SupportFiles subfolder
-$ADTSession.LogDirectory       # Directory for log files
-$ADTSession.TempDirectory      # Temp directory for this deployment
-```
+# Application information
+$adtSession.AppVendor             # Application vendor
+$adtSession.AppName               # Application name
+$adtSession.AppVersion            # Application version
+$adtSession.InstallName           # Full install name (Vendor AppName AppVersion)
+$adtSession.InstallTitle          # Display title for UI
 
-### Logging
+# Deployment info
+$adtSession.DeploymentType        # Install, Uninstall, or Repair
+$adtSession.DeployMode            # Auto, Interactive, NonInteractive, Silent
+$adtSession.InstallPhase          # Current phase (Pre-Install, Install, Post-Install, etc.)
 
-```powershell
-$ADTSession.LogName            # Log file name without extension
-$ADTSession.LogPath            # Full path to log file
-$ADTSession.LogTempFolder      # Temporary log location
-```
+# Directories
+$adtSession.DirFiles              # Files/ directory path
+$adtSession.DirSupportFiles       # SupportFiles/ directory path
+$adtSession.ScriptDirectory       # Script root directory
 
-### State
+# Logging
+$adtSession.LogName               # Log file name
+$adtSession.LogTempFolder         # Temporary log folder (when CompressLogs enabled)
 
-```powershell
-$ADTSession.IsAdmin            # Boolean: Running with admin rights
-$ADTSession.IsSystemAccount    # Boolean: Running as SYSTEM
-$ADTSession.RunAsActiveUser    # Username of logged-in user (when running as SYSTEM)
-$ADTSession.CurrentDateTime    # Timestamp when deployment started
-$ADTSession.DeploymentStatus   # Current status (updated during deployment)
+# State
+$adtSession.IsAdmin               # Running with admin rights
+$adtSession.IsSystemAccount       # Running as SYSTEM
+$adtSession.RunAsActiveUser       # Username when running as SYSTEM
+
+# Zero-Config MSI (when AppName is empty)
+$adtSession.UseDefaultMsi         # Boolean: Using zero-config mode
+$adtSession.DefaultMsiFile        # Detected MSI file path
+$adtSession.DefaultMstFile        # Detected MST transform path
+$adtSession.DefaultMspFiles       # Array of detected MSP files
 ```
 
 ## Environment Variables
 
+Environment variables become available after `Open-ADTSession` (or after calling `Export-ADTEnvironmentTableToSessionState`).
+
 ### System Information
 
 ```powershell
-$envComputerName               # Computer name
-$envComputerNameFQDN           # Fully qualified domain name
-$envUserName                   # Current username
-$envUserDomain                 # User's domain
-$envUserDNSDomain              # DNS domain
-$envMachineADDomain            # Machine's AD domain
-$envLogonServer                # Logon server
-$envOSName                     # OS name (e.g., "Microsoft Windows 11 Pro")
-$envOSVersion                  # OS version object
-$envOSVersionMajor             # Major version (e.g., 10)
-$envOSVersionMinor             # Minor version
-$envOSVersionBuild             # Build number
-$envOSVersionRevision          # Revision number
-$envOSArchitecture             # 32-bit or 64-bit
-$envOSLanguage                 # OS language code
+$envComputerName                  # Computer name
+$envComputerNameFQDN              # Fully qualified domain name
+$envUserName                      # Current username
+$envUserDomain                    # User's domain
+$envOSName                        # OS name (e.g., "Microsoft Windows 11 Pro")
+$envOSVersion                     # OS version object
+$envOSVersionMajor                # Major version (10 for Win10/11)
+$envOSVersionMinor                # Minor version
+$envOSVersionBuild                # Build number (e.g., 22631)
+$envOSArchitecture                # 32-bit or 64-bit
 ```
 
-### Processor Architecture
+### Architecture Detection
 
 ```powershell
-$envProcessor                  # Processor architecture
-$Is64Bit                       # Boolean: Running on 64-bit OS
-$Is32Bit                       # Boolean: Running on 32-bit OS
-$Is64BitProcess                # Boolean: Running as 64-bit process
-$envProcessorArchitecture      # x86, AMD64, ARM64
-```
-
-### User Session
-
-```powershell
-$CurrentLoggedOnUserSID        # SID of current user
-$CurrentLoggedOnUserNTAccount  # NT account (DOMAIN\User)
-$IsUserLoggedOn                # Boolean: User is logged on
-$SessionZero                   # Boolean: Running in Session 0
+$Is64Bit                          # Boolean: 64-bit OS
+$Is64BitProcess                   # Boolean: 64-bit PowerShell process
+$envProcessorArchitecture         # x86, AMD64, or ARM64
 ```
 
 ### Common Paths
 
 ```powershell
 # System paths
-$envSystemRoot                 # Windows directory (C:\Windows)
-$envSystemDirectory            # System32 directory
-$envProgramFiles               # Program Files directory
-$envProgramFilesX86            # Program Files (x86) on 64-bit
-$envCommonProgramFiles         # Common Files directory
-$envCommonProgramFilesX86      # Common Files (x86)
-$envProgramData                # ProgramData directory (C:\ProgramData)
-$envTemp                       # System temp directory
-$envWinDir                     # Windows directory
+$envSystemRoot                    # Windows directory (C:\Windows)
+$envProgramFiles                  # Program Files (64-bit on 64-bit OS)
+$envProgramFilesX86               # Program Files (x86)
+$envCommonProgramFiles            # Common Files
+$envCommonProgramFilesX86         # Common Files (x86)
+$envProgramData                   # C:\ProgramData
+$envTemp                          # System temp directory
+$envWinDir                        # Windows directory
 
-# User paths (may be system paths if running as SYSTEM)
-$envUserProfile                # User profile directory
-$envAppData                    # Roaming AppData
-$envLocalAppData               # Local AppData
-$envUserStartMenu              # User's Start Menu
-$envUserDesktop                # User's Desktop
-$envUserDocuments              # User's Documents
-$envUserFavorites              # User's Favorites
-$envUserProgramFiles           # User's local Program Files
+# User paths
+$envUserProfile                   # User profile (C:\Users\username)
+$envAppData                       # Roaming AppData
+$envLocalAppData                  # Local AppData
+$envUserDesktop                   # User's Desktop
+$envUserDocuments                 # User's Documents
 
 # Public paths
-$envPublicDesktop              # Public Desktop
-$envPublicDocuments            # Public Documents
-$envPublicStartMenu            # All Users Start Menu
-$envAllUsersProfile            # All Users profile path
+$envPublic                        # C:\Users\Public
+$envCommonDesktop                 # Public Desktop (shortcuts for all users)
+$envCommonStartMenuPrograms       # All Users Start Menu\Programs
+$envCommonStartMenu               # All Users Start Menu
+$envCommonStartup                 # All Users Startup folder
 ```
 
 ### Registry Paths
 
 ```powershell
-$regKeyLMSoftware              # HKLM:\SOFTWARE
-$regKeyLMSoftware32            # HKLM:\SOFTWARE\WOW6432Node (on 64-bit)
-$regKeyCUSoftware              # HKCU:\SOFTWARE
-$regKeyAppExecution            # App execution aliases
-```
-
-## Special Folders
-
-```powershell
-$envCommonDesktop              # All Users Desktop
-$envCommonPrograms             # All Users Programs folder
-$envCommonStartMenu            # All Users Start Menu
-$envCommonStartup              # All Users Startup
-$envCommonTemplates            # Common Templates
-$envHomeDrive                  # User home drive
-$envHomePath                   # User home path
-$envHomeShare                  # Home share path
-```
-
-## PSADT-Specific Variables
-
-### Installation Context
-
-```powershell
-$installPhase                  # Current phase: Pre-Installation, Installation, Post-Installation
-$deployModeNonInteractive      # Boolean: No UI allowed
-$deployModeSilent              # Boolean: Silent mode
-$useDefaultMsi                 # Boolean: Using default MSI parameters
-```
-
-### Timeouts and Delays
-
-```powershell
-$configInstallationUITimeout         # UI timeout in seconds
-$configInstallationPromptTimeout     # Prompt timeout
-$configInstallationRestartCountdown  # Restart countdown
-$configMSIMutexWaitTime              # MSI mutex wait time
-```
-
-### Configuration
-
-```powershell
-$configToolkitLogDir           # Log directory from config
-$configToolkitTempPath         # Temp path from config
-$configToolkitCompressLogs     # Compress logs on completion
-$configToolkitLogMaxSize       # Max log size
-$configToolkitLogMaxHistory    # Number of logs to keep
+# Pre-formatted registry paths
+$regKeyLMSoftware                 # HKLM:\SOFTWARE
+$regKeyLMSoftwareWow6432Node      # HKLM:\SOFTWARE\WOW6432Node (on 64-bit)
+$regKeyCUSoftware                 # HKCU:\SOFTWARE
 ```
 
 ## Usage Examples
 
-### Conditional Logic Based on Environment
+### Architecture-Aware Installation
 
 ```powershell
-# Check architecture
+# Select installer based on architecture
 if ($Is64Bit) {
-    $installerPath = "$PSScriptRoot\Files\setup_x64.exe"
+    $installerFile = 'setup_x64.exe'
 } else {
-    $installerPath = "$PSScriptRoot\Files\setup_x86.exe"
+    $installerFile = 'setup_x86.exe'
 }
 
-# Check if running silently
-if ($ADTSession.DeployMode -eq 'Silent') {
-    # Skip user prompts
-}
+Start-ADTProcess -FilePath $installerFile -ArgumentList '/S'
+```
 
-# Check Windows version
+### Deploy Mode Handling
+
+```powershell
+# Different behavior based on deploy mode
+if ($adtSession.DeployMode -ne 'Silent') {
+    Show-ADTInstallationPrompt -Message 'Installation complete!' -ButtonRightText 'OK' -Icon Information -NoWait
+}
+```
+
+### Windows Version Checks
+
+```powershell
+# Windows 11 detection (build 22000+)
 if ($envOSVersionBuild -ge 22000) {
-    # Windows 11 specific logic
+    Write-ADTLogEntry 'Running on Windows 11'
+    # Apply Windows 11 specific settings
 }
 
-# Check user context
-if ($ADTSession.IsSystemAccount) {
-    # Running as SYSTEM
+# Windows 10 feature update check
+if ($envOSVersionBuild -ge 19041) {
+    # Windows 10 2004 or later
+}
+```
+
+### Context-Aware File Paths
+
+```powershell
+# Determine config location based on context
+if ($adtSession.IsSystemAccount) {
+    # Machine-wide config
     $configPath = "$envProgramData\MyApp\config.xml"
 } else {
-    # Running as user
+    # Per-user config
     $configPath = "$envLocalAppData\MyApp\config.xml"
 }
+
+# Use session directory properties
+$installer = Join-Path $adtSession.DirFiles 'setup.exe'
+$supportFile = Join-Path $adtSession.DirSupportFiles 'settings.reg'
 ```
 
-### Dynamic Path Construction
+### Creating Shortcuts
 
 ```powershell
-# Install to appropriate Program Files
-$installDir = if ($Is64Bit) {
-    "$envProgramFiles\MyApp"
-} else {
-    "$envProgramFilesX86\MyApp"
-}
+# Desktop shortcut for all users
+New-ADTShortcut -Path "$envCommonDesktop\MyApp.lnk" -TargetPath "$envProgramFiles\MyApp\myapp.exe"
 
-# Create shortcuts
-$desktopShortcut = "$envPublicDesktop\MyApp.lnk"
-$startMenuShortcut = "$envCommonPrograms\MyApp\MyApp.lnk"
-
-# Log location
-$customLog = "$($ADTSession.LogDirectory)\$($ADTSession.InstallName)_custom.log"
+# Start menu shortcut
+New-ADTShortcut -Path "$envCommonStartMenuPrograms\MyApp\MyApp.lnk" -TargetPath "$envProgramFiles\MyApp\myapp.exe"
 ```
 
-### Reading Installer Files
+### Logging Context Information
 
 ```powershell
-# Reference files in the Files directory
-$installer = Join-Path -Path $ADTSession.FilesDirectory -ChildPath 'setup.exe'
-$config = Join-Path -Path $ADTSession.FilesDirectory -ChildPath 'config.xml'
-
-# Or using the older style
-$installer = "$PSScriptRoot\Files\setup.exe"
+# Log deployment context at start (good practice)
+Write-ADTLogEntry -Message "=== Deployment Context ==="
+Write-ADTLogEntry -Message "Computer: $envComputerName"
+Write-ADTLogEntry -Message "OS: $envOSName (Build $envOSVersionBuild)"
+Write-ADTLogEntry -Message "Architecture: $envOSArchitecture"
+Write-ADTLogEntry -Message "User: $envUserName"
+Write-ADTLogEntry -Message "IsAdmin: $($adtSession.IsAdmin)"
+Write-ADTLogEntry -Message "IsSystem: $($adtSession.IsSystemAccount)"
+Write-ADTLogEntry -Message "DeployMode: $($adtSession.DeployMode)"
+Write-ADTLogEntry -Message "DeploymentType: $($adtSession.DeploymentType)"
 ```
 
 ## Best Practices
 
-1. **Use session variables** instead of hardcoding paths
-2. **Check architecture** before selecting installers
-3. **Use environment variables** for system paths
-4. **Log important variables** at the start of deployment for debugging
-5. **Handle both system and user context** appropriately
-
-```powershell
-# Log deployment context
-Write-ADTLogEntry -Message "Deployment Context:"
-Write-ADTLogEntry -Message "  Computer: $envComputerName"
-Write-ADTLogEntry -Message "  OS: $envOSName ($envOSArchitecture)"
-Write-ADTLogEntry -Message "  User: $envUserName"
-Write-ADTLogEntry -Message "  IsAdmin: $($ADTSession.IsAdmin)"
-Write-ADTLogEntry -Message "  DeployMode: $($ADTSession.DeployMode)"
-```
+1. **Use `$adtSession.DirFiles`** instead of hardcoding `"$PSScriptRoot\Files"`
+2. **Check architecture** before selecting x86 vs x64 installers
+3. **Use environment variables** for system paths rather than hardcoding
+4. **Log context** at deployment start for troubleshooting
+5. **Handle both SYSTEM and user context** appropriately
+6. **Use `AppProcessesToClose`** (v4.1) instead of repeating process lists
+7. **Set `RequireAdmin`** (v4.1) in session instead of config file

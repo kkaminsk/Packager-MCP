@@ -1,3 +1,13 @@
+---
+title: "MSI Packaging Guide"
+id: "kb-installers-msi"
+psadt_target: "4.0.x"
+last_updated: "2024-12-07"
+verified_by: "maintainer"
+source_ref: "ReferenceKnowledge/V4DOCS.md#msi"
+tags: ["msi", "installers", "guide", "windows-installer"]
+---
+
 # MSI Packaging Guide
 
 Windows Installer (MSI) packages are the most standardized installer format for Windows applications. This guide covers best practices for packaging MSI-based applications with PSADT.

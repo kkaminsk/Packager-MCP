@@ -1,3 +1,13 @@
+---
+title: "EXE Installer Guide"
+id: "kb-installers-exe"
+psadt_target: "4.0.x"
+last_updated: "2024-12-07"
+verified_by: "maintainer"
+source_ref: "ReferenceKnowledge/Examples/"
+tags: ["exe", "installers", "guide", "inno-setup", "nsis", "installshield"]
+---
+
 # EXE Installer Guide
 
 EXE installers are the most common format for Windows application installation. Unlike MSI, there's no standard format - each EXE may use different technologies with different silent arguments.

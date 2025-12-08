@@ -1,3 +1,13 @@
+---
+title: "Prerequisites Handling Patterns"
+id: "kb-patterns-prerequisites"
+psadt_target: "4.0.x"
+last_updated: "2024-12-07"
+verified_by: "maintainer"
+source_ref: "ReferenceKnowledge/Examples/"
+tags: ["prerequisites", "patterns", "dependencies", "runtime"]
+---
+
 # Prerequisites Handling Patterns
 
 Many applications require prerequisites (dependencies) to be installed before the main application. This guide covers patterns for handling prerequisites in PSADT deployments.

@@ -148,47 +148,30 @@ src/
 
 ## Implementation Roadmap
 
-The project is built through 6 sequential proposals. Each proposal has full specs in `openspec/changes/`.
+All 7 proposals have been implemented and archived. Archived proposals are in `openspec/changes/archive/`.
 
-### Proposal Overview
+### Proposal Summary
 
 | # | Proposal | Capability | Status |
 |---|----------|------------|--------|
-| 1 | `1-add-mcp-server-foundation` | MCP server core, config, caching, logging | Complete |
-| 2 | `2-add-winget-integration` | `search_winget`, `get_silent_install_args` tools | Complete |
-| 3 | `3-add-psadt-templates` | `get_psadt_template` tool, knowledge base resources | Complete |
-| 4 | `4-add-validation-engine` | `validate_package` tool | Complete |
-| 5 | `5-add-intune-detection` | `generate_intune_detection` tool | Complete |
-| 6 | `6-add-mcp-prompts` | `/package-app`, `/convert-legacy`, `/troubleshoot`, `/bulk-lookup` | Complete |
+| 1 | `1-add-mcp-server-foundation` | MCP server core, config, caching, logging | Archived |
+| 2 | `2-add-winget-integration` | `search_winget`, `get_silent_install_args` tools | Archived |
+| 3 | `3-add-psadt-templates` | `get_psadt_template` tool, knowledge base resources | Archived |
+| 4 | `4-add-validation-engine` | `validate_package` tool | Archived |
+| 5 | `5-add-intune-detection` | `generate_intune_detection` tool | Archived |
+| 6 | `6-add-mcp-prompts` | `/package-app`, `/convert-legacy`, `/troubleshoot`, `/bulk-lookup` | Archived |
+| 7 | `7-knowledge-maintenance` | Knowledge base versioning, maintenance workflow, validation | Archived |
 
-### Execution Order
+### Creating New Proposals
 
-```
-[1] MCP Server Foundation
-         │
-    ┌────┼────┬────┐
-    │    │    │    │
-    ▼    ▼    ▼    ▼
-   [2]  [3]  [5]  (can run in parallel)
-         │
-         ▼
-        [4] (needs PSADT knowledge from 3)
-         │
-         ▼
-        [6] (orchestrates all tools)
-```
-
-### Working on Proposals
-
-To implement a proposal:
-1. Run `openspec show <proposal-id>` to view details
-2. Read `proposal.md` for context and `design.md` for architecture
-3. Follow `tasks.md` as implementation checklist
-4. Specs are in `specs/<capability>/spec.md`
-
-To apply after approval:
+To propose new changes:
 ```bash
-/openspec:apply <proposal-id>
+/openspec:proposal <change-id>
+```
+
+To view archived proposals:
+```bash
+openspec list --archived
 ```
 
 ---

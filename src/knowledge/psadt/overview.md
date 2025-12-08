@@ -1,139 +1,183 @@
+---
+title: "PSADT v4 Overview"
+id: "psadt-overview"
+psadt_target: "4.1.x"
+last_updated: "2024-12-07"
+verified_by: "maintainer"
+source_ref: "ReferenceKnowledge/V4DOCS.md#introduction"
+tags: ["psadt", "overview", "architecture", "introduction", "v4.1"]
+---
+
 # PSADT v4 Overview
 
-PowerShell Application Deployment Toolkit (PSADT) v4 is a comprehensive framework for deploying applications in enterprise environments. Version 4 introduces a module-based architecture that improves maintainability, testing, and extensibility.
+PowerShell Application Deployment Toolkit (PSADT) is a framework that simplifies complex scripting for enterprise application deployment, providing a consistent user experience. It provides well-defined functions for common deployment tasks, as well as user interface elements for end-user interaction.
 
-## Key Features
+## System Requirements
 
-- **Silent deployment** with optional user interaction
-- **Application lifecycle management** (install, uninstall, repair)
-- **User session handling** for deployments during active user sessions
-- **Logging and error handling** built-in
-- **Balloon notifications** and progress dialogs
-- **Application detection** before and after deployment
-- **Prerequisite handling** and dependency checks
-- **Reboot management** with user prompts
+| Component | Requirement |
+|-----------|-------------|
+| PowerShell | Windows PowerShell 5.1 or PowerShell (Core) 7.4+ |
+| .NET Framework | 4.7.2 or higher |
+| Windows Client | Windows 10 (1809+), Windows 11 |
+| Windows Server | 2016, 2019, 2022, 2025 |
 
-## Architecture
+## Key Features in v4.1
 
-PSADT v4 uses a module-based architecture:
+- **No ServiceUI Required**: Intune deployments no longer need ServiceUI.exe for user interaction
+- **Fluent UI**: Modern user interface with Light/Dark mode support
+- **Module-based Architecture**: Digitally signed PowerShell module
+- **PowerShell 7 and ARM Support**: Full compatibility with modern PowerShell
+- **Extensions Support**: Supplemental modules for custom functionality
+- **Group Policy Integration**: ADMX templates for enterprise configuration
+
+## Deployment Template Structure (v4 Native)
 
 ```
-PSAppDeployToolkit/
-├── PSAppDeployToolkit.psd1    # Module manifest
-├── PSAppDeployToolkit.psm1    # Main module
-├── Public/                     # Exported functions
-├── Private/                    # Internal functions
-└── AppDeployToolkit/
-    ├── Deploy-Application.ps1  # Your deployment script
-    └── Files/                  # Installer files
+Package/
+├── Invoke-AppDeployToolkit.ps1    # Main deployment script
+├── Invoke-AppDeployToolkit.exe    # Launcher executable
+├── PSAppDeployToolkit/            # Core module (do not modify)
+├── PSAppDeployToolkit.Extensions/ # Optional custom extensions
+├── Files/                         # Installer files go here
+├── SupportFiles/                  # Additional support files
+├── Assets/
+│   └── AppIcon.png               # 256x256 PNG for branding
+├── Config/
+│   └── config.psd1               # Configuration settings
+└── Strings/
+    └── strings.psd1              # UI text localization
 ```
 
-## Session Object ($ADTSession)
+## Session Object ($adtSession)
 
-The `$ADTSession` variable is central to PSADT v4. It maintains state throughout the deployment:
+The `$adtSession` hashtable defines your deployment. In v4.1, key properties include:
 
 ```powershell
-$ADTSession.InstallName        # Application name being deployed
-$ADTSession.DeploymentType     # Install, Uninstall, or Repair
-$ADTSession.DeployMode         # Interactive, Silent, or NonInteractive
-$ADTSession.IsAdmin            # Whether running with admin rights
-$ADTSession.LogName            # Log file name
+$adtSession = @{
+    # App variables
+    AppVendor = 'Microsoft'
+    AppName = 'Office 365'
+    AppVersion = '16.0'
+    AppArch = 'x64'
+    AppLang = 'EN'
+    AppRevision = '01'
+    AppSuccessExitCodes = @(0)
+    AppRebootExitCodes = @(1641, 3010)
+
+    # v4.1: Processes to close (used across Install/Uninstall/Repair)
+    AppProcessesToClose = @(@{ Name = 'winword'; Description = 'Microsoft Word' })
+
+    # v4.1: Per-deployment admin requirement
+    RequireAdmin = $true
+}
 ```
 
-## Deployment Phases
+## Deployment Types and Phases
 
-1. **Initialization**: Import module, configure session
-2. **Pre-Installation**: Close apps, check prerequisites, show welcome
-3. **Installation**: Execute installer with appropriate arguments
-4. **Post-Installation**: Configure settings, create shortcuts, verify
-5. **Finalization**: Handle reboots, clean up, log results
+| Deployment Type | Phases |
+|-----------------|--------|
+| `Install-ADTDeployment` | Pre-Install → Install → Post-Install |
+| `Uninstall-ADTDeployment` | Pre-Uninstall → Uninstall → Post-Uninstall |
+| `Repair-ADTDeployment` | Pre-Repair → Repair → Post-Repair |
 
-## Basic Script Structure
+## DeployMode Options (v4.1)
+
+| Mode | Behavior |
+|------|----------|
+| `Auto` | **Default in v4.1**. Shows UI unless in OOBE/ESP, no user logged on, or no processes to close |
+| `Interactive` | Always shows UI dialogs |
+| `NonInteractive` | Shows progress but no prompts |
+| `Silent` | No UI at all |
+
+## Basic Script Structure (v4.1)
 
 ```powershell
-#Requires -Version 5.1
-using namespace PSADT.Module
-
 [CmdletBinding()]
-param (
+param(
     [ValidateSet('Install', 'Uninstall', 'Repair')]
-    [string]$DeploymentType = 'Install',
-    [ValidateSet('Interactive', 'Silent', 'NonInteractive')]
-    [string]$DeployMode = 'Interactive'
+    [string]$DeploymentType,
+
+    [ValidateSet('Auto', 'Interactive', 'NonInteractive', 'Silent')]
+    [string]$DeployMode
 )
 
-# Import PSADT module
-Import-Module "$PSScriptRoot\PSAppDeployToolkit" -Force
-
-# Initialize deployment
 $adtSession = @{
-    InstallName = 'Application Name'
-    InstallVersion = '1.0.0'
-    Publisher = 'Publisher Name'
-    DeploymentType = $DeploymentType
-    DeployMode = $DeployMode
+    AppVendor = 'Contoso'
+    AppName = 'MyApp'
+    AppVersion = '1.0.0'
+    AppProcessesToClose = @(@{ Name = 'myapp'; Description = 'My Application' })
+    RequireAdmin = $true
 }
-Initialize-ADTDeployment @adtSession
 
-try {
-    switch ($DeploymentType) {
-        'Install' {
-            # Pre-Installation
-            Show-ADTInstallationWelcome -CloseApps 'app1,app2'
+function Install-ADTDeployment {
+    # Pre-Install
+    $adtSession.InstallPhase = 'Pre-Install'
+    Show-ADTInstallationWelcome -CloseProcesses $adtSession.AppProcessesToClose -AllowDeferCloseProcesses -DeferTimes 3
+    Show-ADTInstallationProgress
 
-            # Installation
-            Start-ADTProcess -FilePath 'installer.exe' -Arguments '/S'
+    # Install
+    $adtSession.InstallPhase = 'Install'
+    Start-ADTProcess -FilePath 'setup.exe' -ArgumentList '/S'
 
-            # Post-Installation
-            # Configure application settings
-        }
-        'Uninstall' {
-            Show-ADTInstallationWelcome -CloseApps 'app1,app2'
-            Start-ADTProcess -FilePath 'uninstaller.exe' -Arguments '/S'
-        }
-        'Repair' {
-            # Repair logic
-        }
-    }
-
-    Complete-ADTDeployment -DeploymentStatus 'Complete'
+    # Post-Install
+    $adtSession.InstallPhase = 'Post-Install'
+    # Configure settings, remove shortcuts, etc.
 }
-catch {
-    Complete-ADTDeployment -DeploymentStatus 'Failed' -ErrorMessage $_.Exception.Message
+
+function Uninstall-ADTDeployment {
+    # Similar structure for uninstall
 }
+
+function Repair-ADTDeployment {
+    # Similar structure for repair
+}
+
+# Initialization - import module and open session
+$adtSession = Open-ADTSession @adtSession -PassThru
+
+# Invocation
+& "$($adtSession.DeploymentType)-ADTDeployment"
+Close-ADTSession
 ```
 
-## Comparison: PSADT v3 vs v4
+## Zero-Config MSI Deployment
 
-| Feature | v3 | v4 |
-|---------|----|----|
-| Architecture | Single script | Module-based |
-| Function prefix | None | ADT- prefix |
-| State management | Variables | $ADTSession object |
-| Error handling | Manual | Structured |
-| Testing | Difficult | Unit testable |
+For simple MSI deployments, leave `AppName` empty and place MSI in `Files/`:
 
-## When to Use PSADT
-
-Use PSADT when you need:
-
-- Consistent deployment experience across applications
-- User interaction during deployment (close apps, prompts)
-- Detailed logging for troubleshooting
-- Handling of complex prerequisites
-- Support for different deployment scenarios (user vs system context)
+1. Leave `AppName` empty in session hashtable
+2. Place `.msi` file in `Files/` folder
+3. Optionally add `.mst` file with same name
+4. PSADT auto-detects and installs the MSI
 
 ## Integration with Intune
 
-PSADT works well with Intune Win32 app deployments:
+**v4.1 Improvement**: No ServiceUI.exe required!
 
-1. Package PSADT folder with IntuneWinAppUtil.exe
-2. Set install command: `Deploy-Application.exe -DeploymentType Install -DeployMode Silent`
-3. Set uninstall command: `Deploy-Application.exe -DeploymentType Uninstall -DeployMode Silent`
-4. Configure detection rules based on installed application
+```powershell
+# Install command
+Invoke-AppDeployToolkit.exe -DeploymentType Install -DeployMode Silent
+
+# Uninstall command
+Invoke-AppDeployToolkit.exe -DeploymentType Uninstall -DeployMode Silent
+```
+
+For interactive deployments, simply omit `-DeployMode Silent` - PSADT handles user interaction automatically.
+
+## Comparison: v3 vs v4
+
+| Feature | v3 | v4/v4.1 |
+|---------|----|----|
+| Main script | Deploy-Application.ps1 | Invoke-AppDeployToolkit.ps1 |
+| Architecture | Single script | Module-based |
+| Function prefix | None | ADT- prefix |
+| State management | Variables ($appName) | $adtSession object |
+| Config format | XML | PSD1 (PowerShell data) |
+| UI | Classic only | Fluent + Classic |
+| ServiceUI for Intune | Required | Not required (v4.1) |
 
 ## Resources
 
 - Official Documentation: https://psappdeploytoolkit.com
 - GitHub Repository: https://github.com/PSAppDeployToolkit/PSAppDeployToolkit
 - Community Forums: https://discourse.psappdeploytoolkit.com
+- Discord: #psappdeploytoolkit channel

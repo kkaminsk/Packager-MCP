@@ -1,94 +1,115 @@
+---
+title: "PSADT v4 Function Reference"
+id: "psadt-functions"
+psadt_target: "4.1.x"
+last_updated: "2024-12-07"
+verified_by: "maintainer"
+source_ref: "ReferenceKnowledge/V4DOCS.md#functions"
+tags: ["psadt", "functions", "reference", "api", "v4.1"]
+---
+
 # PSADT v4 Function Reference
 
 All PSADT v4 functions use the `ADT` prefix. This document covers the most commonly used functions for application deployment.
 
-## Core Functions
+## Session Management
 
-### Initialize-ADTDeployment
+### Open-ADTSession
 
-Initializes the PSADT deployment session. Must be called at the start of every script.
+Opens a new deployment session. Called after importing the module.
 
 ```powershell
-Initialize-ADTDeployment @{
-    InstallName = 'Application Name'
-    InstallVersion = '1.0.0'
-    Publisher = 'Publisher Name'
-    DeploymentType = 'Install'  # Install, Uninstall, Repair
-    DeployMode = 'Interactive'  # Interactive, Silent, NonInteractive
+$adtSession = @{
+    AppVendor = 'Contoso'
+    AppName = 'MyApp'
+    AppVersion = '1.0.0'
+    AppProcessesToClose = @(@{ Name = 'myapp'; Description = 'My Application' })
+    RequireAdmin = $true
 }
+$adtSession = Open-ADTSession @adtSession -PassThru
 ```
 
-**Parameters:**
-- `InstallName` - Display name of the application
-- `InstallVersion` - Version being deployed
-- `Publisher` - Application publisher/vendor
-- `DeploymentType` - Type of deployment operation
-- `DeployMode` - User interaction level
-- `ScriptDirectory` - Base directory for files (optional)
+**Key Parameters:**
+- `AppVendor`, `AppName`, `AppVersion` - Application metadata
+- `AppProcessesToClose` - Array of processes to close (v4.1)
+- `RequireAdmin` - Require admin rights (v4.1)
+- `-PassThru` - Return the session object
 
-### Complete-ADTDeployment
+### Close-ADTSession
 
 Finalizes the deployment and performs cleanup.
 
 ```powershell
-Complete-ADTDeployment -DeploymentStatus 'Complete'
-Complete-ADTDeployment -DeploymentStatus 'Failed' -ErrorMessage 'Installation failed'
+Close-ADTSession
+Close-ADTSession -ExitCode 60001
 ```
-
-**Parameters:**
-- `DeploymentStatus` - Complete, Failed, FastRetry, RestartRequired
-- `ErrorMessage` - Error message for failed deployments
 
 ## User Interaction
 
 ### Show-ADTInstallationWelcome
 
-Displays a welcome dialog with options to close applications.
+Displays a welcome dialog with options to close applications and defer.
 
 ```powershell
-# Basic usage - prompt to close apps
-Show-ADTInstallationWelcome -CloseApps 'chrome,firefox'
+# Basic usage with processes to close
+Show-ADTInstallationWelcome -CloseProcesses @('chrome', 'firefox')
 
-# With defer option
-Show-ADTInstallationWelcome -CloseApps 'outlook' -AllowDefer -DeferTimes 3
+# Using AppProcessesToClose from session (v4.1 pattern)
+Show-ADTInstallationWelcome -CloseProcesses $adtSession.AppProcessesToClose
+
+# With defer option and splatting (v4.1 recommended)
+$saiwParams = @{
+    AllowDeferCloseProcesses = $true
+    DeferTimes = 3
+    PersistPrompt = $true
+}
+if ($adtSession.AppProcessesToClose.Count -gt 0) {
+    $saiwParams.Add('CloseProcesses', $adtSession.AppProcessesToClose)
+}
+Show-ADTInstallationWelcome @saiwParams
 
 # Force close with countdown
-Show-ADTInstallationWelcome -CloseApps 'notepad' -CloseAppsCountdown 60
-
-# Check for running apps only (no prompt)
-Show-ADTInstallationWelcome -CloseApps 'app' -Silent
+Show-ADTInstallationWelcome -CloseProcesses $adtSession.AppProcessesToClose -CloseProcessesCountdown 60
 ```
 
 **Parameters:**
-- `CloseApps` - Comma-separated process names to close
-- `CloseAppsCountdown` - Seconds before force closing
-- `AllowDefer` - Allow user to defer installation
+- `CloseProcesses` - Array of process names or hashtables with Name/Description
+- `CloseProcessesCountdown` - Seconds before force closing
+- `AllowDeferCloseProcesses` - Allow defer when processes are running
 - `DeferTimes` - Number of deferrals allowed
 - `DeferDays` - Days until deferral expires
-- `Silent` - Suppress the welcome dialog
-- `PersistPrompt` - Keep the prompt on top
+- `PersistPrompt` - Keep the prompt visible
 - `BlockExecution` - Prevent apps from launching during install
+- `CheckDiskSpace` - Verify disk space before continuing
 
 ### Show-ADTInstallationProgress
 
 Shows a progress dialog during installation.
 
 ```powershell
-Show-ADTInstallationProgress -StatusMessage 'Installing application...'
-Show-ADTInstallationProgress -StatusMessage 'Configuring settings...' -WindowLocation 'BottomRight'
+# Default message
+Show-ADTInstallationProgress
+
+# Custom message
+Show-ADTInstallationProgress -StatusMessage 'Installing components...'
+
+# With percentage (v4.1 Fluent UI)
+Show-ADTInstallationProgress -StatusMessage 'Installing...' -ProgressPercentComplete 50
 ```
 
-**Parameters:**
-- `StatusMessage` - Message to display
-- `StatusMessageDetail` - Secondary message
-- `WindowLocation` - Dialog position (Default, BottomRight, TopCenter)
+### Show-ADTInstallationPrompt
 
-### Close-ADTInstallationProgress
-
-Closes the progress dialog.
+Shows a custom dialog with configurable buttons.
 
 ```powershell
-Close-ADTInstallationProgress
+# Simple OK dialog
+Show-ADTInstallationPrompt -Message 'Installation complete.' -ButtonRightText 'OK' -Icon Information
+
+# Non-blocking (returns immediately)
+Show-ADTInstallationPrompt -Message 'Installation complete.' -ButtonRightText 'OK' -Icon Information -NoWait
+
+# Three-button dialog
+Show-ADTInstallationPrompt -Message 'Choose an option' -ButtonLeftText 'Option 1' -ButtonMiddleText 'Option 2' -ButtonRightText 'Cancel'
 ```
 
 ### Show-ADTInstallationRestartPrompt
@@ -96,78 +117,150 @@ Close-ADTInstallationProgress
 Prompts user for restart.
 
 ```powershell
-Show-ADTInstallationRestartPrompt -CountdownSeconds 600 -NoCountdown $false
+Show-ADTInstallationRestartPrompt -CountdownSeconds 600
+Show-ADTInstallationRestartPrompt -CountdownSeconds 300 -CountdownNoHideSeconds 60
 ```
 
-**Parameters:**
-- `CountdownSeconds` - Countdown before automatic restart
-- `NoCountdown` - Disable countdown (user must click)
+### Show-ADTDialogBox
 
-### Show-ADTBalloonTip
-
-Shows a balloon notification.
+Shows a generic Windows dialog without PSADT branding.
 
 ```powershell
-Show-ADTBalloonTip -BalloonTipTitle 'Installation Complete' -BalloonTipText 'Chrome has been installed'
+Show-ADTDialogBox -Text 'Operation completed' -Icon Information -Buttons OK
+Show-ADTDialogBox -Text 'Continue?' -Icon Question -Buttons YesNo
 ```
 
-## Process Management
+## Process Execution
 
 ### Start-ADTProcess
 
-Executes a process with logging and error handling.
+Executes a process with comprehensive logging and error handling.
 
 ```powershell
 # Basic execution
-Start-ADTProcess -FilePath 'setup.exe' -Arguments '/S'
+Start-ADTProcess -FilePath 'setup.exe' -ArgumentList '/S'
 
-# With working directory
-Start-ADTProcess -FilePath 'installer.exe' -Arguments '/silent' -WorkingDirectory "$PSScriptRoot\Files"
+# With PassThru to get exit code
+$result = Start-ADTProcess -FilePath 'setup.exe' -ArgumentList '/S' -PassThru
+if ($result.ExitCode -eq 0) { Write-ADTLogEntry 'Success' }
 
-# MSI installation
-Start-ADTProcess -FilePath 'msiexec.exe' -Arguments "/i `"$PSScriptRoot\Files\app.msi`" /qn /norestart"
+# Wait for MSI operations to complete first
+Start-ADTProcess -FilePath 'installer.exe' -ArgumentList '/silent' -WaitForMsiExec
 
-# Ignore exit codes
-Start-ADTProcess -FilePath 'setup.exe' -Arguments '/S' -IgnoreExitCodes '1,2,3'
+# Wait for child processes (v4.1)
+Start-ADTProcess -FilePath 'setup.exe' -ArgumentList '/S' -WaitForChildProcesses
 
-# Wait for process to complete
-Start-ADTProcess -FilePath 'app.exe' -Arguments '/config' -WaitForMsiExec
+# Kill child processes when parent exits (v4.1)
+Start-ADTProcess -FilePath 'setup.exe' -ArgumentList '/S' -KillChildProcessesWithParent
+
+# Force unelevated execution (v4.1 - for Windows 11 Admin Protection)
+Start-ADTProcess -FilePath 'userapp.exe' -UseUnelevatedToken
+
+# Timeout handling (v4.1)
+Start-ADTProcess -FilePath 'setup.exe' -Timeout 300 -TimeoutAction 'Terminate'
+
+# Ignore specific exit codes
+Start-ADTProcess -FilePath 'setup.exe' -IgnoreExitCodes '1,2,3010'
+```
+
+**Key Parameters (v4.1):**
+- `FilePath` - Path to executable (if in Files/, just filename works)
+- `ArgumentList` - Command-line arguments
+- `SecureArgumentList` - Hide arguments from log
+- `WaitForMsiExec` - Wait if another MSI is running
+- `WaitForChildProcesses` - Wait for spawned processes (v4.1)
+- `KillChildProcessesWithParent` - Terminate child processes (v4.1)
+- `UseUnelevatedToken` - Run without elevation (v4.1)
+- `Timeout` - Maximum wait time in seconds (v4.1)
+- `TimeoutAction` - Action on timeout: Continue, Terminate (v4.1)
+- `SuccessExitCodes` - Custom success codes
+- `RebootExitCodes` - Codes indicating reboot needed
+- `IgnoreExitCodes` - Codes to ignore
+- `PassThru` - Return object with ExitCode, StdOut, StdErr
+
+### Start-ADTProcessAsUser
+
+Runs a process in the logged-in user's context (from SYSTEM).
+
+```powershell
+# Run user-context uninstaller
+Start-ADTProcessAsUser -FilePath '%LOCALAPPDATA%\Programs\App\uninstall.exe' -ArgumentList '/S' -ExpandEnvironmentVariables
+
+# Inherit environment from deployment
+Start-ADTProcessAsUser -FilePath 'config.exe' -InheritEnvironmentVariables
+```
+
+### Start-ADTMsiProcess
+
+Specialized function for MSI operations.
+
+```powershell
+# Install MSI
+Start-ADTMsiProcess -Action Install -FilePath 'app.msi'
+
+# Install with transform and properties
+Start-ADTMsiProcess -Action Install -FilePath 'app.msi' -Transforms 'custom.mst' -AdditionalArgumentList 'INSTALLDIR="C:\App"'
+
+# Uninstall by product code
+Start-ADTMsiProcess -Action Uninstall -ProductCode '{12345678-1234-1234-1234-123456789012}'
+
+# Repair (using Reinstall mode - default in v4.1)
+Start-ADTMsiProcess -Action Repair -FilePath 'app.msi'
 ```
 
 **Parameters:**
-- `FilePath` - Path to executable
-- `Arguments` - Command-line arguments
-- `WorkingDirectory` - Working directory for process
-- `WindowStyle` - Normal, Hidden, Maximized, Minimized
-- `CreateNoWindow` - Don't create a window
-- `IgnoreExitCodes` - Exit codes to treat as success
-- `PassThru` - Return process object
-- `WaitForMsiExec` - Wait if msiexec is running
-- `SecureArguments` - Hide arguments in logs
+- `Action` - Install, Uninstall, Repair, Patch
+- `FilePath` - MSI file path
+- `ProductCode` - Product GUID (for Uninstall/Repair)
+- `Transforms` - MST file names
+- `Patches` - MSP file names
+- `AdditionalArgumentList` - Append to default MSI params
+- `ArgumentList` - Replace default MSI params entirely
 
-### Stop-ADTProcess
+### Start-ADTMsiProcessAsUser
 
-Stops running processes.
+Installs/uninstalls user-context MSIs from SYSTEM account (v4.1).
 
 ```powershell
-Stop-ADTProcess -Name 'chrome'
-Stop-ADTProcess -Name 'app1,app2' -IgnoreErrors
+Start-ADTMsiProcessAsUser -Action Uninstall -FilePath '%LOCALAPPDATA%\App\app.msi' -ExpandEnvironmentVariables
+```
+
+## Application Management
+
+### Get-ADTApplication
+
+Gets installed applications from registry.
+
+```powershell
+# Find by name (wildcard match)
+$apps = Get-ADTApplication -Name 'Google*'
+
+# Find exact match
+$app = Get-ADTApplication -Name 'Google Chrome' -Exact
+```
+
+### Uninstall-ADTApplication
+
+Uninstalls applications by name or filter.
+
+```powershell
+# Uninstall by exact name
+Uninstall-ADTApplication -Name 'VLC media player' -NameMatch 'Exact' -ArgumentList '/S'
+
+# Uninstall MSI applications matching filter
+Uninstall-ADTApplication -FilterScript { $_.Publisher -eq 'Adobe' -and $_.DisplayName -like '*Reader*' }
+
+# Uninstall EXE applications (v4.1)
+Uninstall-ADTApplication -FilterScript { $_.DisplayName -match 'WinRAR' } -ApplicationType EXE -ArgumentList '/S'
 ```
 
 **Parameters:**
-- `Name` - Process names to stop
-- `IgnoreErrors` - Don't throw on errors
-
-### Get-ADTRunningProcesses
-
-Gets running processes matching criteria.
-
-```powershell
-$running = Get-ADTRunningProcesses -ProcessName 'chrome,firefox'
-if ($running) {
-    # Handle running processes
-}
-```
+- `Name` - Application name to match
+- `NameMatch` - Exact, Contains, Regex
+- `FilterScript` - ScriptBlock for complex filtering
+- `ApplicationType` - MSI, EXE, or All
+- `ArgumentList` - Arguments (replaces detected)
+- `AdditionalArgumentList` - Arguments (appends to detected)
 
 ## File Operations
 
@@ -176,39 +269,35 @@ if ($running) {
 Copies files with logging.
 
 ```powershell
-Copy-ADTFile -Path "$PSScriptRoot\Files\config.xml" -Destination "$env:ProgramData\App\config.xml"
-Copy-ADTFile -Path "$PSScriptRoot\Files\*" -Destination 'C:\Program Files\App' -Recurse
+Copy-ADTFile -Path "$($adtSession.DirFiles)\config.xml" -Destination "$env:ProgramData\App\"
+Copy-ADTFile -Path "$($adtSession.DirFiles)\*" -Destination 'C:\Program Files\App' -Recurse
 ```
 
-**Parameters:**
-- `Path` - Source path
-- `Destination` - Destination path
-- `Recurse` - Include subdirectories
-- `ContinueOnError` - Continue on failures
+### Copy-ADTFileToUserProfiles
+
+Copies files to all user profiles (v4.1 enhanced).
+
+```powershell
+# Copy to AppData\Roaming for all users
+Copy-ADTFileToUserProfiles -Path "$($adtSession.DirSupportFiles)\settings" -Destination 'AppData\Roaming\MyApp' -Recurse
+```
 
 ### Remove-ADTFile
 
 Removes files with logging.
 
 ```powershell
-Remove-ADTFile -Path 'C:\Temp\installer.exe'
-Remove-ADTFile -Path 'C:\Temp\*' -Recurse
+Remove-ADTFile -Path "$env:PUBLIC\Desktop\App.lnk"
+Remove-ADTFile -Path 'C:\Temp\installer.exe', 'C:\Temp\readme.txt'
 ```
 
-### New-ADTFolder
+### New-ADTFolder / Remove-ADTFolder
 
-Creates folders.
+Creates or removes folders.
 
 ```powershell
 New-ADTFolder -Path 'C:\Program Files\MyApp\Data'
-```
-
-### Remove-ADTFolder
-
-Removes folders.
-
-```powershell
-Remove-ADTFolder -Path 'C:\Temp\InstallFiles' -ContinueOnError
+Remove-ADTFolder -Path 'C:\Temp\InstallFiles'
 ```
 
 ## Registry Operations
@@ -218,133 +307,61 @@ Remove-ADTFolder -Path 'C:\Temp\InstallFiles' -ContinueOnError
 Sets registry values.
 
 ```powershell
+# Create key
+Set-ADTRegistryKey -Key 'HKLM:\SOFTWARE\MyApp'
+
 # Set string value
 Set-ADTRegistryKey -Key 'HKLM:\SOFTWARE\MyApp' -Name 'Version' -Value '1.0.0'
 
 # Set DWORD
-Set-ADTRegistryKey -Key 'HKLM:\SOFTWARE\MyApp' -Name 'Enabled' -Value 1 -Type 'DWord'
+Set-ADTRegistryKey -Key 'HKLM:\SOFTWARE\MyApp' -Name 'Enabled' -Value 1 -Type DWord
 
-# Create key only
-Set-ADTRegistryKey -Key 'HKLM:\SOFTWARE\MyApp\Settings'
+# Create volatile key (v4.1)
+Set-ADTRegistryKey -Key 'HKLM:\SOFTWARE\MyApp\Temp' -Volatile
 ```
 
-**Parameters:**
-- `Key` - Registry key path
-- `Name` - Value name
-- `Value` - Value data
-- `Type` - String, DWord, QWord, Binary, MultiString, ExpandString
+### Get-ADTRegistryKey / Remove-ADTRegistryKey
 
-### Remove-ADTRegistryKey
-
-Removes registry keys or values.
-
-```powershell
-Remove-ADTRegistryKey -Key 'HKLM:\SOFTWARE\MyApp' -Name 'OldValue'
-Remove-ADTRegistryKey -Key 'HKLM:\SOFTWARE\MyApp' -Recurse
-```
-
-### Get-ADTRegistryKey
-
-Gets registry values.
+Gets or removes registry keys/values.
 
 ```powershell
 $version = Get-ADTRegistryKey -Key 'HKLM:\SOFTWARE\MyApp' -Name 'Version'
+Remove-ADTRegistryKey -Key 'HKLM:\SOFTWARE\MyApp' -Name 'OldSetting'
+Remove-ADTRegistryKey -Key 'HKLM:\SOFTWARE\OldApp' -Recurse
 ```
 
-## Shortcut Management
+### Invoke-ADTAllUsersRegistryAction
 
-### New-ADTShortcut
-
-Creates shortcuts.
+Applies registry changes to all user profiles.
 
 ```powershell
-# Desktop shortcut
-New-ADTShortcut -Path "$env:PUBLIC\Desktop\MyApp.lnk" -TargetPath 'C:\Program Files\MyApp\app.exe'
-
-# Start menu shortcut with arguments
-New-ADTShortcut -Path "$env:ProgramData\Microsoft\Windows\Start Menu\Programs\MyApp.lnk" `
-    -TargetPath 'C:\Program Files\MyApp\app.exe' `
-    -Arguments '--start-minimized' `
-    -IconLocation 'C:\Program Files\MyApp\app.ico' `
-    -Description 'My Application'
-```
-
-### Remove-ADTShortcut
-
-Removes shortcuts.
-
-```powershell
-Remove-ADTShortcut -Path "$env:PUBLIC\Desktop\MyApp.lnk"
-```
-
-## MSI Operations
-
-### Start-ADTMsiProcess
-
-Specialized function for MSI installations.
-
-```powershell
-# Basic MSI install
-Start-ADTMsiProcess -Action Install -Path "$PSScriptRoot\Files\app.msi"
-
-# With transforms and properties
-Start-ADTMsiProcess -Action Install -Path "$PSScriptRoot\Files\app.msi" `
-    -Transform "$PSScriptRoot\Files\custom.mst" `
-    -Parameters 'INSTALLDIR="C:\CustomPath"'
-
-# Uninstall by product code
-Start-ADTMsiProcess -Action Uninstall -Path '{12345678-1234-1234-1234-123456789012}'
-```
-
-**Parameters:**
-- `Action` - Install, Uninstall, Patch, Repair
-- `Path` - MSI path or product code
-- `Transform` - Transform file path
-- `Parameters` - Additional msiexec parameters
-- `Patch` - Patch file path
-- `LoggingOptions` - MSI logging flags
-
-## Utility Functions
-
-### Test-ADTBattery
-
-Checks if running on battery.
-
-```powershell
-if (Test-ADTBattery) {
-    # Handle battery mode
+Invoke-ADTAllUsersRegistryAction -ScriptBlock {
+    Set-ADTRegistryKey -Key "HKCU:\Software\MyApp" -Name 'Setting' -Value 1 -SID $_.SID
 }
 ```
 
-### Get-ADTDiskSpace
+## Environment Variables (v4.1)
 
-Gets available disk space.
+### Get-ADTEnvironmentVariable / Set-ADTEnvironmentVariable / Remove-ADTEnvironmentVariable
+
+Manage environment variables.
 
 ```powershell
-$space = Get-ADTDiskSpace -Drive 'C:'
-if ($space.FreeMB -lt 1024) {
-    # Not enough space
-}
+$path = Get-ADTEnvironmentVariable -Name 'PATH' -Scope 'Machine'
+Set-ADTEnvironmentVariable -Name 'MY_APP_HOME' -Value 'C:\MyApp' -Scope 'Machine'
+Remove-ADTEnvironmentVariable -Name 'OLD_VAR' -Scope 'User'
 ```
 
-### Get-ADTInstalledApplication
+## INI File Operations (v4.1)
 
-Gets installed applications.
+### Get-ADTIniValue / Set-ADTIniValue / Remove-ADTIniValue
 
-```powershell
-# Find by name
-$app = Get-ADTInstalledApplication -Name 'Google Chrome'
-
-# Find by product code
-$app = Get-ADTInstalledApplication -ProductCode '{12345678-1234-1234-1234-123456789012}'
-```
-
-### Remove-ADTInstalledApplication
-
-Uninstalls an application.
+Manage INI file values.
 
 ```powershell
-Remove-ADTInstalledApplication -Name 'Old Application'
+$value = Get-ADTIniValue -FilePath 'C:\App\config.ini' -Section 'Settings' -Key 'Theme'
+Set-ADTIniValue -FilePath 'C:\App\config.ini' -Section 'Settings' -Key 'Theme' -Value 'Dark'
+Remove-ADTIniValue -FilePath 'C:\App\config.ini' -Section 'Settings' -Key 'OldKey'
 ```
 
 ## Logging
@@ -356,7 +373,7 @@ Writes to the deployment log.
 ```powershell
 Write-ADTLogEntry -Message 'Starting configuration'
 Write-ADTLogEntry -Message 'Warning: File not found' -Severity 2
-Write-ADTLogEntry -Message 'Error occurred' -Severity 3
+Write-ADTLogEntry -Message 'Critical error' -Severity 3
 ```
 
 **Severity Levels:**
@@ -364,18 +381,46 @@ Write-ADTLogEntry -Message 'Error occurred' -Severity 3
 - 2 = Warning
 - 3 = Error
 
-## Exit Codes
+## Utility Functions
 
-PSADT uses standard exit codes:
+### Get-ADTPendingReboot
+
+Checks if a reboot is pending.
+
+```powershell
+if (Get-ADTPendingReboot) {
+    Write-ADTLogEntry 'Pending reboot detected' -Severity 2
+}
+```
+
+### Block-ADTAppExecution / Unblock-ADTAppExecution
+
+Prevents applications from running during deployment.
+
+```powershell
+Block-ADTAppExecution -ProcessNames @('app1', 'app2')
+# ... perform installation ...
+Unblock-ADTAppExecution
+```
+
+### Invoke-ADTCommandWithRetries
+
+Retries a command on failure.
+
+```powershell
+Invoke-ADTCommandWithRetries -Command { Start-ADTProcess -FilePath 'flaky.exe' } -RetryCount 3 -RetryInterval 10
+```
+
+## Exit Codes
 
 | Code | Meaning |
 |------|---------|
 | 0 | Success |
-| 1 | General error |
+| 1602 | User cancelled (default defer code in v4.1) |
 | 1618 | Another installation in progress |
 | 1641 | Restart initiated |
 | 3010 | Restart required |
-| 60001 | PSADT fast retry |
-| 60002 | PSADT block execution |
-| 60003 | PSADT defer |
-| 60004 | PSADT installation pending |
+| 60001 | Fast retry |
+| 60002 | Block execution |
+| 60003 | Defer |
+| 60008 | Initialization failure |

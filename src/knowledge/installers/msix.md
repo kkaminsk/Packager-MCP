@@ -1,3 +1,13 @@
+---
+title: "MSIX/AppX Packaging Guide"
+id: "kb-installers-msix"
+psadt_target: "4.0.x"
+last_updated: "2024-12-07"
+verified_by: "maintainer"
+source_ref: "ReferenceKnowledge/V4DOCS.md#msix"
+tags: ["msix", "appx", "installers", "guide", "uwp"]
+---
+
 # MSIX/AppX Packaging Guide
 
 MSIX (and its predecessor AppX) is Microsoft's modern application packaging format. It provides containerized installation with clean uninstall and improved security.
