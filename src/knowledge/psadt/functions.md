@@ -1,16 +1,76 @@
 ---
 title: "PSADT v4 Function Reference"
 id: "psadt-functions"
-psadt_target: "4.1.x"
-last_updated: "2024-12-07"
+psadt_target: "4.1.7"
+last_updated: "2025-12-07"
 verified_by: "maintainer"
-source_ref: "ReferenceKnowledge/V4DOCS.md#functions"
-tags: ["psadt", "functions", "reference", "api", "v4.1"]
+source_ref: "ReferenceKnowledge/V4Assets/PSAppDeployToolkit/PSAppDeployToolkit.psd1"
+tags: ["psadt", "functions", "reference", "api", "v4.1.7"]
 ---
 
-# PSADT v4 Function Reference
+# PSADT v4.1.7 Function Reference
 
-All PSADT v4 functions use the `ADT` prefix. This document covers the most commonly used functions for application deployment.
+PSADT v4.1.7 exports **135 functions** with the `ADT` prefix. This document covers the most commonly used functions for application deployment.
+
+## Invoke-AppDeployToolkit.ps1
+
+The main deployment script that orchestrates application installation, uninstallation, and repair operations.
+
+### Script Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `DeploymentType` | String | The type of deployment: `Install`, `Uninstall`, or `Repair`. Default: `Install` |
+| `DeployMode` | String | Installation mode: `Auto`, `Interactive`, `NonInteractive`, or `Silent`. Auto shows dialogs if user logged on. |
+| `SuppressRebootPassThru` | Switch | Suppresses the 3010 return code (requires restart) from being passed to parent process (e.g., SCCM) |
+| `TerminalServerMode` | Switch | Enables user install/execute mode switching for RDS/Citrix servers |
+| `DisableLogging` | Switch | Disables logging to file |
+
+### Session Configuration Variables ($adtSession)
+
+| Variable | Type | Description |
+|----------|------|-------------|
+| `AppVendor` | String | Application vendor name |
+| `AppName` | String | Application name (empty enables Zero-Config MSI) |
+| `AppVersion` | String | Application version |
+| `AppArch` | String | Application architecture (x86, x64) |
+| `AppLang` | String | Application language (default: EN) |
+| `AppRevision` | String | Application revision (default: 01) |
+| `AppSuccessExitCodes` | Array | Exit codes indicating success (default: @(0)) |
+| `AppRebootExitCodes` | Array | Exit codes indicating reboot needed (default: @(1641, 3010)) |
+| `AppProcessesToClose` | Array | Processes to close before install |
+| `AppScriptVersion` | String | Script version |
+| `AppScriptDate` | String | Script date |
+| `AppScriptAuthor` | String | Script author |
+| `RequireAdmin` | Boolean | Whether admin rights are required (default: $true) |
+| `InstallName` | String | Override for installation name |
+| `InstallTitle` | String | Override for installation title |
+
+### Deployment Functions
+
+#### Install-ADTDeployment
+
+Handles the complete installation workflow in three phases:
+
+- **Pre-Install**: Shows welcome message, closes specified processes, checks disk space, allows deferrals
+- **Install**: Executes MSI installation (Zero-Config) or custom installation tasks
+- **Post-Install**: Runs post-installation tasks, shows completion message
+
+#### Uninstall-ADTDeployment
+
+Handles the complete uninstallation workflow in three phases:
+
+- **Pre-Uninstall**: Shows welcome with 60-second countdown for process closure
+- **Uninstall**: Executes MSI uninstallation (Zero-Config) or custom uninstall tasks
+- **Post-Uninstall**: Runs post-uninstallation tasks
+
+#### Repair-ADTDeployment
+
+Handles the complete repair workflow in three phases:
+
+- **Pre-Repair**: Shows welcome with 60-second countdown for process closure
+- **Repair**: Executes MSI repair (Zero-Config) or custom repair tasks
+- **Post-Repair**: Runs post-repair tasks
 
 ## Session Management
 
@@ -23,16 +83,28 @@ $adtSession = @{
     AppVendor = 'Contoso'
     AppName = 'MyApp'
     AppVersion = '1.0.0'
+    AppArch = 'x64'
+    AppLang = 'EN'
+    AppRevision = '01'
+    AppSuccessExitCodes = @(0)
+    AppRebootExitCodes = @(1641, 3010)
     AppProcessesToClose = @(@{ Name = 'myapp'; Description = 'My Application' })
+    AppScriptVersion = '1.0.0'
+    AppScriptDate = '2025-01-01'
+    AppScriptAuthor = 'IT Admin'
     RequireAdmin = $true
 }
-$adtSession = Open-ADTSession @adtSession -PassThru
+$iadtParams = Get-ADTBoundParametersAndDefaultValues -Invocation $MyInvocation
+$adtSession = Remove-ADTHashtableNullOrEmptyValues -Hashtable $adtSession
+$adtSession = Open-ADTSession @adtSession @iadtParams -PassThru
 ```
 
 **Key Parameters:**
 - `AppVendor`, `AppName`, `AppVersion` - Application metadata
-- `AppProcessesToClose` - Array of processes to close (v4.1)
-- `RequireAdmin` - Require admin rights (v4.1)
+- `AppProcessesToClose` - Array of processes to close
+- `RequireAdmin` - Require admin rights
+- `AppSuccessExitCodes` - Exit codes indicating success
+- `AppRebootExitCodes` - Exit codes indicating reboot needed
 - `-PassThru` - Return the session object
 
 ### Close-ADTSession
@@ -42,6 +114,34 @@ Finalizes the deployment and performs cleanup.
 ```powershell
 Close-ADTSession
 Close-ADTSession -ExitCode 60001
+```
+
+### Get-ADTSession
+
+Retrieves the current deployment session object.
+
+```powershell
+$session = Get-ADTSession
+Write-Host "Deploying: $($session.AppName)"
+```
+
+### Get-ADTConfig
+
+Retrieves PSADT configuration settings.
+
+```powershell
+$config = Get-ADTConfig
+$logPath = $config.Toolkit.LogPath
+```
+
+### Test-ADTSessionActive
+
+Checks if an ADT session is currently active.
+
+```powershell
+if (Test-ADTSessionActive) {
+    Write-ADTLogEntry -Message "Session is active"
+}
 ```
 
 ## User Interaction
@@ -413,14 +513,126 @@ Invoke-ADTCommandWithRetries -Command { Start-ADTProcess -FilePath 'flaky.exe' }
 
 ## Exit Codes
 
+### Exit Code Ranges
+
+| Range | Purpose |
+|-------|---------|
+| 60000 - 68999 | Reserved for built-in exit codes in Invoke-AppDeployToolkit.ps1/.exe |
+| 69000 - 69999 | Recommended for user customized exit codes in Invoke-AppDeployToolkit.ps1 |
+| 70000 - 79999 | Recommended for user customized exit codes in PSAppDeployToolkit.Extensions |
+
+### Common Exit Codes
+
 | Code | Meaning |
 |------|---------|
 | 0 | Success |
-| 1602 | User cancelled (default defer code in v4.1) |
+| 1602 | User cancelled (default defer code) |
 | 1618 | Another installation in progress |
 | 1641 | Restart initiated |
 | 3010 | Restart required |
-| 60001 | Fast retry |
+| 60001 | Fast retry / Unhandled error |
 | 60002 | Block execution |
 | 60003 | Defer |
-| 60008 | Initialization failure |
+| 60008 | Module import or session initialization failure |
+
+## Complete Function List (v4.1.7)
+
+PSADT v4.1.7 exports 135 functions organized by category:
+
+### Session & Module
+- `Initialize-ADTModule`, `Test-ADTModuleInitialized`
+- `Open-ADTSession`, `Close-ADTSession`, `Get-ADTSession`, `Test-ADTSessionActive`
+- `Get-ADTConfig`, `Get-ADTStringTable`
+- `Add-ADTModuleCallback`, `Get-ADTModuleCallback`, `Remove-ADTModuleCallback`, `Clear-ADTModuleCallback`
+- `Get-ADTEnvironment`, `Get-ADTEnvironmentTable`, `Export-ADTEnvironmentTableToSessionState`
+
+### Process Execution
+- `Start-ADTProcess`, `Start-ADTProcessAsUser`
+- `Start-ADTMsiProcess`, `Start-ADTMsiProcessAsUser`
+- `Start-ADTMspProcess`, `Start-ADTMspProcessAsUser`
+- `Invoke-ADTRegSvr32`, `Register-ADTDll`, `Unregister-ADTDll`
+- `Get-ADTRunningProcesses`, `Block-ADTAppExecution`, `Unblock-ADTAppExecution`
+
+### User Interaction
+- `Show-ADTInstallationWelcome`, `Show-ADTInstallationProgress`, `Close-ADTInstallationProgress`
+- `Show-ADTInstallationPrompt`, `Show-ADTInstallationRestartPrompt`
+- `Show-ADTBalloonTip`, `Show-ADTDialogBox`, `Show-ADTHelpConsole`
+
+### Application Management
+- `Get-ADTApplication`, `Uninstall-ADTApplication`
+- `Get-ADTMsiTableProperty`, `Get-ADTMsiExitCodeMessage`
+- `New-ADTMsiTransform`, `Set-ADTMsiProperty`
+- `Install-ADTMSUpdates`, `Test-ADTMSUpdates`
+
+### File Operations
+- `Copy-ADTFile`, `Copy-ADTFileToUserProfiles`, `Remove-ADTFile`, `Remove-ADTFileFromUserProfiles`
+- `New-ADTFolder`, `Remove-ADTFolder`
+- `Copy-ADTContentToCache`, `Remove-ADTContentFromCache`
+- `Get-ADTFileVersion`, `Get-ADTPEFileArchitecture`, `Get-ADTExecutableInfo`
+- `New-ADTZipFile`, `Mount-ADTWimFile`, `Dismount-ADTWimFile`
+
+### Registry Operations
+- `Set-ADTRegistryKey`, `Get-ADTRegistryKey`, `Remove-ADTRegistryKey`, `Test-ADTRegistryValue`
+- `Convert-ADTRegistryPath`, `Invoke-ADTAllUsersRegistryAction`
+
+### Shortcut Operations
+- `New-ADTShortcut`, `Set-ADTShortcut`, `Get-ADTShortcut`
+
+### Environment Variables
+- `Get-ADTEnvironmentVariable`, `Set-ADTEnvironmentVariable`, `Remove-ADTEnvironmentVariable`
+- `Update-ADTEnvironmentPsProvider`
+
+### INI File Operations
+- `Get-ADTIniValue`, `Set-ADTIniValue`, `Remove-ADTIniValue`
+- `Get-ADTIniSection`, `Set-ADTIniSection`, `Remove-ADTIniSection`
+
+### Service Management
+- `Test-ADTServiceExists`, `Get-ADTServiceStartMode`, `Set-ADTServiceStartMode`
+- `Start-ADTServiceAndDependencies`, `Stop-ADTServiceAndDependencies`
+
+### System Information
+- `Get-ADTOperatingSystemInfo`, `Get-ADTPendingReboot`, `Get-ADTFreeDiskSpace`
+- `Get-ADTLoggedOnUser`, `Get-ADTUserProfiles`, `Get-ADTPowerShellProcessPath`
+- `Test-ADTCallerIsAdmin`, `Test-ADTBattery`, `Test-ADTNetworkConnection`
+- `Test-ADTPowerPoint`, `Test-ADTMicrophoneInUse`, `Test-ADTUserIsBusy`
+- `Test-ADTMutexAvailability`, `Test-ADTOobeCompleted`, `Test-ADTEspActive`
+- `Get-ADTUserNotificationState`, `Get-ADTPresentationSettingsEnabledUsers`
+
+### Active Setup
+- `Set-ADTActiveSetup`
+
+### Edge Extensions
+- `Add-ADTEdgeExtension`, `Remove-ADTEdgeExtension`
+
+### SCCM Integration
+- `Invoke-ADTSCCMTask`, `Install-ADTSCCMSoftwareUpdates`
+
+### Terminal Server
+- `Enable-ADTTerminalServerInstallMode`, `Disable-ADTTerminalServerInstallMode`
+
+### Deferral
+- `Get-ADTDeferHistory`, `Set-ADTDeferHistory`, `Reset-ADTDeferHistory`
+
+### Utility Functions
+- `Write-ADTLogEntry`, `Resolve-ADTErrorRecord`, `New-ADTErrorRecord`, `New-ADTValidateScriptErrorRecord`
+- `Invoke-ADTCommandWithRetries`, `Invoke-ADTObjectMethod`, `Get-ADTObjectProperty`
+- `Update-ADTDesktop`, `Update-ADTGroupPolicy`, `Send-ADTKeys`
+- `Get-ADTUniversalDate`, `Get-ADTWindowTitle`
+- `ConvertTo-ADTNTAccountOrSID`, `Set-ADTItemPermission`
+- `Remove-ADTInvalidFileNameChars`, `Remove-ADTHashtableNullOrEmptyValues`
+- `Out-ADTPowerShellEncodedCommand`, `Set-ADTPowerShellCulture`
+- `Get-ADTBoundParametersAndDefaultValues`, `Convert-ADTValuesFromRemainingArguments`, `Convert-ADTValueType`
+- `Initialize-ADTFunction`, `Complete-ADTFunction`, `Invoke-ADTFunctionErrorHandler`
+- `Get-ADTCommandTable`, `New-ADTTemplate`
+
+## Module Information
+
+| Property | Value |
+|----------|-------|
+| Version | 4.1.7 |
+| GUID | 8c3c366b-8606-4576-9f2d-4051144f7ca2 |
+| PowerShell Required | 5.1.14393.0+ |
+| CLR Version | 4.0.30319.42000 |
+| Authors | PSAppDeployToolkit Team (Sean Lillis, Dan Cunningham, Muhammad Mashwani, Mitch Richters, Dan Gough) |
+| Website | https://psappdeploytoolkit.com |
+| License | https://github.com/PSAppDeployToolkit/PSAppDeployToolkit/blob/main/COPYING.Lesser |

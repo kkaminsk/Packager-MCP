@@ -1,11 +1,11 @@
 ---
 title: "MSI Packaging Guide"
 id: "kb-installers-msi"
-psadt_target: "4.0.x"
-last_updated: "2024-12-07"
+psadt_target: "4.1.7"
+last_updated: "2025-12-07"
 verified_by: "maintainer"
-source_ref: "ReferenceKnowledge/V4DOCS.md#msi"
-tags: ["msi", "installers", "guide", "windows-installer"]
+source_ref: "ReferenceKnowledge/V4Assets/PSAppDeployToolkit"
+tags: ["msi", "installers", "guide", "windows-installer", "v4.1.7"]
 ---
 
 # MSI Packaging Guide
@@ -82,10 +82,10 @@ msiexec.exe /i "app.msi" /qn REBOOT=ReallySuppress
 
 ```powershell
 # Using Start-ADTMsiProcess
-Start-ADTMsiProcess -Action Install -Path "$($ADTSession.FilesDirectory)\app.msi"
+Start-ADTMsiProcess -Action Install -Path "$($adtSession.DirFiles)\app.msi"
 
 # With properties
-Start-ADTMsiProcess -Action Install -Path "$($ADTSession.FilesDirectory)\app.msi" `
+Start-ADTMsiProcess -Action Install -Path "$($adtSession.DirFiles)\app.msi" `
     -Parameters 'ALLUSERS=1 INSTALLDIR="C:\CustomPath"'
 ```
 
@@ -94,21 +94,21 @@ Start-ADTMsiProcess -Action Install -Path "$($ADTSession.FilesDirectory)\app.msi
 Transform files (.mst) customize MSI behavior without modifying the original:
 
 ```powershell
-Start-ADTMsiProcess -Action Install -Path "$($ADTSession.FilesDirectory)\app.msi" `
-    -Transform "$($ADTSession.FilesDirectory)\custom.mst"
+Start-ADTMsiProcess -Action Install -Path "$($adtSession.DirFiles)\app.msi" `
+    -Transform "$($adtSession.DirFiles)\custom.mst"
 ```
 
 ### With Patch File
 
 ```powershell
-Start-ADTMsiProcess -Action Patch -Path "$($ADTSession.FilesDirectory)\app.msi" `
-    -Patch "$($ADTSession.FilesDirectory)\update.msp"
+Start-ADTMsiProcess -Action Patch -Path "$($adtSession.DirFiles)\app.msi" `
+    -Patch "$($adtSession.DirFiles)\update.msp"
 ```
 
 ### Repair
 
 ```powershell
-Start-ADTMsiProcess -Action Repair -Path "$($ADTSession.FilesDirectory)\app.msi"
+Start-ADTMsiProcess -Action Repair -Path "$($adtSession.DirFiles)\app.msi"
 ```
 
 ### Uninstall by Product Code
@@ -118,7 +118,7 @@ Start-ADTMsiProcess -Action Repair -Path "$($ADTSession.FilesDirectory)\app.msi"
 Start-ADTMsiProcess -Action Uninstall -Path '{12345678-1234-1234-1234-123456789012}'
 
 # Or find and uninstall
-$app = Get-ADTInstalledApplication -Name 'Application Name'
+$app = Get-ADTApplication -Name 'Application Name'
 if ($app) {
     Start-ADTMsiProcess -Action Uninstall -Path $app.ProductCode
 }
@@ -130,7 +130,7 @@ if ($app) {
 
 ```powershell
 # Get product code from registry
-$app = Get-ADTInstalledApplication -Name 'Application Name' -Exact
+$app = Get-ADTApplication -Name 'Application Name' -Exact
 $app.ProductCode    # {GUID}
 $app.UninstallString
 ```
@@ -175,7 +175,7 @@ msiexec /i app.msi /qn /l*v install.log
 ### Enable Verbose Logging
 
 ```powershell
-Start-ADTMsiProcess -Action Install -Path "$($ADTSession.FilesDirectory)\app.msi" `
+Start-ADTMsiProcess -Action Install -Path "$($adtSession.DirFiles)\app.msi" `
     -LoggingOptions '/l*v'
 ```
 
@@ -186,7 +186,7 @@ Log is created at: `C:\Windows\Logs\Software\{AppName}_{Version}_Install.log`
 ```powershell
 # Using msiexec directly
 Start-ADTProcess -FilePath 'msiexec.exe' `
-    -Arguments "/i `"$($ADTSession.FilesDirectory)\app.msi`" /qn /l*v `"C:\Logs\MyApp_Install.log`""
+    -Arguments "/i `"$($adtSession.DirFiles)\app.msi`" /qn /l*v `"C:\Logs\MyApp_Install.log`""
 ```
 
 ### Log File Flags
@@ -250,21 +250,21 @@ If MSI supports upgrade (same UpgradeCode):
 
 ```powershell
 # Just install new version - old will be removed
-Start-ADTMsiProcess -Action Install -Path "$($ADTSession.FilesDirectory)\app_v2.msi"
+Start-ADTMsiProcess -Action Install -Path "$($adtSession.DirFiles)\app_v2.msi"
 ```
 
 ### Manual Upgrade
 
 ```powershell
 # Remove old version first
-$oldApp = Get-ADTInstalledApplication -Name 'Application Name'
+$oldApp = Get-ADTApplication -Name 'Application Name'
 if ($oldApp) {
     Write-ADTLogEntry -Message "Removing previous version: $($oldApp.DisplayVersion)"
     Start-ADTMsiProcess -Action Uninstall -Path $oldApp.ProductCode
 }
 
 # Install new version
-Start-ADTMsiProcess -Action Install -Path "$($ADTSession.FilesDirectory)\app.msi"
+Start-ADTMsiProcess -Action Install -Path "$($adtSession.DirFiles)\app.msi"
 ```
 
 ## Troubleshooting
@@ -300,7 +300,7 @@ If getting 1618 (another install in progress):
 
 ```powershell
 # Wait for other MSI operations
-Start-ADTMsiProcess -Action Install -Path "$($ADTSession.FilesDirectory)\app.msi" -WaitForMsiExec
+Start-ADTMsiProcess -Action Install -Path "$($adtSession.DirFiles)\app.msi" -WaitForMsiExec
 ```
 
 ## Complete PSADT Example
@@ -334,7 +334,7 @@ try {
             Show-ADTInstallationWelcome -CloseApps 'appname' -CloseAppsCountdown 300
 
             # Remove previous version if different product code
-            $existing = Get-ADTInstalledApplication -Name 'Application Name'
+            $existing = Get-ADTApplication -Name 'Application Name'
             if ($existing -and $existing.ProductCode -ne $productCode) {
                 Write-ADTLogEntry -Message "Removing old version: $($existing.DisplayVersion)"
                 Start-ADTMsiProcess -Action Uninstall -Path $existing.ProductCode
@@ -343,11 +343,11 @@ try {
             Show-ADTInstallationProgress -StatusMessage 'Installing Application Name...'
 
             Start-ADTMsiProcess -Action Install `
-                -Path "$($ADTSession.FilesDirectory)\app.msi" `
+                -Path "$($adtSession.DirFiles)\app.msi" `
                 -Parameters 'ALLUSERS=1 REBOOT=ReallySuppress'
 
             # Verify installation
-            $installed = Get-ADTInstalledApplication -ProductCode $productCode
+            $installed = Get-ADTApplication -ProductCode $productCode
             if (-not $installed) {
                 throw "Installation verification failed"
             }

@@ -1,22 +1,22 @@
 ---
 title: "PSADT v4 Built-in Variables"
 id: "psadt-variables"
-psadt_target: "4.1.x"
-last_updated: "2024-12-07"
+psadt_target: "4.1.7"
+last_updated: "2025-12-07"
 verified_by: "maintainer"
-source_ref: "ReferenceKnowledge/V4DOCS.md#variables"
-tags: ["psadt", "variables", "session", "environment", "v4.1"]
+source_ref: "ReferenceKnowledge/V4Assets/PSAppDeployToolkit"
+tags: ["psadt", "variables", "session", "environment", "v4.1.7"]
 ---
 
-# PSADT v4 Built-in Variables
+# PSADT v4.1.7 Built-in Variables
 
-PSADT v4 provides variables through the `$adtSession` object and environment variables that become available after opening a session.
+PSADT v4.1.7 provides variables through the `$adtSession` object and environment variables that become available after opening a session.
 
 ## Session Object ($adtSession)
 
-In v4.1, you define `$adtSession` as a hashtable, then it becomes the session object after `Open-ADTSession`.
+In v4.1.7, you define `$adtSession` as a hashtable, then it becomes the session object after `Open-ADTSession`.
 
-### Session Variables (v4.1)
+### Session Variables (v4.1.7)
 
 ```powershell
 # Initial hashtable definition
@@ -33,13 +33,13 @@ $adtSession = @{
     AppSuccessExitCodes = @(0)
     AppRebootExitCodes = @(1641, 3010)
 
-    # v4.1: Processes to close (used in Install/Uninstall/Repair)
+    # Processes to close (used in Install/Uninstall/Repair)
     AppProcessesToClose = @(
         @{ Name = 'winword'; Description = 'Microsoft Word' },
         @{ Name = 'excel'; Description = 'Microsoft Excel' }
     )
 
-    # v4.1: Admin requirement (moved from config)
+    # Admin requirement
     RequireAdmin = $true
 
     # UI titles (optional overrides)
@@ -50,10 +50,17 @@ $adtSession = @{
     AppScriptVersion = '1.0.0'
     AppScriptDate = '2025-01-01'
     AppScriptAuthor = 'IT Admin'
+
+    # Script info (auto-populated)
+    DeployAppScriptFriendlyName = $MyInvocation.MyCommand.Name
+    DeployAppScriptParameters = $PSBoundParameters
+    DeployAppScriptVersion = '4.1.7'
 }
 
 # After Open-ADTSession, these become session properties:
-$adtSession = Open-ADTSession @adtSession -PassThru
+$iadtParams = Get-ADTBoundParametersAndDefaultValues -Invocation $MyInvocation
+$adtSession = Remove-ADTHashtableNullOrEmptyValues -Hashtable $adtSession
+$adtSession = Open-ADTSession @adtSession @iadtParams -PassThru
 ```
 
 ### Session Properties (After Open-ADTSession)

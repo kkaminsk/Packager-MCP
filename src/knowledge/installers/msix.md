@@ -1,11 +1,11 @@
 ---
 title: "MSIX/AppX Packaging Guide"
 id: "kb-installers-msix"
-psadt_target: "4.0.x"
-last_updated: "2024-12-07"
+psadt_target: "4.1.7"
+last_updated: "2025-12-07"
 verified_by: "maintainer"
-source_ref: "ReferenceKnowledge/V4DOCS.md#msix"
-tags: ["msix", "appx", "installers", "guide", "uwp"]
+source_ref: "ReferenceKnowledge/V4Assets/PSAppDeployToolkit"
+tags: ["msix", "appx", "installers", "guide", "uwp", "v4.1.7"]
 ---
 
 # MSIX/AppX Packaging Guide
@@ -77,7 +77,7 @@ Add-AppxPackage -Path "app.msix"
 
 ```powershell
 # Using PowerShell cmdlet
-$msixPath = "$($ADTSession.FilesDirectory)\app.msix"
+$msixPath = "$($adtSession.DirFiles)\app.msix"
 Add-AppxPackage -Path $msixPath
 
 # Or with PSADT process execution
@@ -88,8 +88,8 @@ Start-ADTProcess -FilePath 'powershell.exe' `
 ### Install with Dependencies
 
 ```powershell
-$msixPath = "$($ADTSession.FilesDirectory)\app.msix"
-$depPath = "$($ADTSession.FilesDirectory)\dependencies"
+$msixPath = "$($adtSession.DirFiles)\app.msix"
+$depPath = "$($adtSession.DirFiles)\dependencies"
 
 # Get all dependency packages
 $dependencies = Get-ChildItem -Path $depPath -Filter "*.msix" | Select-Object -ExpandProperty FullName
@@ -102,9 +102,9 @@ Add-AppxPackage -Path $msixPath -DependencyPath $dependencies
 
 ```powershell
 # Requires running as SYSTEM (typical for Intune)
-$msixPath = "$($ADTSession.FilesDirectory)\app.msix"
+$msixPath = "$($adtSession.DirFiles)\app.msix"
 
-if ($ADTSession.IsSystemAccount) {
+if ($adtSession.IsSystemAccount) {
     Add-AppxProvisionedPackage -Online -PackagePath $msixPath -SkipLicense
 } else {
     Add-AppxPackage -Path $msixPath
@@ -114,7 +114,7 @@ if ($ADTSession.IsSystemAccount) {
 ### Handling Bundles
 
 ```powershell
-$bundlePath = "$($ADTSession.FilesDirectory)\app.msixbundle"
+$bundlePath = "$($adtSession.DirFiles)\app.msixbundle"
 
 # Install bundle (correct architecture selected automatically)
 Add-AppxPackage -Path $bundlePath
@@ -233,7 +233,7 @@ $dependencies = @(
 foreach ($dep in $dependencies) {
     $installed = Get-AppxPackage -Name $dep
     if (-not $installed) {
-        $depFile = Get-ChildItem -Path "$($ADTSession.FilesDirectory)\dependencies" `
+        $depFile = Get-ChildItem -Path "$($adtSession.DirFiles)\dependencies" `
             -Filter "$dep*.appx" | Select-Object -First 1
         if ($depFile) {
             Add-AppxPackage -Path $depFile.FullName
@@ -252,14 +252,14 @@ if ($existing) {
     Remove-AppxPackage -Package $existing.PackageFullName
 }
 
-Add-AppxPackage -Path "$($ADTSession.FilesDirectory)\app.msix"
+Add-AppxPackage -Path "$($adtSession.DirFiles)\app.msix"
 ```
 
 ### Store-Signed vs Enterprise-Signed
 
 ```powershell
 # For enterprise-signed packages, may need to trust the certificate
-$certPath = "$($ADTSession.FilesDirectory)\app.cer"
+$certPath = "$($adtSession.DirFiles)\app.cer"
 if (Test-Path $certPath) {
     Import-Certificate -FilePath $certPath -CertStoreLocation Cert:\LocalMachine\TrustedPeople
 }
@@ -303,114 +303,169 @@ $signature.Status  # Should be "Valid"
 $signature.SignerCertificate.Subject
 ```
 
-## Complete PSADT Example
+## Complete PSADT Example (v4.1.7)
 
 ```powershell
-#Requires -Version 5.1
+# v4.1.7 MSIX Deployment Example
 
 [CmdletBinding()]
-param (
+param(
+    [Parameter(Mandatory = $false)]
     [ValidateSet('Install', 'Uninstall', 'Repair')]
-    [string]$DeploymentType = 'Install',
-    [ValidateSet('Interactive', 'Silent', 'NonInteractive')]
-    [string]$DeployMode = 'Interactive'
-)
+    [System.String]$DeploymentType,
 
-Import-Module "$PSScriptRoot\PSAppDeployToolkit" -Force
+    [Parameter(Mandatory = $false)]
+    [ValidateSet('Auto', 'Interactive', 'NonInteractive', 'Silent')]
+    [System.String]$DeployMode,
+
+    [Parameter(Mandatory = $false)]
+    [System.Management.Automation.SwitchParameter]$SuppressRebootPassThru
+)
 
 $packageName = "Publisher.ApplicationName"
 $packageFamilyName = "Publisher.ApplicationName_abcdef123456"
 
-Initialize-ADTDeployment @{
-    InstallName = 'Application Name'
-    InstallVersion = '1.0.0'
-    Publisher = 'Publisher'
-    DeploymentType = $DeploymentType
-    DeployMode = $DeployMode
+$adtSession = @{
+    AppVendor = 'Publisher'
+    AppName = 'Application Name'
+    AppVersion = '1.0.0'
+    AppArch = 'x64'
+    AppLang = 'EN'
+    AppRevision = '01'
+    AppSuccessExitCodes = @(0)
+    AppRebootExitCodes = @(1641, 3010)
+    AppProcessesToClose = @()
+    AppScriptVersion = '1.0.0'
+    AppScriptDate = '2025-01-01'
+    AppScriptAuthor = 'IT Admin'
+    RequireAdmin = $true
 }
 
-try {
-    switch ($DeploymentType) {
-        'Install' {
-            Show-ADTInstallationProgress -StatusMessage 'Installing Application Name...'
+function Install-ADTDeployment {
+    [CmdletBinding()]
+    param()
 
-            # Install dependencies
-            $depPath = Join-Path -Path $ADTSession.FilesDirectory -ChildPath 'dependencies'
-            if (Test-Path $depPath) {
-                $dependencies = Get-ChildItem -Path $depPath -Filter "*.appx"
-                foreach ($dep in $dependencies) {
-                    Write-ADTLogEntry -Message "Installing dependency: $($dep.Name)"
-                    try {
-                        Add-AppxPackage -Path $dep.FullName -ErrorAction Stop
-                    } catch {
-                        Write-ADTLogEntry -Message "Dependency may already be installed: $($_.Exception.Message)" -Severity 2
-                    }
-                }
+    $adtSession.InstallPhase = "Pre-$($adtSession.DeploymentType)"
+    Show-ADTInstallationProgress -StatusMessage 'Installing Application Name...'
+
+    # Install dependencies
+    $depPath = Join-Path -Path $adtSession.DirFiles -ChildPath 'dependencies'
+    if (Test-Path $depPath) {
+        $dependencies = Get-ChildItem -Path $depPath -Filter "*.appx"
+        foreach ($dep in $dependencies) {
+            Write-ADTLogEntry -Message "Installing dependency: $($dep.Name)"
+            try {
+                Add-AppxPackage -Path $dep.FullName -ErrorAction Stop
+            } catch {
+                Write-ADTLogEntry -Message "Dependency may already be installed: $($_.Exception.Message)" -Severity 2
             }
-
-            # Remove existing version if present
-            $existing = Get-AppxPackage -Name $packageName -ErrorAction SilentlyContinue
-            if ($existing) {
-                Write-ADTLogEntry -Message "Removing existing version: $($existing.Version)"
-                Remove-AppxPackage -Package $existing.PackageFullName
-            }
-
-            # Install MSIX package
-            $msixPath = Join-Path -Path $ADTSession.FilesDirectory -ChildPath 'app.msix'
-            Write-ADTLogEntry -Message "Installing MSIX package: $msixPath"
-
-            if ($ADTSession.IsSystemAccount) {
-                # Running as SYSTEM - provision for all users
-                Add-AppxProvisionedPackage -Online -PackagePath $msixPath -SkipLicense
-            } else {
-                # Running as user
-                Add-AppxPackage -Path $msixPath
-            }
-
-            # Verify installation
-            $installed = Get-AppxPackage -Name $packageName -ErrorAction SilentlyContinue
-            if (-not $installed) {
-                throw "Installation verification failed - package not found"
-            }
-            Write-ADTLogEntry -Message "Successfully installed version: $($installed.Version)"
-        }
-        'Uninstall' {
-            Write-ADTLogEntry -Message "Uninstalling $packageName"
-
-            # Remove provisioned package first (if running as admin)
-            if ($ADTSession.IsAdmin) {
-                $provisioned = Get-AppxProvisionedPackage -Online | Where-Object { $_.DisplayName -eq $packageName }
-                if ($provisioned) {
-                    Remove-AppxProvisionedPackage -Online -PackageName $provisioned.PackageName
-                }
-            }
-
-            # Remove installed package for all users
-            $packages = Get-AppxPackage -Name $packageName -AllUsers -ErrorAction SilentlyContinue
-            foreach ($package in $packages) {
-                Write-ADTLogEntry -Message "Removing package: $($package.PackageFullName)"
-                Remove-AppxPackage -Package $package.PackageFullName -AllUsers
-            }
-        }
-        'Repair' {
-            Write-ADTLogEntry -Message "Repair requested - reinstalling package"
-
-            # Remove and reinstall
-            $existing = Get-AppxPackage -Name $packageName -ErrorAction SilentlyContinue
-            if ($existing) {
-                Remove-AppxPackage -Package $existing.PackageFullName
-            }
-
-            $msixPath = Join-Path -Path $ADTSession.FilesDirectory -ChildPath 'app.msix'
-            Add-AppxPackage -Path $msixPath
         }
     }
 
-    Complete-ADTDeployment -DeploymentStatus 'Complete'
+    # Remove existing version if present
+    $existing = Get-AppxPackage -Name $packageName -ErrorAction SilentlyContinue
+    if ($existing) {
+        Write-ADTLogEntry -Message "Removing existing version: $($existing.Version)"
+        Remove-AppxPackage -Package $existing.PackageFullName
+    }
+
+    $adtSession.InstallPhase = $adtSession.DeploymentType
+
+    # Install MSIX package
+    $msixPath = Join-Path -Path $adtSession.DirFiles -ChildPath 'app.msix'
+    Write-ADTLogEntry -Message "Installing MSIX package: $msixPath"
+
+    if ($adtSession.IsSystemAccount) {
+        # Running as SYSTEM - provision for all users
+        Add-AppxProvisionedPackage -Online -PackagePath $msixPath -SkipLicense
+    } else {
+        # Running as user
+        Add-AppxPackage -Path $msixPath
+    }
+
+    $adtSession.InstallPhase = "Post-$($adtSession.DeploymentType)"
+
+    # Verify installation
+    $installed = Get-AppxPackage -Name $packageName -ErrorAction SilentlyContinue
+    if (-not $installed) {
+        throw "Installation verification failed - package not found"
+    }
+    Write-ADTLogEntry -Message "Successfully installed version: $($installed.Version)"
+}
+
+function Uninstall-ADTDeployment {
+    [CmdletBinding()]
+    param()
+
+    $adtSession.InstallPhase = "Pre-$($adtSession.DeploymentType)"
+    Write-ADTLogEntry -Message "Uninstalling $packageName"
+
+    # Remove provisioned package first (if running as admin)
+    if ($adtSession.IsAdmin) {
+        $provisioned = Get-AppxProvisionedPackage -Online | Where-Object { $_.DisplayName -eq $packageName }
+        if ($provisioned) {
+            Remove-AppxProvisionedPackage -Online -PackageName $provisioned.PackageName
+        }
+    }
+
+    $adtSession.InstallPhase = $adtSession.DeploymentType
+
+    # Remove installed package for all users
+    $packages = Get-AppxPackage -Name $packageName -AllUsers -ErrorAction SilentlyContinue
+    foreach ($package in $packages) {
+        Write-ADTLogEntry -Message "Removing package: $($package.PackageFullName)"
+        Remove-AppxPackage -Package $package.PackageFullName -AllUsers
+    }
+
+    $adtSession.InstallPhase = "Post-$($adtSession.DeploymentType)"
+}
+
+function Repair-ADTDeployment {
+    [CmdletBinding()]
+    param()
+
+    $adtSession.InstallPhase = "Pre-$($adtSession.DeploymentType)"
+    Write-ADTLogEntry -Message "Repair requested - reinstalling package"
+
+    # Remove existing
+    $existing = Get-AppxPackage -Name $packageName -ErrorAction SilentlyContinue
+    if ($existing) {
+        Remove-AppxPackage -Package $existing.PackageFullName
+    }
+
+    $adtSession.InstallPhase = $adtSession.DeploymentType
+
+    # Reinstall
+    $msixPath = Join-Path -Path $adtSession.DirFiles -ChildPath 'app.msix'
+    Add-AppxPackage -Path $msixPath
+
+    $adtSession.InstallPhase = "Post-$($adtSession.DeploymentType)"
+}
+
+# Initialization
+$ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
+$ProgressPreference = [System.Management.Automation.ActionPreference]::SilentlyContinue
+Set-StrictMode -Version 1
+
+try {
+    Import-Module -FullyQualifiedName @{ ModuleName = 'PSAppDeployToolkit'; Guid = '8c3c366b-8606-4576-9f2d-4051144f7ca2'; ModuleVersion = '4.1.7' } -Force
+    $iadtParams = Get-ADTBoundParametersAndDefaultValues -Invocation $MyInvocation
+    $adtSession = Remove-ADTHashtableNullOrEmptyValues -Hashtable $adtSession
+    $adtSession = Open-ADTSession @adtSession @iadtParams -PassThru
 }
 catch {
-    Write-ADTLogEntry -Message "Error: $($_.Exception.Message)" -Severity 3
-    Complete-ADTDeployment -DeploymentStatus 'Failed' -ErrorMessage $_.Exception.Message
+    $Host.UI.WriteErrorLine((Out-String -InputObject $_ -Width ([System.Int32]::MaxValue)))
+    exit 60008
+}
+
+# Invocation
+try {
+    & "$($adtSession.DeploymentType)-ADTDeployment"
+    Close-ADTSession
+}
+catch {
+    Write-ADTLogEntry -Message "Unhandled error: $(Resolve-ADTErrorRecord -ErrorRecord $_)" -Severity 3
+    Close-ADTSession -ExitCode 60001
 }
 ```
 

@@ -1,11 +1,11 @@
 ---
 title: "Prerequisites Handling Patterns"
 id: "kb-patterns-prerequisites"
-psadt_target: "4.0.x"
-last_updated: "2024-12-07"
+psadt_target: "4.1.7"
+last_updated: "2025-12-07"
 verified_by: "maintainer"
-source_ref: "ReferenceKnowledge/Examples/"
-tags: ["prerequisites", "patterns", "dependencies", "runtime"]
+source_ref: "ReferenceKnowledge/V4Assets/PSAppDeployToolkit"
+tags: ["prerequisites", "patterns", "dependencies", "runtime", "v4.1.7"]
 ---
 
 # Prerequisites Handling Patterns
@@ -197,7 +197,7 @@ if (-not (Test-DotNetFrameworkVersion -RequiredVersion "4.8")) {
     Write-ADTLogEntry -Message "Installing .NET Framework 4.8"
     Show-ADTInstallationProgress -StatusMessage "Installing .NET Framework 4.8..."
 
-    $dotnetInstaller = Join-Path $ADTSession.FilesDirectory "ndp48-x86-x64-allos-enu.exe"
+    $dotnetInstaller = Join-Path $adtSession.DirFiles "ndp48-x86-x64-allos-enu.exe"
     $result = Start-ADTProcess -FilePath $dotnetInstaller -Arguments '/q /norestart' -PassThru
 
     if ($result.ExitCode -eq 3010) {
@@ -213,7 +213,7 @@ if (-not (Test-VCRedistInstalled -Architecture "x64")) {
     Write-ADTLogEntry -Message "Installing Visual C++ Redistributable x64"
     Show-ADTInstallationProgress -StatusMessage "Installing Visual C++ Runtime..."
 
-    $vcRedist = Join-Path $ADTSession.FilesDirectory "VC_redist.x64.exe"
+    $vcRedist = Join-Path $adtSession.DirFiles "VC_redist.x64.exe"
     Start-ADTProcess -FilePath $vcRedist -Arguments '/install /quiet /norestart'
 }
 #endregion
@@ -225,7 +225,7 @@ Include all prerequisites in the package:
 
 ```powershell
 function Install-Prerequisites {
-    $prereqPath = Join-Path $ADTSession.FilesDirectory "Prerequisites"
+    $prereqPath = Join-Path $adtSession.DirFiles "Prerequisites"
 
     # Define prerequisites with detection and install info
     $prerequisites = @(
@@ -370,12 +370,12 @@ function Install-PrerequisiteWithRestart {
     }
 }
 
-# At end of script
+# At end of script (in v4.1.7 style)
 if ($script:RestartRequired) {
     Write-ADTLogEntry -Message "One or more prerequisites require a restart"
-    Complete-ADTDeployment -DeploymentStatus 'RestartRequired'
+    Close-ADTSession -ExitCode 3010
 } else {
-    Complete-ADTDeployment -DeploymentStatus 'Complete'
+    Close-ADTSession
 }
 ```
 
@@ -400,25 +400,28 @@ foreach ($key in $rebootKeys) {
 
 if ($pendingRestart) {
     Write-ADTLogEntry -Message "System has pending restart - deferring installation" -Severity 2
-    Complete-ADTDeployment -DeploymentStatus 'FastRetry'
-    exit 60001
+    Close-ADTSession -ExitCode 1618  # Retry later
 }
 ```
 
 ## Complete Example
 
 ```powershell
-#Requires -Version 5.1
+# v4.1.7 Prerequisites Example - Using function-based structure
 
 [CmdletBinding()]
-param (
+param(
+    [Parameter(Mandatory = $false)]
     [ValidateSet('Install', 'Uninstall', 'Repair')]
-    [string]$DeploymentType = 'Install',
-    [ValidateSet('Interactive', 'Silent', 'NonInteractive')]
-    [string]$DeployMode = 'Interactive'
-)
+    [System.String]$DeploymentType,
 
-Import-Module "$PSScriptRoot\PSAppDeployToolkit" -Force
+    [Parameter(Mandatory = $false)]
+    [ValidateSet('Auto', 'Interactive', 'NonInteractive', 'Silent')]
+    [System.String]$DeployMode,
+
+    [Parameter(Mandatory = $false)]
+    [System.Management.Automation.SwitchParameter]$SuppressRebootPassThru
+)
 
 #region Detection Functions
 function Test-VCRedistInstalled {
@@ -430,76 +433,116 @@ function Test-DotNetRuntimeVersion {
 }
 #endregion
 
-Initialize-ADTDeployment @{
-    InstallName = 'Application Name'
-    InstallVersion = '1.0.0'
-    Publisher = 'Publisher'
-    DeploymentType = $DeploymentType
-    DeployMode = $DeployMode
+$adtSession = @{
+    AppVendor = 'Publisher'
+    AppName = 'Application Name'
+    AppVersion = '1.0.0'
+    AppArch = 'x64'
+    AppLang = 'EN'
+    AppRevision = '01'
+    AppSuccessExitCodes = @(0)
+    AppRebootExitCodes = @(1641, 3010)
+    AppProcessesToClose = @(@{ Name = 'appname'; Description = 'Application' })
+    AppScriptVersion = '1.0.0'
+    AppScriptDate = '2025-01-01'
+    AppScriptAuthor = 'IT Admin'
+    RequireAdmin = $true
 }
 
-$RestartRequired = $false
+$script:RestartRequired = $false
 
-try {
-    switch ($DeploymentType) {
-        'Install' {
-            #region Prerequisites
-            Write-ADTLogEntry -Message "=== Checking Prerequisites ==="
+function Install-ADTDeployment {
+    [CmdletBinding()]
+    param()
 
-            $prereqPath = Join-Path $ADTSession.FilesDirectory "Prerequisites"
+    $adtSession.InstallPhase = "Pre-$($adtSession.DeploymentType)"
 
-            # Check and install VC++ Redistributable
-            if (-not (Test-VCRedistInstalled -Architecture "x64")) {
-                Show-ADTInstallationProgress -StatusMessage "Installing Visual C++ Runtime..."
-                $vcResult = Start-ADTProcess -FilePath "$prereqPath\VC_redist.x64.exe" `
-                    -Arguments '/install /quiet /norestart' -PassThru
+    #region Prerequisites
+    Write-ADTLogEntry -Message "=== Checking Prerequisites ==="
 
-                if ($vcResult.ExitCode -eq 3010) {
-                    $RestartRequired = $true
-                }
-            }
+    $prereqPath = Join-Path $adtSession.DirFiles "Prerequisites"
 
-            # Check and install .NET 6 Desktop Runtime
-            if (-not (Test-DotNetRuntimeVersion -RuntimeType "Microsoft.WindowsDesktop.App" -RequiredVersion "6.0.0")) {
-                Show-ADTInstallationProgress -StatusMessage "Installing .NET 6 Runtime..."
-                $netResult = Start-ADTProcess -FilePath "$prereqPath\windowsdesktop-runtime-6.0.x-win-x64.exe" `
-                    -Arguments '/install /quiet /norestart' -PassThru
+    # Check and install VC++ Redistributable
+    if (-not (Test-VCRedistInstalled -Architecture "x64")) {
+        Show-ADTInstallationProgress -StatusMessage "Installing Visual C++ Runtime..."
+        $vcResult = Start-ADTProcess -FilePath "$prereqPath\VC_redist.x64.exe" `
+            -ArgumentList '/install /quiet /norestart' -PassThru
 
-                if ($netResult.ExitCode -eq 3010) {
-                    $RestartRequired = $true
-                }
-            }
-
-            Write-ADTLogEntry -Message "=== Prerequisites Complete ==="
-            #endregion
-
-            #region Main Installation
-            Show-ADTInstallationWelcome -CloseApps 'appname'
-            Show-ADTInstallationProgress -StatusMessage "Installing Application..."
-
-            Start-ADTProcess -FilePath "$($ADTSession.FilesDirectory)\setup.exe" -Arguments '/S'
-
-            # Verify
-            $installed = Get-ADTInstalledApplication -Name 'Application Name'
-            if (-not $installed) {
-                throw "Installation verification failed"
-            }
-            #endregion
-        }
-        'Uninstall' {
-            # Uninstall logic (don't remove shared prerequisites)
+        if ($vcResult.ExitCode -eq 3010) {
+            $script:RestartRequired = $true
         }
     }
 
-    if ($RestartRequired) {
-        Complete-ADTDeployment -DeploymentStatus 'RestartRequired'
+    # Check and install .NET 6 Desktop Runtime
+    if (-not (Test-DotNetRuntimeVersion -RuntimeType "Microsoft.WindowsDesktop.App" -RequiredVersion "6.0.0")) {
+        Show-ADTInstallationProgress -StatusMessage "Installing .NET 6 Runtime..."
+        $netResult = Start-ADTProcess -FilePath "$prereqPath\windowsdesktop-runtime-6.0.x-win-x64.exe" `
+            -ArgumentList '/install /quiet /norestart' -PassThru
+
+        if ($netResult.ExitCode -eq 3010) {
+            $script:RestartRequired = $true
+        }
+    }
+
+    Write-ADTLogEntry -Message "=== Prerequisites Complete ==="
+    #endregion
+
+    #region Main Installation
+    $saiwParams = @{ PersistPrompt = $true }
+    if ($adtSession.AppProcessesToClose.Count -gt 0) {
+        $saiwParams.Add('CloseProcesses', $adtSession.AppProcessesToClose)
+    }
+    Show-ADTInstallationWelcome @saiwParams
+    Show-ADTInstallationProgress -StatusMessage "Installing Application..."
+
+    $adtSession.InstallPhase = $adtSession.DeploymentType
+    Start-ADTProcess -FilePath "$($adtSession.DirFiles)\setup.exe" -ArgumentList '/S'
+
+    # Verify
+    $installed = Get-ADTApplication -Name 'Application Name'
+    if (-not $installed) {
+        throw "Installation verification failed"
+    }
+
+    $adtSession.InstallPhase = "Post-$($adtSession.DeploymentType)"
+    #endregion
+}
+
+function Uninstall-ADTDeployment {
+    [CmdletBinding()]
+    param()
+    # Uninstall logic (don't remove shared prerequisites)
+}
+
+# Initialization
+$ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
+$ProgressPreference = [System.Management.Automation.ActionPreference]::SilentlyContinue
+Set-StrictMode -Version 1
+
+try {
+    Import-Module -FullyQualifiedName @{ ModuleName = 'PSAppDeployToolkit'; Guid = '8c3c366b-8606-4576-9f2d-4051144f7ca2'; ModuleVersion = '4.1.7' } -Force
+    $iadtParams = Get-ADTBoundParametersAndDefaultValues -Invocation $MyInvocation
+    $adtSession = Remove-ADTHashtableNullOrEmptyValues -Hashtable $adtSession
+    $adtSession = Open-ADTSession @adtSession @iadtParams -PassThru
+}
+catch {
+    $Host.UI.WriteErrorLine((Out-String -InputObject $_ -Width ([System.Int32]::MaxValue)))
+    exit 60008
+}
+
+# Invocation
+try {
+    & "$($adtSession.DeploymentType)-ADTDeployment"
+
+    if ($script:RestartRequired) {
+        Close-ADTSession -ExitCode 3010
     } else {
-        Complete-ADTDeployment -DeploymentStatus 'Complete'
+        Close-ADTSession
     }
 }
 catch {
-    Write-ADTLogEntry -Message "Error: $($_.Exception.Message)" -Severity 3
-    Complete-ADTDeployment -DeploymentStatus 'Failed' -ErrorMessage $_.Exception.Message
+    Write-ADTLogEntry -Message "Unhandled error: $(Resolve-ADTErrorRecord -ErrorRecord $_)" -Severity 3
+    Close-ADTSession -ExitCode 60001
 }
 ```
 

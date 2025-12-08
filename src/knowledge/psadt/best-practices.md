@@ -1,22 +1,22 @@
 ---
 title: "PSADT v4 Best Practices"
 id: "psadt-best-practices"
-psadt_target: "4.1.x"
-last_updated: "2024-12-07"
+psadt_target: "4.1.7"
+last_updated: "2025-12-07"
 verified_by: "maintainer"
-source_ref: "ReferenceKnowledge/Examples/"
-tags: ["psadt", "best-practices", "patterns", "deployment", "v4.1"]
+source_ref: "ReferenceKnowledge/V4Assets/PSAppDeployToolkit"
+tags: ["psadt", "best-practices", "patterns", "deployment", "v4.1.7"]
 ---
 
 # PSADT v4 Best Practices
 
-Best practices for creating reliable, maintainable PSADT v4.1 deployment packages, derived from real-world examples.
+Best practices for creating reliable, maintainable PSADT v4.1.7 deployment packages, derived from real-world examples.
 
-## Script Structure (v4.1)
+## Script Structure (v4.1.7)
 
 ### Use Function-Based Structure
 
-In v4.1, use separate functions for each deployment type:
+In v4.1.7, use separate functions for each deployment type:
 
 ```powershell
 function Install-ADTDeployment {
@@ -43,7 +43,7 @@ function Repair-ADTDeployment {
 }
 ```
 
-### Use AppProcessesToClose (v4.1)
+### Use AppProcessesToClose (v4.1.7)
 
 Define processes to close once in the session, reuse everywhere:
 
@@ -65,7 +65,7 @@ Show-ADTInstallationWelcome @saiwParams
 
 ### Use Parameter Splatting
 
-v4.1 recommends splatting for cleaner code:
+v4.1.7 recommends splatting for cleaner code:
 
 ```powershell
 $saiwParams = @{
@@ -223,9 +223,9 @@ if ($adtSession.UseDefaultMsi) {
 
 ## Silent/Intune Deployment
 
-### No ServiceUI Required (v4.1)
+### No ServiceUI Required (v4.1.7)
 
-v4.1 handles user interaction without ServiceUI:
+v4.1.7 handles user interaction without ServiceUI:
 
 ```powershell
 # Install command for Intune:
@@ -235,12 +235,12 @@ Invoke-AppDeployToolkit.exe -DeploymentType Install -DeployMode Silent
 Invoke-AppDeployToolkit.exe -DeploymentType Uninstall -DeployMode Silent
 ```
 
-### DeployMode Auto (v4.1 Default)
+### DeployMode Auto (v4.1.7 Default)
 
 Let PSADT decide when to show UI:
 
 ```powershell
-# With Auto mode (default in v4.1):
+# With Auto mode (default in v4.1.7):
 # - Shows UI if user is logged on AND not in OOBE/ESP AND processes to close are running
 # - Silent otherwise
 Invoke-AppDeployToolkit.exe -DeploymentType Install
@@ -349,6 +349,6 @@ Before deployment, verify:
 2. **Don't skip uninstall** - Every install needs matching uninstall
 3. **Don't ignore exit codes** - Check and handle appropriately
 4. **Don't assume interactive** - Design for silent first
-5. **Don't use ServiceUI** - v4.1 handles user interaction natively
+5. **Don't use ServiceUI** - v4.1.7 handles user interaction natively
 6. **Don't duplicate process lists** - Use `AppProcessesToClose`
 7. **Don't skip logging** - Future troubleshooting depends on it

@@ -44,6 +44,16 @@ src/
     ├── psadt.ts        # PSADT types
     ├── validation.ts   # Validation types
     └── intune.ts       # Intune detection types
+
+ReferenceKnowledge/     # Source reference materials
+├── V4Assets/           # PSADT v4.1.7 source files
+│   ├── Invoke-AppDeployToolkit.ps1  # Main deployment script
+│   └── PSAppDeployToolkit/          # Module files
+│       └── PSAppDeployToolkit.psd1  # Module manifest (135 functions)
+├── functionsdoc.md     # Complete function reference documentation
+├── V3DOCS.md           # Legacy v3 documentation
+├── V4DOCS.md           # v4 documentation
+└── Examples/           # Example deployments
 ```
 
 ## MCP Tools to Implement
@@ -108,7 +118,10 @@ src/
 
 ### PSADT v4
 - Documentation: https://psappdeploytoolkit.com
-- Key functions: `Initialize-ADTDeployment`, `Start-ADTProcess`, `Show-ADTInstallationWelcome`, `Complete-ADTDeployment`
+- Version: 4.1.7 (135 exported functions)
+- Key session functions: `Open-ADTSession`, `Close-ADTSession`, `Get-ADTSession`
+- Deployment functions: `Install-ADTDeployment`, `Uninstall-ADTDeployment`, `Repair-ADTDeployment`
+- Core functions: `Start-ADTProcess`, `Start-ADTMsiProcess`, `Show-ADTInstallationWelcome`, `Show-ADTInstallationProgress`
 
 ## Testing
 
@@ -133,10 +146,12 @@ src/
 - **ZIP**: Extract and run setup, or xcopy deployment
 
 ### PSADT v4 Key Changes from v3
-- Module-based architecture (Import-Module)
-- `ADT` prefix on all functions (e.g., `Show-ADTInstallationWelcome`)
-- `$ADTSession` object for state management
-- Structured error handling with `Complete-ADTDeployment`
+- Module-based architecture (Import-Module PSAppDeployToolkit)
+- `ADT` prefix on all 135 functions (e.g., `Show-ADTInstallationWelcome`)
+- `$adtSession` object for state management via `Open-ADTSession`
+- Deployment functions: `Install-ADTDeployment`, `Uninstall-ADTDeployment`, `Repair-ADTDeployment`
+- Structured error handling with `Close-ADTSession`
+- Script parameters: `DeploymentType`, `DeployMode`, `SuppressRebootPassThru`, `TerminalServerMode`, `DisableLogging`
 
 ### Intune Detection Methods
 1. **File**: Check file exists at path with version/size

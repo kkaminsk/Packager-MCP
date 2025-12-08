@@ -6,6 +6,61 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [2025-12-07] - Complete Knowledge Base v4.1.7 Alignment
+
+### Changed
+- `installers/msi.md` - Updated to v4.1.7
+  - Changed `$ADTSession.FilesDirectory` to `$adtSession.DirFiles`
+  - Updated metadata to v4.1.7 target
+- `installers/exe.md` - Updated to v4.1.7
+  - Changed `$ADTSession.FilesDirectory` to `$adtSession.DirFiles`
+  - Updated metadata to v4.1.7 target
+- `installers/msix.md` - Updated to v4.1.7
+  - Changed deprecated patterns to v4.1.7 function-based structure
+  - Replaced `Initialize-ADTDeployment`/`Complete-ADTDeployment` with proper pattern
+  - Updated complete example with `Open-ADTSession`/`Close-ADTSession`
+- `patterns/prerequisites.md` - Updated to v4.1.7
+  - Replaced deprecated patterns with v4.1.7 function-based structure
+  - Updated complete example with proper session management
+  - Fixed restart handling to use `Close-ADTSession -ExitCode 3010`
+- `patterns/detection.md` - Updated metadata to v4.1.7
+
+### Fixed
+- Corrected function names in migration.md:
+  - `Get-ADTInstalledApplication` → `Get-ADTApplication`
+  - `Remove-ADTInstalledApplication` → `Uninstall-ADTApplication`
+  - `Get-ADTDiskSpace` → `Get-ADTFreeDiskSpace`
+  - `Remove-ADTShortcut` → Added `Get-ADTShortcut` and `Set-ADTShortcut`
+- Fixed function names across all installer guides (msi.md, exe.md, prerequisites.md)
+- Corrected all deprecated v3 patterns in example code
+
+## [2025-12-07] - PSADT v4.1.7 Update
+
+### Changed
+- Updated all PSADT documentation to target v4.1.7 (from 4.1.5)
+- `VERSION` - Bumped to 4.1.7
+- `psadt/overview.md` - Updated to v4.1.7
+  - Updated module GUID reference and version requirements
+  - Corrected script structure with proper initialization pattern
+  - Updated comparison table with v4.1.7 specifics
+- `psadt/functions.md` - Updated to v4.1.7
+  - Added complete 135-function reference organized by category
+  - Updated session management section with correct patterns
+- `psadt/variables.md` - Updated to v4.1.7
+  - Added `DeployAppScriptVersion = '4.1.7'` to session template
+  - Updated initialization pattern with `Get-ADTBoundParametersAndDefaultValues`
+- `psadt/migration.md` - Comprehensive update
+  - Fixed incorrect `Initialize-ADTDeployment`/`Complete-ADTDeployment` references
+  - Corrected to use `Open-ADTSession`/`Close-ADTSession`
+  - Added complete v4.1.7 script structure with function-based deployment
+  - Updated variable mapping table with correct property names
+- `psadt/best-practices.md` - Updated version references to v4.1.7
+
+### Fixed
+- Corrected migration guide which referenced non-existent functions
+- Fixed variable name casing (`$adtSession` not `$ADTSession`)
+- Fixed session property names (`DirFiles` not `FilesDirectory`)
+
 ## [2024-12-07] - PSADT v4.1 Content Update
 
 ### Changed
