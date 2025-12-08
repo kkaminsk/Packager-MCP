@@ -2,7 +2,7 @@
 title: "Installer Download Patterns"
 id: "kb-patterns-download"
 psadt_target: "4.1.7"
-last_updated: "2025-12-07"
+last_updated: "2025-12-08"
 verified_by: "maintainer"
 source_ref: "MCP download_installer tool"
 tags: ["download", "patterns", "winget", "installer", "v4.1.7"]
@@ -127,6 +127,8 @@ The tool uses metadata from the Winget manifest:
 | `sha256` | Computed hash of downloaded file |
 | `verified` | `true` if hash matched manifest |
 | `warning` | Present if manifest had no hash |
+| `installerUrl` | Direct download URL for manual download |
+| `largeFileWarning` | Present for files exceeding threshold |
 
 ### Handling Verification Failures
 
@@ -149,6 +151,51 @@ Override with the `architecture` parameter when needed:
 - ARM devices: `"architecture": "arm64"`
 - 32-bit apps: `"architecture": "x86"`
 
+## Large File Handling
+
+The tool performs a pre-flight size check before downloading and warns about large files.
+
+### Large File Warning
+
+When a file exceeds 500MB (configurable), the response includes a `largeFileWarning`:
+
+```json
+{
+  "largeFileWarning": {
+    "sizeBytes": 734003200,
+    "sizeFormatted": "700.0 MB",
+    "directDownloadUrl": "https://example.com/large-installer.exe",
+    "message": "This is a large file (700.0 MB). If you experience timeouts or slow downloads, consider downloading manually from the URL provided."
+  }
+}
+```
+
+### Manual Download Option
+
+Every download response includes an `installerUrl` field with the direct download link. This allows you to:
+
+1. Download the file manually using a browser or download manager
+2. Resume interrupted downloads
+3. Use alternative download tools with better network handling
+
+### Timeout Handling
+
+If a download times out:
+
+1. The error response includes the `installerUrl` for manual download
+2. The suggestion recommends downloading manually for large files
+3. Consider increasing the timeout via configuration for very large installers
+
+### Configuration
+
+Configure large file handling in your config:
+
+```yaml
+download:
+  largeFileSizeThreshold: 524288000  # 500MB in bytes (set to 0 to disable warnings)
+  timeoutMs: 300000  # 5 minutes default
+```
+
 ## Error Handling
 
 ### Common Errors
@@ -158,7 +205,7 @@ Override with the `architecture` parameter when needed:
 | `Package not found` | Invalid package ID | Verify ID with `search_winget` |
 | `No suitable installer` | Architecture mismatch | Specify different architecture |
 | `Hash verification failed` | Corrupted download | Retry, or manifest outdated |
-| `Download timeout` | Large file/slow network | Check connectivity, retry |
+| `Download timeout` | Large file/slow network | Download manually using `installerUrl` |
 | `Rate limit exceeded` | GitHub API limits | Configure GITHUB_TOKEN |
 
 ### Rate Limits
@@ -171,6 +218,99 @@ Set environment variable for higher limits:
 $env:GITHUB_TOKEN = "ghp_your_token_here"
 ```
 
+## PSADT Toolkit Download
+
+The `download_psadt_toolkit` tool downloads the PSAppDeployToolkit from GitHub releases, creating a complete package structure.
+
+### Basic Toolkit Download
+
+Download the latest version:
+
+```json
+{
+  "output_directory": "C:\\Packages\\MyApp"
+}
+```
+
+### Version-Specific Download
+
+Download a specific version for reproducible builds:
+
+```json
+{
+  "output_directory": "C:\\Packages\\MyApp",
+  "version": "4.0.4"
+}
+```
+
+### Include Extensions Module
+
+Download with the optional Extensions module:
+
+```json
+{
+  "output_directory": "C:\\Packages\\MyApp",
+  "include_extensions": true
+}
+```
+
+### Toolkit Output Structure
+
+After download, the output directory contains:
+
+```
+{output_directory}/
+├── PSAppDeployToolkit/
+│   ├── PSAppDeployToolkit.psd1
+│   ├── PSAppDeployToolkit.psm1
+│   └── ...
+├── PSAppDeployToolkit.Extensions/ (if requested)
+├── Config/
+├── Assets/
+├── Strings/
+├── Files/                    # Place installers here
+├── Invoke-AppDeployToolkit.exe
+└── Invoke-AppDeployToolkit.ps1
+```
+
+### Caching Behavior
+
+- Downloaded releases are cached for 24 hours (configurable)
+- Cache key is based on version tag
+- Subsequent downloads of the same version use cached files
+- Response indicates source: `"downloadedFrom": "cache"` or `"github"`
+
+### Configuration
+
+Configure toolkit download in your config file:
+
+```yaml
+psadt:
+  cacheDirectory: "C:\\PackagerCache\\psadt"  # Default: OS temp directory
+  cacheTtlHours: 24                            # Default: 24 hours
+  defaultVersion: "latest"                     # Default: "latest"
+```
+
+### Combined Template and Toolkit Download
+
+Use `get_psadt_template` with `download_toolkit: true` to generate a script and download the toolkit in one operation:
+
+```json
+{
+  "application_name": "7-Zip",
+  "application_vendor": "Igor Pavlov",
+  "application_version": "23.01",
+  "installer_type": "exe",
+  "download_toolkit": true,
+  "output_directory": "C:\\Packages\\7zip"
+}
+```
+
+This creates:
+- Complete toolkit structure
+- Customized `Invoke-AppDeployToolkit.ps1` with your application details
+- Empty `Files/` directory ready for the installer
+
 ## Best Practices
 
 ### Package Organization
@@ -178,12 +318,14 @@ $env:GITHUB_TOKEN = "ghp_your_token_here"
 ```
 Vendor_AppName_Version/
 ├── PSAppDeployToolkit/
-├── AppDeployToolkit/
-│   ├── Deploy-Application.ps1
-│   └── Files/
-│       └── installer.msi  <- Downloaded here
-├── Detection.ps1
-└── PACKAGE_STRUCTURE.md
+├── Config/
+├── Assets/
+├── Strings/
+├── Files/
+│   └── installer.msi  <- Downloaded here
+├── Invoke-AppDeployToolkit.exe
+├── Invoke-AppDeployToolkit.ps1  <- Generated script
+└── Detection.ps1
 ```
 
 ### Filename Conventions

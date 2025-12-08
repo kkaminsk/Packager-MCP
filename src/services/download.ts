@@ -8,6 +8,7 @@ import { Readable } from 'node:stream';
 import { getLogger, type Logger } from '../utils/logger.js';
 import { DownloadError, HashVerificationError, ExtractionError } from '../utils/errors.js';
 import { getWingetService, type WingetService } from './winget.js';
+import { loadConfig } from '../config/loader.js';
 import type {
   DownloadInstallerInput,
   DownloadInstallerOutput,
@@ -16,19 +17,93 @@ import type {
   InstallerSelection,
   DownloadResult,
   NestedInstallerConfig,
+  LargeFileWarning,
 } from '../types/download.js';
 import type { WingetManifest, Installer, Architecture, InstallerType } from '../types/winget.js';
 
 const DEFAULT_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
 const PROGRESS_THRESHOLD_BYTES = 1024 * 1024; // 1MB
 
+function formatBytes(bytes: number): string {
+  if (bytes === 0) return '0 B';
+  const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+  const k = 1024;
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  const value = bytes / Math.pow(k, i);
+  return `${value.toFixed(i > 0 ? 1 : 0)} ${units[i]}`;
+}
+
 export class InstallerDownloadService {
   private logger: Logger;
   private wingetService: WingetService;
+  private largeFileSizeThreshold: number;
+  private timeoutMs: number;
 
   constructor() {
     this.logger = getLogger().child({ service: 'download' });
     this.wingetService = getWingetService();
+    const config = loadConfig();
+    this.largeFileSizeThreshold = config.download.largeFileSizeThreshold;
+    this.timeoutMs = config.download.timeoutMs;
+  }
+
+  async checkFileSize(url: string): Promise<number | undefined> {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout for HEAD
+
+      const response = await fetch(url, {
+        method: 'HEAD',
+        signal: controller.signal,
+        headers: {
+          'User-Agent': 'intune-packaging-assistant-mcp/1.0',
+        },
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        this.logger.debug('HEAD request failed, proceeding without size info', {
+          url,
+          status: response.status,
+        });
+        return undefined;
+      }
+
+      const contentLength = response.headers.get('content-length');
+      if (contentLength) {
+        const size = parseInt(contentLength, 10);
+        this.logger.debug('Pre-flight size check completed', {
+          url,
+          sizeBytes: size,
+          sizeFormatted: formatBytes(size),
+        });
+        return size;
+      }
+
+      return undefined;
+    } catch (error) {
+      this.logger.debug('Pre-flight size check failed, proceeding without size info', {
+        url,
+        error: error instanceof Error ? error.message : String(error),
+      });
+      return undefined;
+    }
+  }
+
+  private createLargeFileWarning(sizeBytes: number, url: string): LargeFileWarning | undefined {
+    if (this.largeFileSizeThreshold <= 0 || sizeBytes < this.largeFileSizeThreshold) {
+      return undefined;
+    }
+
+    return {
+      sizeBytes,
+      sizeFormatted: formatBytes(sizeBytes),
+      directDownloadUrl: url,
+      message:
+        `This is a large file (${formatBytes(sizeBytes)}). ` +
+        'If you experience timeouts or slow downloads, consider downloading manually from the URL provided.',
+    };
   }
 
   async downloadInstaller(input: DownloadInstallerInput): Promise<DownloadInstallerOutput> {
@@ -66,6 +141,12 @@ export class InstallerDownloadService {
     if (!existsSync(input.outputDirectory)) {
       mkdirSync(input.outputDirectory, { recursive: true });
     }
+
+    // Pre-flight size check
+    const preFlightSize = await this.checkFileSize(selection.installerUrl);
+    const largeFileWarning = preFlightSize
+      ? this.createLargeFileWarning(preFlightSize, selection.installerUrl)
+      : undefined;
 
     // Determine output filename
     const outputFilename = input.outputFilename ?? selection.originalFilename;
@@ -108,11 +189,13 @@ export class InstallerDownloadService {
       verified: downloadResult.verified,
       installerType: selection.nestedInstaller?.nestedInstallerType ?? selection.installerType,
       downloadedFrom: selection.installerUrl,
+      installerUrl: selection.installerUrl,
       duration,
       packageId: manifest.packageIdentifier,
       packageName: manifest.packageName,
       packageVersion: manifest.packageVersion,
       publisher: manifest.publisher,
+      largeFileWarning,
     };
 
     if (!selection.installerSha256) {
@@ -211,7 +294,7 @@ export class InstallerDownloadService {
     this.logger.debug('Starting file download', { url, outputPath });
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT_MS);
+    const timeoutId = setTimeout(() => controller.abort(), this.timeoutMs);
 
     try {
       const response = await fetch(url, {
@@ -330,8 +413,8 @@ export class InstallerDownloadService {
 
       if (error instanceof Error && error.name === 'AbortError') {
         throw new DownloadError(
-          `Download timed out after ${DEFAULT_TIMEOUT_MS / 1000} seconds. ` +
-            'Try again or check your network connection. For large files, ensure stable connectivity.',
+          `Download timed out after ${this.timeoutMs / 1000} seconds. ` +
+            'For large files, consider downloading manually from the installer URL provided.',
           url
         );
       }

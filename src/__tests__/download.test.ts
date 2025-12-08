@@ -55,6 +55,10 @@ vi.mock('../config/loader.js', () => ({
     cache: cacheConfig,
     logging: { level: 'error', format: 'json' },
     github: { rateLimitRetries: 3 },
+    download: {
+      largeFileSizeThreshold: 500 * 1024 * 1024, // 500MB
+      timeoutMs: 5 * 60 * 1000, // 5 minutes
+    },
   }),
   getConfigLoader: () => ({
     load: () => ({}),
@@ -64,6 +68,10 @@ vi.mock('../config/loader.js', () => ({
       cache: cacheConfig,
       logging: { level: 'error', format: 'json' },
       github: { rateLimitRetries: 3 },
+      download: {
+        largeFileSizeThreshold: 500 * 1024 * 1024,
+        timeoutMs: 5 * 60 * 1000,
+      },
     }),
   }),
 }));
@@ -240,6 +248,55 @@ describe('InstallerDownloadService', () => {
       expect(error.expectedHash).toBe('expected123');
       expect(error.actualHash).toBe('actual456');
       expect(error.code).toBe('HASH_VERIFICATION_ERROR');
+    });
+  });
+
+  describe('checkFileSize', () => {
+    it('should return file size from HEAD request Content-Length', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        headers: new Map([['content-length', '1048576']]),
+      });
+
+      const size = await service.checkFileSize('https://example.com/file.exe');
+
+      expect(size).toBe(1048576);
+      expect(mockFetch).toHaveBeenCalledWith(
+        'https://example.com/file.exe',
+        expect.objectContaining({
+          method: 'HEAD',
+        })
+      );
+    });
+
+    it('should return undefined when HEAD request fails', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 404,
+      });
+
+      const size = await service.checkFileSize('https://example.com/file.exe');
+
+      expect(size).toBeUndefined();
+    });
+
+    it('should return undefined when Content-Length header is missing', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        headers: new Map(),
+      });
+
+      const size = await service.checkFileSize('https://example.com/file.exe');
+
+      expect(size).toBeUndefined();
+    });
+
+    it('should return undefined when fetch throws an error', async () => {
+      mockFetch.mockRejectedValueOnce(new Error('Network error'));
+
+      const size = await service.checkFileSize('https://example.com/file.exe');
+
+      expect(size).toBeUndefined();
     });
   });
 });

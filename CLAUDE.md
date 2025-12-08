@@ -33,6 +33,8 @@ src/
 ├── services/
 │   ├── winget.ts       # Winget API integration
 │   ├── psadt.ts        # PSADT template generation
+│   ├── psadt-download.ts # PSADT toolkit download from GitHub
+│   ├── download.ts     # Installer download service
 │   ├── validation.ts   # Package validation
 │   └── detection.ts    # Intune detection rule generation
 ├── knowledge/          # Embedded documentation
@@ -42,6 +44,8 @@ src/
 └── types/              # TypeScript type definitions
     ├── winget.ts       # Winget types
     ├── psadt.ts        # PSADT types
+    ├── psadt-download.ts # PSADT download types
+    ├── download.ts     # Download types
     ├── validation.ts   # Validation types
     └── intune.ts       # Intune detection types
 
@@ -56,15 +60,17 @@ ReferenceKnowledge/     # Source reference materials
 └── Examples/           # Example deployments
 ```
 
-## MCP Tools to Implement
+## MCP Tools
 
 | Tool | Purpose |
 |------|---------|
 | `search_winget` | Query Winget repo for app metadata, installer URLs, silent args |
-| `get_psadt_template` | Generate PSADT v4 scripts based on installer type |
+| `get_psadt_template` | Generate PSADT v4 scripts based on installer type (optionally with toolkit download) |
 | `validate_package` | Check scripts against best practices |
 | `get_silent_install_args` | Retrieve/derive silent install parameters |
 | `generate_intune_detection` | Create Intune detection rules (file/registry/MSI/script) |
+| `download_installer` | Download installer from Winget with SHA256 verification and large file handling |
+| `download_psadt_toolkit` | Download PSADT toolkit from GitHub releases with caching and version pinning |
 
 ## MCP Resources
 
@@ -163,7 +169,7 @@ ReferenceKnowledge/     # Source reference materials
 
 ## Implementation Roadmap
 
-All 7 proposals have been implemented and archived. Archived proposals are in `openspec/changes/archive/`.
+All proposals have been implemented. Archived proposals (1-7) are in `openspec/changes/archive/`. Recent proposals (8-10) are in `openspec/changes/`.
 
 ### Proposal Summary
 
@@ -176,6 +182,9 @@ All 7 proposals have been implemented and archived. Archived proposals are in `o
 | 5 | `5-add-intune-detection` | `generate_intune_detection` tool | Archived |
 | 6 | `6-add-mcp-prompts` | `/package-app`, `/convert-legacy`, `/troubleshoot`, `/bulk-lookup` | Archived |
 | 7 | `7-knowledge-maintenance` | Knowledge base versioning, maintenance workflow, validation | Archived |
+| 8 | `8-add-installer-download` | `download_installer` tool with SHA256 verification | Complete |
+| 9 | `9-fix-file-version-format` | Fixed file version format in detection rules | Complete |
+| 10 | `10-add-large-file-download-guidance` | Large file warnings, manual download URL, configurable thresholds | Complete |
 
 ### Creating New Proposals
 

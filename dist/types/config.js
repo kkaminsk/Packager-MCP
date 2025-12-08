@@ -14,5 +14,9 @@ export const DEFAULT_CONFIG = {
     github: {
         rateLimitRetries: 3,
     },
+    download: {
+        largeFileSizeThreshold: 500 * 1024 * 1024, // 500MB
+        timeoutMs: 5 * 60 * 1000, // 5 minutes
+    },
 };
 //# sourceMappingURL=config.js.map

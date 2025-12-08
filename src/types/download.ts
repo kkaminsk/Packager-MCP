@@ -10,6 +10,15 @@ export interface DownloadInstallerInput {
   outputFilename?: string;
 }
 
+// Large file warning type
+
+export interface LargeFileWarning {
+  sizeBytes: number;
+  sizeFormatted: string;
+  directDownloadUrl: string;
+  message: string;
+}
+
 // Download tool output types
 
 export interface DownloadInstallerOutput {
@@ -21,12 +30,14 @@ export interface DownloadInstallerOutput {
   verified: boolean;
   installerType: InstallerType;
   downloadedFrom: string;
+  installerUrl: string;
   duration: number;
   packageId: string;
   packageName: string;
   packageVersion: string;
   publisher: string;
   warning?: string;
+  largeFileWarning?: LargeFileWarning;
 }
 
 // Progress tracking

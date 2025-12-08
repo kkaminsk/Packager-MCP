@@ -6,6 +6,7 @@ import { getPsadtService } from '../services/psadt.js';
 import { getValidationService } from '../services/validation.js';
 import { getDetectionService } from '../services/detection.js';
 import { getDownloadService } from '../services/download.js';
+import { getPsadtDownloadService } from '../services/psadt-download.js';
 const searchWingetSchema = z.object({
     query: z.string().min(1).describe('Search query - package name or ID'),
     exact_match: z.boolean().optional().describe('If true, only return exact package ID matches'),
@@ -44,6 +45,9 @@ const getPsadtTemplateSchema = z.object({
         .enum(['never', 'prompt', 'force'])
         .optional()
         .describe('Reboot behavior (default: never)'),
+    download_toolkit: z.boolean().optional().describe('Download the PSADT toolkit to the output directory. Requires output_directory to be specified.'),
+    output_directory: z.string().optional().describe('Directory to save the generated script and toolkit files. Required when download_toolkit is true.'),
+    toolkit_version: z.string().optional().describe('Specific PSADT toolkit version to download (e.g., "4.0.4"). Default: latest'),
 });
 const validatePackageSchema = z.object({
     script: z.string().min(1).describe('PowerShell script content to validate'),
@@ -251,10 +255,14 @@ export function registerToolHandlers(server) {
         tools: ['search_winget', 'get_silent_install_args'],
     });
     // Register get_psadt_template tool
-    server.tool('get_psadt_template', 'Generate a PSADT v4 deployment script template for a specific application and installer type. Returns a complete deployment script with customization points.', getPsadtTemplateSchema.shape, async (args) => {
+    server.tool('get_psadt_template', 'Generate a PSADT v4 deployment script template for a specific application and installer type. Returns a complete deployment script with customization points. Optionally downloads the PSADT toolkit to create a complete package structure.', getPsadtTemplateSchema.shape, async (args) => {
         logger.debug('Executing get_psadt_template', { args });
         try {
             const validated = getPsadtTemplateSchema.parse(args);
+            // Validate download_toolkit requirements
+            if (validated.download_toolkit && !validated.output_directory) {
+                throw new ToolError('output_directory is required when download_toolkit is true', 'get_psadt_template');
+            }
             const psadtService = getPsadtService();
             const input = {
                 applicationName: validated.application_name,
@@ -274,6 +282,30 @@ export function registerToolHandlers(server) {
                 rebootBehavior: validated.reboot_behavior,
             };
             const result = await psadtService.generateTemplate(input);
+            // Handle toolkit download if requested
+            let toolkitDownloadResult;
+            let scriptSavedPath;
+            if (validated.download_toolkit && validated.output_directory) {
+                const psadtDownloadService = getPsadtDownloadService();
+                const downloadResult = await psadtDownloadService.downloadToolkit({
+                    outputDirectory: validated.output_directory,
+                    version: validated.toolkit_version,
+                });
+                toolkitDownloadResult = {
+                    success: downloadResult.success,
+                    version: downloadResult.version,
+                    downloadedFrom: downloadResult.downloadedFrom,
+                    filesCount: downloadResult.files.length,
+                };
+                // Save the generated script to the output directory
+                const { writeFileSync, existsSync, mkdirSync } = await import('node:fs');
+                const { join } = await import('node:path');
+                if (!existsSync(validated.output_directory)) {
+                    mkdirSync(validated.output_directory, { recursive: true });
+                }
+                scriptSavedPath = join(validated.output_directory, 'Invoke-AppDeployToolkit.ps1');
+                writeFileSync(scriptSavedPath, result.template.script, 'utf-8');
+            }
             return {
                 content: [
                     {
@@ -282,6 +314,7 @@ export function registerToolHandlers(server) {
                             success: result.success,
                             metadata: result.template.metadata,
                             script: result.template.script,
+                            scriptSavedPath,
                             additionalFiles: result.template.files.map((f) => ({
                                 path: f.path,
                                 description: f.description,
@@ -289,6 +322,7 @@ export function registerToolHandlers(server) {
                             })),
                             customizationPoints: result.template.customizationPoints,
                             recommendations: result.recommendations,
+                            toolkitDownload: toolkitDownloadResult,
                         }, null, 2),
                     },
                 ],
@@ -534,10 +568,12 @@ export function registerToolHandlers(server) {
                             },
                             download: {
                                 url: result.downloadedFrom,
+                                installerUrl: result.installerUrl,
                                 duration: result.duration,
                                 durationFormatted: `${(result.duration / 1000).toFixed(1)}s`,
                             },
                             warning: result.warning,
+                            largeFileWarning: result.largeFileWarning,
                         }, null, 2),
                     },
                 ],
@@ -565,18 +601,21 @@ export function registerToolHandlers(server) {
                 };
             }
             if (error instanceof DownloadError) {
+                const isTimeout = error.message.includes('timed out');
                 return {
                     content: [
                         {
                             type: 'text',
                             text: JSON.stringify({
-                                error: 'download_failed',
+                                error: isTimeout ? 'download_timeout' : 'download_failed',
                                 message: error.message,
-                                url: error.url,
+                                installerUrl: error.url,
                                 statusCode: error.statusCode,
                                 suggestion: error.statusCode === 404
                                     ? 'The package or version was not found. Verify the package ID and version are correct.'
-                                    : 'Check your network connection and try again.',
+                                    : isTimeout
+                                        ? `For large files, download manually from: ${error.url}`
+                                        : 'Check your network connection and try again.',
                             }, null, 2),
                         },
                     ],
@@ -611,6 +650,115 @@ export function registerToolHandlers(server) {
     });
     logger.info('Registered Download tools', {
         tools: ['download_installer'],
+    });
+    // Register download_psadt_toolkit tool
+    const downloadPsadtToolkitSchema = z.object({
+        output_directory: z.string().min(1).describe('Directory path where the PSADT toolkit will be extracted (e.g., "C:\\Packages\\MyApp")'),
+        version: z.string().optional().describe('Specific PSADT version to download (e.g., "4.0.4"). If not specified, downloads the latest version.'),
+        include_extensions: z.boolean().optional().describe('Include the PSAppDeployToolkit.Extensions module. Default: false'),
+    });
+    server.tool('download_psadt_toolkit', 'Download the PSAppDeployToolkit from GitHub releases. Extracts the complete toolkit structure including module files, config, assets, and launcher. Supports version pinning for reproducible builds.', downloadPsadtToolkitSchema.shape, async (args) => {
+        logger.debug('Executing download_psadt_toolkit', {
+            outputDirectory: args.output_directory,
+            version: args.version,
+            includeExtensions: args.include_extensions,
+        });
+        try {
+            const validated = downloadPsadtToolkitSchema.parse(args);
+            const psadtDownloadService = getPsadtDownloadService();
+            const input = {
+                outputDirectory: validated.output_directory,
+                version: validated.version,
+                includeExtensions: validated.include_extensions,
+            };
+            const result = await psadtDownloadService.downloadToolkit(input);
+            return {
+                content: [
+                    {
+                        type: 'text',
+                        text: JSON.stringify({
+                            success: result.success,
+                            version: result.version,
+                            outputDirectory: result.outputDirectory,
+                            downloadedFrom: result.downloadedFrom,
+                            releaseUrl: result.releaseUrl,
+                            filesCount: result.files.length,
+                            files: result.files.slice(0, 20), // Limit to first 20 files for readability
+                            downloadSize: result.downloadSize,
+                            downloadSizeFormatted: formatBytes(result.downloadSize),
+                            duration: result.duration,
+                            durationFormatted: `${(result.duration / 1000).toFixed(1)}s`,
+                            note: result.files.length > 20
+                                ? `Showing first 20 of ${result.files.length} files extracted.`
+                                : undefined,
+                        }, null, 2),
+                    },
+                ],
+            };
+        }
+        catch (error) {
+            logger.error('download_psadt_toolkit failed', {
+                error: error instanceof Error ? error.message : String(error),
+            });
+            if (error instanceof GithubApiError && error.statusCode === 429) {
+                return {
+                    content: [
+                        {
+                            type: 'text',
+                            text: JSON.stringify({
+                                error: 'rate_limit_exceeded',
+                                message: error.message,
+                                suggestion: 'Configure a GitHub Personal Access Token (GITHUB_TOKEN environment variable) to increase rate limits from 60 to 5000 requests per hour.',
+                            }, null, 2),
+                        },
+                    ],
+                    isError: true,
+                };
+            }
+            if (error instanceof GithubApiError && error.statusCode === 404) {
+                return {
+                    content: [
+                        {
+                            type: 'text',
+                            text: JSON.stringify({
+                                error: 'version_not_found',
+                                message: error.message,
+                                suggestion: 'Check available versions at https://github.com/PSAppDeployToolkit/PSAppDeployToolkit/releases',
+                            }, null, 2),
+                        },
+                    ],
+                    isError: true,
+                };
+            }
+            if (error instanceof DownloadError) {
+                return {
+                    content: [
+                        {
+                            type: 'text',
+                            text: JSON.stringify({
+                                error: 'download_failed',
+                                message: error.message,
+                                url: error.url,
+                                suggestion: 'For slow connections, download manually from https://github.com/PSAppDeployToolkit/PSAppDeployToolkit/releases',
+                            }, null, 2),
+                        },
+                    ],
+                    isError: true,
+                };
+            }
+            return {
+                content: [
+                    {
+                        type: 'text',
+                        text: formatErrorForClient(error),
+                    },
+                ],
+                isError: true,
+            };
+        }
+    });
+    logger.info('Registered PSADT Download tools', {
+        tools: ['download_psadt_toolkit'],
     });
 }
 function formatBytes(bytes) {

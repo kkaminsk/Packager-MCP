@@ -258,6 +258,25 @@ For interactive deployments, simply omit `-DeployMode Silent` - PSADT handles us
 | Defer exit code | Custom | 1602 (default) |
 | Module GUID | N/A | 8c3c366b-8606-4576-9f2d-4051144f7ca2 |
 
+## Automatic Toolkit Download
+
+The MCP server can automatically download the PSADT toolkit from GitHub using the `download_psadt_toolkit` tool:
+
+```json
+{
+  "output_directory": "C:\\Packages\\MyApp",
+  "version": "4.0.4"
+}
+```
+
+This creates the complete package structure with all required files. You can also use `get_psadt_template` with `download_toolkit: true` to generate a customized script and download the toolkit in a single operation.
+
+### Benefits
+- No manual download required
+- Version pinning for reproducible builds
+- Cached downloads (24-hour TTL) for faster subsequent operations
+- SHA-verified files from official GitHub releases
+
 ## Resources
 
 - Official Documentation: https://psappdeploytoolkit.com

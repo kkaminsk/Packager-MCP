@@ -21,6 +21,15 @@ export declare const githubConfigSchema: z.ZodObject<{
     token: z.ZodOptional<z.ZodString>;
     rateLimitRetries: z.ZodDefault<z.ZodNumber>;
 }, z.core.$strip>;
+export declare const downloadConfigSchema: z.ZodObject<{
+    largeFileSizeThreshold: z.ZodDefault<z.ZodNumber>;
+    timeoutMs: z.ZodDefault<z.ZodNumber>;
+}, z.core.$strip>;
+export declare const psadtConfigSchema: z.ZodObject<{
+    cacheDirectory: z.ZodOptional<z.ZodString>;
+    cacheTtlHours: z.ZodDefault<z.ZodNumber>;
+    defaultVersion: z.ZodDefault<z.ZodString>;
+}, z.core.$strip>;
 export declare const serverConfigSchema: z.ZodObject<{
     name: z.ZodDefault<z.ZodString>;
     version: z.ZodDefault<z.ZodString>;
@@ -46,6 +55,15 @@ export declare const serverConfigSchema: z.ZodObject<{
         token: z.ZodOptional<z.ZodString>;
         rateLimitRetries: z.ZodDefault<z.ZodNumber>;
     }, z.core.$strip>>;
+    download: z.ZodDefault<z.ZodObject<{
+        largeFileSizeThreshold: z.ZodDefault<z.ZodNumber>;
+        timeoutMs: z.ZodDefault<z.ZodNumber>;
+    }, z.core.$strip>>;
+    psadt: z.ZodDefault<z.ZodOptional<z.ZodObject<{
+        cacheDirectory: z.ZodOptional<z.ZodString>;
+        cacheTtlHours: z.ZodDefault<z.ZodNumber>;
+        defaultVersion: z.ZodDefault<z.ZodString>;
+    }, z.core.$strip>>>;
 }, z.core.$strip>;
 export type ServerConfigInput = z.input<typeof serverConfigSchema>;
 export type ServerConfigOutput = z.output<typeof serverConfigSchema>;
