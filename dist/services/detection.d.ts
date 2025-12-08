@@ -1,5 +1,28 @@
 import type { DetectionType, FileDetectionInput, RegistryDetectionInput, MsiDetectionInput, ScriptDetectionInput, GenerateIntuneDetectionInput, GenerateIntuneDetectionOutput } from '../types/intune.js';
 /**
+ * Validate and normalize a Windows file version to 4-part format.
+ * Windows file versions use major.minor.build.revision format (e.g., 7.13.0.0).
+ * Intune's win32LobAppFileSystemDetection requires the full 4-part format.
+ *
+ * @param version - Version string to normalize
+ * @returns Object with normalized version and whether it was modified
+ */
+export declare function normalizeFileVersion(version: string): {
+    normalized: string;
+    wasModified: boolean;
+    error?: string;
+};
+/**
+ * Check if a version string is a valid Windows file version format.
+ *
+ * @param version - Version string to validate
+ * @returns Object with isValid flag and optional error message
+ */
+export declare function isValidFileVersion(version: string): {
+    isValid: boolean;
+    error?: string;
+};
+/**
  * Detection service class
  */
 declare class DetectionService {

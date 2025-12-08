@@ -50,6 +50,34 @@ export class ResourceError extends McpError {
         this.name = 'ResourceError';
     }
 }
+export class DownloadError extends McpError {
+    url;
+    statusCode;
+    constructor(message, url, statusCode, details) {
+        super(message, 'DOWNLOAD_ERROR', { ...details, url, statusCode });
+        this.url = url;
+        this.statusCode = statusCode;
+        this.name = 'DownloadError';
+    }
+}
+export class HashVerificationError extends McpError {
+    expectedHash;
+    actualHash;
+    constructor(message, expectedHash, actualHash, details) {
+        super(message, 'HASH_VERIFICATION_ERROR', { ...details, expectedHash, actualHash });
+        this.expectedHash = expectedHash;
+        this.actualHash = actualHash;
+        this.name = 'HashVerificationError';
+    }
+}
+export class ExtractionError extends McpError {
+    archivePath;
+    constructor(message, archivePath, details) {
+        super(message, 'EXTRACTION_ERROR', { ...details, archivePath });
+        this.archivePath = archivePath;
+        this.name = 'ExtractionError';
+    }
+}
 export function formatErrorForClient(error) {
     if (error instanceof McpError) {
         return `[${error.code}] ${error.message}`;

@@ -163,6 +163,8 @@ Operator: Greater than or equal to
 Value: 1.0.0.0
 ```
 
+> **Important:** Windows file versions use a 4-part format: `major.minor.build.revision` (e.g., `1.0.0.0`). Intune's file detection requires this full 4-part format. If you provide a 3-part version like `1.0.0`, the `generate_intune_detection` tool will automatically normalize it to `1.0.0.0`.
+
 **File Size or Date:**
 ```
 Path: %ProgramFiles%\Vendor\App
@@ -342,6 +344,7 @@ exit 1
 3. **Check both x86/x64 paths** - Applications may install to either
 4. **Handle per-user installs** - HKCU vs HKLM
 5. **Use version comparison** - Not just existence
+6. **Use 4-part version format** - Windows file versions require `major.minor.build.revision` format (e.g., `1.0.0.0`), not 3-part versions like `1.0.0`
 
 ### Testing Detection Rules
 
@@ -414,3 +417,4 @@ exit 1
 | Always shows "Installed" | Detection too broad | Add version check |
 | Inconsistent results | Per-user vs per-machine | Check correct registry hive |
 | Script timeout | Complex detection | Optimize or simplify script |
+| Version comparison fails | Wrong version format | Use 4-part version format (e.g., `1.0.0.0`) |

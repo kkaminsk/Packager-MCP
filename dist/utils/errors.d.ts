@@ -24,5 +24,19 @@ export declare class ResourceError extends McpError {
     readonly resourceUri: string;
     constructor(message: string, resourceUri: string, details?: Record<string, unknown>);
 }
+export declare class DownloadError extends McpError {
+    readonly url?: string | undefined;
+    readonly statusCode?: number | undefined;
+    constructor(message: string, url?: string | undefined, statusCode?: number | undefined, details?: Record<string, unknown>);
+}
+export declare class HashVerificationError extends McpError {
+    readonly expectedHash: string;
+    readonly actualHash: string;
+    constructor(message: string, expectedHash: string, actualHash: string, details?: Record<string, unknown>);
+}
+export declare class ExtractionError extends McpError {
+    readonly archivePath?: string | undefined;
+    constructor(message: string, archivePath?: string | undefined, details?: Record<string, unknown>);
+}
 export declare function formatErrorForClient(error: unknown): string;
 //# sourceMappingURL=errors.d.ts.map

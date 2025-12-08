@@ -495,6 +495,11 @@ exit 1
                 name: 'Prerequisites',
                 description: 'Handling application prerequisites',
             },
+            {
+                uri: 'kb://patterns/download',
+                name: 'Download Patterns',
+                description: 'Installer download and Winget integration',
+            },
             // Reference
             {
                 uri: 'ref://exit-codes',

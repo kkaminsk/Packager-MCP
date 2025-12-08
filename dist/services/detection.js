@@ -3,6 +3,52 @@ import { getLogger } from '../utils/logger.js';
 const logger = getLogger().child({ service: 'detection' });
 /** GUID regex pattern for MSI product code validation */
 const GUID_PATTERN = /^\{[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}\}$/;
+/** Windows file version regex pattern (1-4 numeric parts separated by dots) */
+const FILE_VERSION_PATTERN = /^(\d+)(?:\.(\d+))?(?:\.(\d+))?(?:\.(\d+))?$/;
+/**
+ * Validate and normalize a Windows file version to 4-part format.
+ * Windows file versions use major.minor.build.revision format (e.g., 7.13.0.0).
+ * Intune's win32LobAppFileSystemDetection requires the full 4-part format.
+ *
+ * @param version - Version string to normalize
+ * @returns Object with normalized version and whether it was modified
+ */
+export function normalizeFileVersion(version) {
+    if (!version || typeof version !== 'string') {
+        return { normalized: '', wasModified: false, error: 'Version is required' };
+    }
+    const trimmed = version.trim();
+    const match = trimmed.match(FILE_VERSION_PATTERN);
+    if (!match) {
+        return { normalized: '', wasModified: false, error: `Invalid version format: "${version}". Expected numeric format like 1.0.0.0` };
+    }
+    const parts = [
+        match[1] || '0',
+        match[2] || '0',
+        match[3] || '0',
+        match[4] || '0',
+    ];
+    const normalized = parts.join('.');
+    const wasModified = normalized !== trimmed;
+    return { normalized, wasModified };
+}
+/**
+ * Check if a version string is a valid Windows file version format.
+ *
+ * @param version - Version string to validate
+ * @returns Object with isValid flag and optional error message
+ */
+export function isValidFileVersion(version) {
+    if (!version || typeof version !== 'string') {
+        return { isValid: false, error: 'Version is required' };
+    }
+    const trimmed = version.trim();
+    const match = trimmed.match(FILE_VERSION_PATTERN);
+    if (!match) {
+        return { isValid: false, error: `Invalid version format: "${version}". Expected numeric format like 1.0.0.0` };
+    }
+    return { isValid: true };
+}
 /**
  * Map internal operator names to Intune API operator strings
  */
@@ -59,6 +105,21 @@ class DetectionService {
     generateFileDetection(input) {
         const detectionType = input.detectionType || 'exists';
         const operator = input.operator || 'greaterThanOrEqual';
+        const recommendations = [];
+        // Normalize version to 4-part format for version detection
+        let normalizedVersion = input.detectionValue;
+        let versionWasNormalized = false;
+        if (detectionType === 'version' && input.detectionValue) {
+            const result = normalizeFileVersion(input.detectionValue);
+            if (result.error) {
+                throw new Error(result.error);
+            }
+            normalizedVersion = result.normalized;
+            versionWasNormalized = result.wasModified;
+            if (versionWasNormalized) {
+                recommendations.push(`Version was auto-normalized from "${input.detectionValue}" to "${normalizedVersion}" (Windows file versions require 4-part format: major.minor.build.revision)`);
+            }
+        }
         const intuneJson = {
             '@odata.type': '#microsoft.graph.win32LobAppFileSystemDetection',
             path: input.path,
@@ -66,9 +127,9 @@ class DetectionService {
             check32BitOn64System: input.check32BitOn64System ?? false,
             detectionType: detectionType,
         };
-        if (detectionType !== 'exists' && input.detectionValue) {
+        if (detectionType !== 'exists' && normalizedVersion) {
             intuneJson.operator = mapOperator(input.operator);
-            intuneJson.detectionValue = input.detectionValue;
+            intuneJson.detectionValue = normalizedVersion;
         }
         // Generate PowerShell script for file detection
         const fullPath = `${input.path}\\${input.fileOrFolderName}`.replace(/\\\\/g, '\\');
@@ -88,17 +149,19 @@ exit 1
 `;
         }
         else if (detectionType === 'version') {
+            const versionForScript = normalizedVersion || '1.0.0.0';
             powershellScript = `# File version detection script
 # Exit 0 if detected, Exit 1 if not detected
+# Note: Windows file versions use 4-part format (major.minor.build.revision)
 $FilePath = '${escapePowerShell(fullPath)}'
-$RequiredVersion = '${escapePowerShell(input.detectionValue || '1.0.0')}'
+$RequiredVersion = '${escapePowerShell(versionForScript)}'
 
 if (Test-Path -Path $FilePath) {
     $FileVersion = (Get-Item $FilePath).VersionInfo.FileVersion
     if ($FileVersion) {
         # Clean version string (remove extra info after space)
         $FileVersion = ($FileVersion -split ' ')[0]
-        if (${generateVersionComparison('$FileVersion', input.detectionValue || '1.0.0', operator)}) {
+        if (${generateVersionComparison('$FileVersion', versionForScript, operator)}) {
             Write-Host "Detected: Version $FileVersion meets requirement"
             exit 0
         }
@@ -155,7 +218,6 @@ Write-Host "Not detected: File not found at $FilePath"
 exit 1
 `;
         }
-        const recommendations = [];
         if (detectionType === 'version') {
             recommendations.push('Version-based file detection is reliable for applications that update the file version on upgrade.');
         }
@@ -392,16 +454,32 @@ exit 1
      */
     generateScriptDetection(input) {
         const operator = input.operator || 'greaterThanOrEqual';
+        const recommendations = [];
         let powershellScript;
+        // Normalize version if provided
+        let normalizedVersion = input.version;
+        let versionWasNormalized = false;
+        if (input.version) {
+            const result = normalizeFileVersion(input.version);
+            if (result.error) {
+                throw new Error(result.error);
+            }
+            normalizedVersion = result.normalized;
+            versionWasNormalized = result.wasModified;
+            if (versionWasNormalized) {
+                recommendations.push(`Version was auto-normalized from "${input.version}" to "${normalizedVersion}" (Windows file versions require 4-part format: major.minor.build.revision)`);
+            }
+        }
         if (input.installPath && input.fileName) {
             // File-based script detection
             const fullPath = `${input.installPath}\\${input.fileName}`.replace(/\\\\/g, '\\');
-            if (input.version) {
+            if (normalizedVersion) {
                 powershellScript = `# Detection script for ${input.applicationName}
 # Exit 0 if detected, Exit 1 if not detected
+# Note: Windows file versions use 4-part format (major.minor.build.revision)
 
 $AppPath = '${escapePowerShell(fullPath)}'
-$RequiredVersion = '${escapePowerShell(input.version)}'
+$RequiredVersion = '${escapePowerShell(normalizedVersion)}'
 
 if (Test-Path -Path $AppPath) {
     $FileVersion = (Get-Item $AppPath).VersionInfo.FileVersion
@@ -409,7 +487,7 @@ if (Test-Path -Path $AppPath) {
         # Clean version string
         $FileVersion = ($FileVersion -split ' ')[0]
         try {
-            if (${generateVersionComparison('$FileVersion', input.version, operator)}) {
+            if (${generateVersionComparison('$FileVersion', normalizedVersion, operator)}) {
                 Write-Host "Detected: ${input.applicationName} version $FileVersion"
                 exit 0
             }
@@ -451,19 +529,20 @@ exit 1
                 .replace(/^HKEY_CURRENT_USER\\?/i, 'HKCU:\\')
                 .replace(/^HKLM\\?/i, 'HKLM:\\')
                 .replace(/^HKCU\\?/i, 'HKCU:\\');
-            if (input.registryValueName && input.version) {
+            if (input.registryValueName && normalizedVersion) {
                 powershellScript = `# Detection script for ${input.applicationName}
 # Exit 0 if detected, Exit 1 if not detected
+# Note: Windows file versions use 4-part format (major.minor.build.revision)
 
 $RegPath = '${escapePowerShell(psKeyPath)}'
 $ValueName = '${escapePowerShell(input.registryValueName)}'
-$RequiredVersion = '${escapePowerShell(input.version)}'
+$RequiredVersion = '${escapePowerShell(normalizedVersion)}'
 
 try {
     $InstalledVersion = (Get-ItemProperty -Path $RegPath -Name $ValueName -ErrorAction Stop).$ValueName
     if ($InstalledVersion) {
         try {
-            if (${generateVersionComparison('$InstalledVersion', input.version, operator)}) {
+            if (${generateVersionComparison('$InstalledVersion', normalizedVersion, operator)}) {
                 Write-Host "Detected: ${input.applicationName} version $InstalledVersion"
                 exit 0
             }
@@ -538,7 +617,6 @@ Write-Host "Not detected: ${input.applicationName} not found"
 exit 1
 `;
         }
-        const recommendations = [];
         recommendations.push('Script-based detection is the most flexible option but requires PowerShell execution.');
         recommendations.push('Ensure the script exits with code 0 for detected and 1 for not detected.');
         recommendations.push('Test the detection script thoroughly before deployment as debugging is limited.');

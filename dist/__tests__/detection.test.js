@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { getDetectionService, resetDetectionService, } from '../services/detection.js';
+import { getDetectionService, resetDetectionService, normalizeFileVersion, isValidFileVersion, } from '../services/detection.js';
 describe('DetectionService', () => {
     let service;
     beforeEach(() => {
@@ -85,17 +85,17 @@ describe('DetectionService', () => {
                 fileOrFolderName: 'app.exe',
                 detectionType: 'version',
                 operator: 'greaterThanOrEqual',
-                detectionValue: '2.0.0',
+                detectionValue: '2.0.0.0',
             };
             const result = service.generateFileDetection(input);
             expect(result.intuneJson).toMatchObject({
                 '@odata.type': '#microsoft.graph.win32LobAppFileSystemDetection',
                 detectionType: 'version',
                 operator: 'greaterThanOrEqual',
-                detectionValue: '2.0.0',
+                detectionValue: '2.0.0.0',
             });
             expect(result.powershellScript).toContain('FileVersion');
-            expect(result.powershellScript).toContain('2.0.0');
+            expect(result.powershellScript).toContain('2.0.0.0');
         });
         it('should generate size detection', () => {
             const input = {
@@ -154,14 +154,14 @@ describe('DetectionService', () => {
                 valueName: 'Version',
                 detectionType: 'version',
                 operator: 'greaterThanOrEqual',
-                detectionValue: '1.0.0',
+                detectionValue: '1.0.0.0',
             };
             const result = service.generateRegistryDetection(input);
             expect(result.intuneJson).toMatchObject({
                 valueName: 'Version',
                 detectionType: 'version',
                 operator: 'greaterThanOrEqual',
-                detectionValue: '1.0.0',
+                detectionValue: '1.0.0.0',
             });
         });
         it('should generate string comparison detection', () => {
@@ -213,12 +213,12 @@ describe('DetectionService', () => {
             const input = {
                 productCode: '{12345678-1234-1234-1234-123456789012}',
                 productVersionOperator: 'equal',
-                productVersion: '2.0.0',
+                productVersion: '2.0.0.0',
             };
             const result = service.generateMsiDetection(input);
             expect(result.intuneJson).toMatchObject({
                 productVersionOperator: 'equal',
-                productVersion: '2.0.0',
+                productVersion: '2.0.0.0',
             });
         });
         it('should uppercase product code', () => {
@@ -273,11 +273,11 @@ describe('DetectionService', () => {
                 applicationName: 'Test App',
                 installPath: 'C:\\Program Files\\TestApp',
                 fileName: 'app.exe',
-                version: '2.0.0',
+                version: '2.0.0.0',
                 operator: 'greaterThanOrEqual',
             };
             const result = service.generateScriptDetection(input);
-            expect(result.powershellScript).toContain('2.0.0');
+            expect(result.powershellScript).toContain('2.0.0.0');
             expect(result.powershellScript).toContain('FileVersion');
         });
         it('should generate registry-based script detection', () => {
@@ -285,7 +285,7 @@ describe('DetectionService', () => {
                 applicationName: 'Test App',
                 registryKey: 'HKEY_LOCAL_MACHINE\\SOFTWARE\\TestApp',
                 registryValueName: 'Version',
-                version: '1.0.0',
+                version: '1.0.0.0',
             };
             const result = service.generateScriptDetection(input);
             expect(result.powershellScript).toContain('HKLM:\\');
@@ -370,7 +370,7 @@ describe('DetectionService', () => {
                     fileOrFolderName: 'app.exe',
                     detectionType: 'version',
                     operator: op,
-                    detectionValue: '1.0.0',
+                    detectionValue: '1.0.0.0',
                 });
                 expect(result.success).toBe(true);
                 expect(result.powershellScript).toBeDefined();
@@ -409,6 +409,127 @@ describe('DetectionService', () => {
             resetDetectionService();
             const instance2 = getDetectionService();
             expect(instance1).not.toBe(instance2);
+        });
+    });
+    describe('normalizeFileVersion', () => {
+        it('should normalize 3-part version to 4-part', () => {
+            const result = normalizeFileVersion('7.13.0');
+            expect(result.normalized).toBe('7.13.0.0');
+            expect(result.wasModified).toBe(true);
+            expect(result.error).toBeUndefined();
+        });
+        it('should normalize 2-part version to 4-part', () => {
+            const result = normalizeFileVersion('1.0');
+            expect(result.normalized).toBe('1.0.0.0');
+            expect(result.wasModified).toBe(true);
+        });
+        it('should normalize 1-part version to 4-part', () => {
+            const result = normalizeFileVersion('5');
+            expect(result.normalized).toBe('5.0.0.0');
+            expect(result.wasModified).toBe(true);
+        });
+        it('should pass through 4-part version unchanged', () => {
+            const result = normalizeFileVersion('1.2.3.4');
+            expect(result.normalized).toBe('1.2.3.4');
+            expect(result.wasModified).toBe(false);
+        });
+        it('should reject invalid version format', () => {
+            const result = normalizeFileVersion('not-a-version');
+            expect(result.error).toContain('Invalid version format');
+            expect(result.normalized).toBe('');
+        });
+        it('should reject empty version', () => {
+            const result = normalizeFileVersion('');
+            expect(result.error).toBe('Version is required');
+        });
+        it('should handle version with whitespace', () => {
+            const result = normalizeFileVersion('  1.0.0  ');
+            expect(result.normalized).toBe('1.0.0.0');
+            expect(result.wasModified).toBe(true);
+        });
+    });
+    describe('isValidFileVersion', () => {
+        it('should accept valid 4-part version', () => {
+            const result = isValidFileVersion('1.2.3.4');
+            expect(result.isValid).toBe(true);
+            expect(result.error).toBeUndefined();
+        });
+        it('should accept valid 3-part version', () => {
+            const result = isValidFileVersion('1.2.3');
+            expect(result.isValid).toBe(true);
+        });
+        it('should accept valid 2-part version', () => {
+            const result = isValidFileVersion('1.2');
+            expect(result.isValid).toBe(true);
+        });
+        it('should accept valid 1-part version', () => {
+            const result = isValidFileVersion('1');
+            expect(result.isValid).toBe(true);
+        });
+        it('should reject invalid version format', () => {
+            const result = isValidFileVersion('abc.def');
+            expect(result.isValid).toBe(false);
+            expect(result.error).toContain('Invalid version format');
+        });
+        it('should reject empty version', () => {
+            const result = isValidFileVersion('');
+            expect(result.isValid).toBe(false);
+            expect(result.error).toBe('Version is required');
+        });
+    });
+    describe('version normalization integration', () => {
+        let service;
+        beforeEach(() => {
+            resetDetectionService();
+            service = getDetectionService();
+        });
+        it('should auto-normalize 3-part file version and add recommendation', () => {
+            const result = service.generateFileDetection({
+                path: 'C:\\App',
+                fileOrFolderName: 'app.exe',
+                detectionType: 'version',
+                detectionValue: '7.13.0',
+            });
+            expect(result.intuneJson?.detectionValue).toBe('7.13.0.0');
+            expect(result.powershellScript).toContain('7.13.0.0');
+            expect(result.recommendations.some(r => r.includes('auto-normalized'))).toBe(true);
+        });
+        it('should not add normalization recommendation for 4-part version', () => {
+            const result = service.generateFileDetection({
+                path: 'C:\\App',
+                fileOrFolderName: 'app.exe',
+                detectionType: 'version',
+                detectionValue: '7.13.0.0',
+            });
+            expect(result.intuneJson?.detectionValue).toBe('7.13.0.0');
+            expect(result.recommendations.some(r => r.includes('auto-normalized'))).toBe(false);
+        });
+        it('should throw error for invalid version in file detection', () => {
+            expect(() => service.generateFileDetection({
+                path: 'C:\\App',
+                fileOrFolderName: 'app.exe',
+                detectionType: 'version',
+                detectionValue: 'invalid-version',
+            })).toThrow('Invalid version format');
+        });
+        it('should auto-normalize version in script detection', () => {
+            const result = service.generateScriptDetection({
+                applicationName: 'Test App',
+                installPath: 'C:\\App',
+                fileName: 'app.exe',
+                version: '2.0.0',
+            });
+            expect(result.powershellScript).toContain('2.0.0.0');
+            expect(result.recommendations.some(r => r.includes('auto-normalized'))).toBe(true);
+        });
+        it('should include version format comment in generated scripts', () => {
+            const result = service.generateFileDetection({
+                path: 'C:\\App',
+                fileOrFolderName: 'app.exe',
+                detectionType: 'version',
+                detectionValue: '1.0.0.0',
+            });
+            expect(result.powershellScript).toContain('4-part format');
         });
     });
 });
