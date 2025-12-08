@@ -169,7 +169,7 @@ ReferenceKnowledge/     # Source reference materials
 
 ## Implementation Roadmap
 
-All proposals have been implemented. Archived proposals (1-7) are in `openspec/changes/archive/`. Recent proposals (8-10) are in `openspec/changes/`.
+All proposals have been implemented and archived in `openspec/changes/archive/`.
 
 ### Proposal Summary
 
@@ -182,9 +182,10 @@ All proposals have been implemented. Archived proposals (1-7) are in `openspec/c
 | 5 | `5-add-intune-detection` | `generate_intune_detection` tool | Archived |
 | 6 | `6-add-mcp-prompts` | `/package-app`, `/convert-legacy`, `/troubleshoot`, `/bulk-lookup` | Archived |
 | 7 | `7-knowledge-maintenance` | Knowledge base versioning, maintenance workflow, validation | Archived |
-| 8 | `8-add-installer-download` | `download_installer` tool with SHA256 verification | Complete |
-| 9 | `9-fix-file-version-format` | Fixed file version format in detection rules | Complete |
-| 10 | `10-add-large-file-download-guidance` | Large file warnings, manual download URL, configurable thresholds | Complete |
+| 8 | `8-add-installer-download` | `download_installer` tool with SHA256 verification | Archived |
+| 9 | `9-fix-file-version-format` | Fixed file version format in detection rules | Archived |
+| 10 | `10-add-large-file-download-guidance` | Large file warnings, manual download URL, configurable thresholds | Archived |
+| 11 | `11-add-psadt-toolkit-download` | `download_psadt_toolkit` tool with caching and version pinning | Archived |
 
 ### Creating New Proposals
 
