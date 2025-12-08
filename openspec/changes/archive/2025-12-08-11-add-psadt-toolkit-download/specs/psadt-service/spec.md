@@ -1,0 +1,73 @@
+## ADDED Requirements
+
+### Requirement: Download PSADT Toolkit
+The system SHALL provide a `download_psadt_toolkit` MCP tool that downloads the PSAppDeployToolkit from its official GitHub repository.
+
+#### Scenario: Download latest toolkit version
+- **WHEN** the user invokes `download_psadt_toolkit` with an `output_directory`
+- **THEN** the system SHALL fetch the latest release from `PSAppDeployToolkit/PSAppDeployToolkit` GitHub repository
+- **AND** the system SHALL download and extract the release ZIP
+- **AND** the extracted files SHALL be placed in the specified output directory
+- **AND** the response SHALL include the version downloaded and file paths
+
+#### Scenario: Download specific toolkit version
+- **WHEN** the user invokes `download_psadt_toolkit` with `version: "4.0.4"`
+- **THEN** the system SHALL fetch the release matching that version tag
+- **AND** the system SHALL return an error if the version does not exist
+
+#### Scenario: Download with Extensions module
+- **WHEN** the user invokes `download_psadt_toolkit` with `include_extensions: true`
+- **THEN** the system SHALL include the `PSAppDeployToolkit.Extensions` module in the output
+
+#### Scenario: Toolkit already cached
+- **WHEN** a release was previously downloaded within the cache TTL
+- **THEN** the system SHALL copy from cache instead of re-downloading
+- **AND** the response SHALL indicate the source was cache
+
+#### Scenario: GitHub rate limit reached
+- **WHEN** the GitHub API returns a 429 rate limit response
+- **THEN** the system SHALL return an error message explaining the rate limit
+- **AND** the message SHALL suggest configuring a `GITHUB_TOKEN` environment variable
+
+#### Scenario: Download failure
+- **WHEN** the ZIP download fails due to network error or timeout
+- **THEN** the system SHALL return an error with the direct download URL
+- **AND** the user can manually download and extract the toolkit
+
+### Requirement: Toolkit Download Output Structure
+The system SHALL extract toolkit files into a standard directory structure suitable for PSADT package creation.
+
+#### Scenario: Standard extraction structure
+- **WHEN** toolkit download completes successfully
+- **THEN** the output directory SHALL contain:
+  - `PSAppDeployToolkit/` directory with module files
+  - `Config/` directory with default configuration
+  - `Assets/` directory with icons and images
+  - `Strings/` directory with localization files
+  - `Files/` empty directory for installer placement
+  - `Invoke-AppDeployToolkit.exe` executable wrapper
+  - `Invoke-AppDeployToolkit.ps1` main script template
+
+#### Scenario: Return download metadata
+- **WHEN** toolkit download completes
+- **THEN** the response SHALL include:
+  - `version`: The downloaded version
+  - `outputDirectory`: Where files were extracted
+  - `files`: Array of extracted file paths
+  - `downloadedFrom`: "cache" or "github"
+  - `releaseUrl`: URL to the GitHub release page
+
+### Requirement: Integrated Template and Toolkit Download
+The system SHALL support downloading the toolkit as part of template generation for streamlined package creation.
+
+#### Scenario: Template with toolkit download
+- **WHEN** the user invokes `get_psadt_template` with `download_toolkit: true` and `output_directory`
+- **THEN** the system SHALL generate the PSADT script
+- **AND** the system SHALL download the toolkit to the output directory
+- **AND** the generated script SHALL be saved as `Invoke-AppDeployToolkit.ps1` in the output directory
+- **AND** the response SHALL include both the script content and toolkit download status
+
+#### Scenario: Template without toolkit download
+- **WHEN** the user invokes `get_psadt_template` without `download_toolkit` or with `download_toolkit: false`
+- **THEN** the system SHALL generate only the script content
+- **AND** the behavior SHALL remain unchanged from current implementation
