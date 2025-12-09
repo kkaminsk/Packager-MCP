@@ -1,11 +1,10 @@
 import { z } from 'zod';
 import { getLogger } from '../utils/logger.js';
-import { formatErrorForClient, ToolError, GithubApiError, DownloadError, HashVerificationError } from '../utils/errors.js';
+import { formatErrorForClient, ToolError, GithubApiError, DownloadError } from '../utils/errors.js';
 import { getWingetService } from '../services/winget.js';
 import { getPsadtService } from '../services/psadt.js';
 import { getValidationService } from '../services/validation.js';
 import { getDetectionService } from '../services/detection.js';
-import { getDownloadService } from '../services/download.js';
 import { getPsadtDownloadService } from '../services/psadt-download.js';
 const searchWingetSchema = z.object({
     query: z.string().min(1).describe('Search query - package name or ID'),
@@ -516,140 +515,6 @@ export function registerToolHandlers(server) {
     });
     logger.info('Registered Detection tools', {
         tools: ['generate_intune_detection'],
-    });
-    // Register download_installer tool
-    const downloadInstallerSchema = z.object({
-        package_id: z.string().min(1).describe('Winget package ID (e.g., "Google.Chrome", "Mozilla.Firefox")'),
-        version: z.string().optional().describe('Specific version to download (e.g., "120.0.6099.109"). If not specified, downloads the latest version.'),
-        architecture: z
-            .enum(['x64', 'x86', 'arm64', 'neutral'])
-            .optional()
-            .describe('Preferred architecture. Defaults to x64, falls back to x86 if not available.'),
-        output_directory: z.string().min(1).describe('Directory path where the installer file will be saved (e.g., "C:\\Packages\\Chrome\\Files")'),
-        output_filename: z.string().optional().describe('Custom filename for the downloaded installer. If not specified, uses the original filename from the URL.'),
-    });
-    server.tool('download_installer', 'Download an application installer from the Winget repository and save it to the specified directory (typically the PSADT Files folder). Verifies file integrity using SHA256 hash from the Winget manifest.', downloadInstallerSchema.shape, async (args) => {
-        logger.debug('Executing download_installer', {
-            packageId: args.package_id,
-            version: args.version,
-            architecture: args.architecture,
-        });
-        try {
-            const validated = downloadInstallerSchema.parse(args);
-            const downloadService = getDownloadService();
-            const input = {
-                packageId: validated.package_id,
-                version: validated.version,
-                architecture: validated.architecture,
-                outputDirectory: validated.output_directory,
-                outputFilename: validated.output_filename,
-            };
-            const result = await downloadService.downloadInstaller(input);
-            return {
-                content: [
-                    {
-                        type: 'text',
-                        text: JSON.stringify({
-                            success: result.success,
-                            package: {
-                                id: result.packageId,
-                                name: result.packageName,
-                                version: result.packageVersion,
-                                publisher: result.publisher,
-                            },
-                            file: {
-                                path: result.filePath,
-                                name: result.fileName,
-                                size: result.fileSize,
-                                sizeFormatted: formatBytes(result.fileSize),
-                                sha256: result.sha256,
-                                verified: result.verified,
-                                installerType: result.installerType,
-                            },
-                            download: {
-                                url: result.downloadedFrom,
-                                installerUrl: result.installerUrl,
-                                duration: result.duration,
-                                durationFormatted: `${(result.duration / 1000).toFixed(1)}s`,
-                            },
-                            warning: result.warning,
-                            largeFileWarning: result.largeFileWarning,
-                        }, null, 2),
-                    },
-                ],
-            };
-        }
-        catch (error) {
-            logger.error('download_installer failed', {
-                error: error instanceof Error ? error.message : String(error),
-            });
-            if (error instanceof HashVerificationError) {
-                return {
-                    content: [
-                        {
-                            type: 'text',
-                            text: JSON.stringify({
-                                error: 'hash_verification_failed',
-                                message: error.message,
-                                expected: error.expectedHash,
-                                actual: error.actualHash,
-                                suggestion: 'The downloaded file does not match the expected checksum. Try downloading again. If the problem persists, the Winget manifest may be outdated.',
-                            }, null, 2),
-                        },
-                    ],
-                    isError: true,
-                };
-            }
-            if (error instanceof DownloadError) {
-                const isTimeout = error.message.includes('timed out');
-                return {
-                    content: [
-                        {
-                            type: 'text',
-                            text: JSON.stringify({
-                                error: isTimeout ? 'download_timeout' : 'download_failed',
-                                message: error.message,
-                                installerUrl: error.url,
-                                statusCode: error.statusCode,
-                                suggestion: error.statusCode === 404
-                                    ? 'The package or version was not found. Verify the package ID and version are correct.'
-                                    : isTimeout
-                                        ? `For large files, download manually from: ${error.url}`
-                                        : 'Check your network connection and try again.',
-                            }, null, 2),
-                        },
-                    ],
-                    isError: true,
-                };
-            }
-            if (error instanceof GithubApiError && error.statusCode === 429) {
-                return {
-                    content: [
-                        {
-                            type: 'text',
-                            text: JSON.stringify({
-                                error: 'rate_limit_exceeded',
-                                message: error.message,
-                                suggestion: 'Configure a GitHub Personal Access Token (GITHUB_TOKEN environment variable) to increase rate limits.',
-                            }, null, 2),
-                        },
-                    ],
-                    isError: true,
-                };
-            }
-            return {
-                content: [
-                    {
-                        type: 'text',
-                        text: formatErrorForClient(error),
-                    },
-                ],
-                isError: true,
-            };
-        }
-    });
-    logger.info('Registered Download tools', {
-        tools: ['download_installer'],
     });
     // Register download_psadt_toolkit tool
     const downloadPsadtToolkitSchema = z.object({

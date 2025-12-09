@@ -60,16 +60,6 @@ export class DownloadError extends McpError {
         this.name = 'DownloadError';
     }
 }
-export class HashVerificationError extends McpError {
-    expectedHash;
-    actualHash;
-    constructor(message, expectedHash, actualHash, details) {
-        super(message, 'HASH_VERIFICATION_ERROR', { ...details, expectedHash, actualHash });
-        this.expectedHash = expectedHash;
-        this.actualHash = actualHash;
-        this.name = 'HashVerificationError';
-    }
-}
 export class ExtractionError extends McpError {
     archivePath;
     constructor(message, archivePath, details) {

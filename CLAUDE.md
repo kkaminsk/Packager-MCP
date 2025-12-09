@@ -34,7 +34,6 @@ src/
 │   ├── winget.ts       # Winget API integration
 │   ├── psadt.ts        # PSADT template generation
 │   ├── psadt-download.ts # PSADT toolkit download from GitHub
-│   ├── download.ts     # Installer download service
 │   ├── validation.ts   # Package validation
 │   └── detection.ts    # Intune detection rule generation
 ├── knowledge/          # Embedded documentation
@@ -45,7 +44,6 @@ src/
     ├── winget.ts       # Winget types
     ├── psadt.ts        # PSADT types
     ├── psadt-download.ts # PSADT download types
-    ├── download.ts     # Download types
     ├── validation.ts   # Validation types
     └── intune.ts       # Intune detection types
 
@@ -69,8 +67,9 @@ ReferenceKnowledge/     # Source reference materials
 | `validate_package` | Check scripts against best practices |
 | `get_silent_install_args` | Retrieve/derive silent install parameters |
 | `generate_intune_detection` | Create Intune detection rules (file/registry/MSI/script) |
-| `download_installer` | Download installer from Winget with SHA256 verification and large file handling |
 | `download_psadt_toolkit` | Download PSADT toolkit from GitHub releases with caching and version pinning |
+
+Note: Use `search_winget` to get installer URLs and SHA256 hashes, then download installers using PowerShell's `Invoke-WebRequest`.
 
 ## MCP Resources
 
@@ -182,10 +181,11 @@ All proposals have been implemented and archived in `openspec/changes/archive/`.
 | 5 | `5-add-intune-detection` | `generate_intune_detection` tool | Archived |
 | 6 | `6-add-mcp-prompts` | `/package-app`, `/convert-legacy`, `/troubleshoot`, `/bulk-lookup` | Archived |
 | 7 | `7-knowledge-maintenance` | Knowledge base versioning, maintenance workflow, validation | Archived |
-| 8 | `8-add-installer-download` | `download_installer` tool with SHA256 verification | Archived |
+| 8 | `8-add-installer-download` | `download_installer` tool with SHA256 verification | Archived (removed) |
 | 9 | `9-fix-file-version-format` | Fixed file version format in detection rules | Archived |
-| 10 | `10-add-large-file-download-guidance` | Large file warnings, manual download URL, configurable thresholds | Archived |
+| 10 | `10-add-large-file-download-guidance` | Large file warnings, manual download URL, configurable thresholds | Archived (removed) |
 | 11 | `11-add-psadt-toolkit-download` | `download_psadt_toolkit` tool with caching and version pinning | Archived |
+| 12 | `remove-installer-download` | Removed `download_installer` tool; use `Invoke-WebRequest` instead | Applied |
 
 ### Creating New Proposals
 

@@ -12,10 +12,6 @@ export interface GithubConfig {
     token?: string;
     rateLimitRetries: number;
 }
-export interface DownloadConfig {
-    largeFileSizeThreshold: number;
-    timeoutMs: number;
-}
 export interface PsadtConfig {
     cacheDirectory?: string;
     cacheTtlHours: number;
@@ -27,7 +23,6 @@ export interface ServerConfig {
     cache: CacheConfig;
     logging: LoggingConfig;
     github: GithubConfig;
-    download: DownloadConfig;
     psadt?: PsadtConfig;
 }
 export declare const DEFAULT_CONFIG: ServerConfig;

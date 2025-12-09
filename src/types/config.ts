@@ -15,11 +15,6 @@ export interface GithubConfig {
   rateLimitRetries: number;
 }
 
-export interface DownloadConfig {
-  largeFileSizeThreshold: number;
-  timeoutMs: number;
-}
-
 export interface PsadtConfig {
   cacheDirectory?: string;
   cacheTtlHours: number;
@@ -32,7 +27,6 @@ export interface ServerConfig {
   cache: CacheConfig;
   logging: LoggingConfig;
   github: GithubConfig;
-  download: DownloadConfig;
   psadt?: PsadtConfig;
 }
 
@@ -51,9 +45,5 @@ export const DEFAULT_CONFIG: ServerConfig = {
   },
   github: {
     rateLimitRetries: 3,
-  },
-  download: {
-    largeFileSizeThreshold: 500 * 1024 * 1024, // 500MB
-    timeoutMs: 5 * 60 * 1000, // 5 minutes
   },
 };

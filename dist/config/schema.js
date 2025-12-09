@@ -13,10 +13,6 @@ export const githubConfigSchema = z.object({
     token: z.string().optional(),
     rateLimitRetries: z.number().min(0).default(3),
 });
-export const downloadConfigSchema = z.object({
-    largeFileSizeThreshold: z.number().min(0).default(500 * 1024 * 1024), // 500MB default
-    timeoutMs: z.number().min(0).default(5 * 60 * 1000), // 5 minutes default
-});
 export const psadtConfigSchema = z.object({
     cacheDirectory: z.string().optional(),
     cacheTtlHours: z.number().min(1).default(24),
@@ -35,10 +31,6 @@ const defaultLoggingConfig = {
 const defaultGithubConfig = {
     rateLimitRetries: 3,
 };
-const defaultDownloadConfig = {
-    largeFileSizeThreshold: 500 * 1024 * 1024, // 500MB
-    timeoutMs: 5 * 60 * 1000, // 5 minutes
-};
 const defaultPsadtConfig = {
     cacheTtlHours: 24,
     defaultVersion: 'latest',
@@ -49,7 +41,6 @@ export const serverConfigSchema = z.object({
     cache: cacheConfigSchema.default(defaultCacheConfig),
     logging: loggingConfigSchema.default(defaultLoggingConfig),
     github: githubConfigSchema.default(defaultGithubConfig),
-    download: downloadConfigSchema.default(defaultDownloadConfig),
     psadt: psadtConfigSchema.optional().default(defaultPsadtConfig),
 });
 //# sourceMappingURL=schema.js.map

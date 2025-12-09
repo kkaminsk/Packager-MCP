@@ -75,18 +75,6 @@ export class DownloadError extends McpError {
   }
 }
 
-export class HashVerificationError extends McpError {
-  constructor(
-    message: string,
-    public readonly expectedHash: string,
-    public readonly actualHash: string,
-    details?: Record<string, unknown>
-  ) {
-    super(message, 'HASH_VERIFICATION_ERROR', { ...details, expectedHash, actualHash });
-    this.name = 'HashVerificationError';
-  }
-}
-
 export class ExtractionError extends McpError {
   constructor(
     message: string,
