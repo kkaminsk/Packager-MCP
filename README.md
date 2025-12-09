@@ -35,7 +35,7 @@ When you connect this server to Claude CLI (or another MCP-compatible client), C
 
 ### Prerequisites
 
-- **Node.js 20** or higher ([download](https://nodejs.org/))
+- **Node.js 20** or higher
 - **VSCode**
 - **Copilot CLI** or another MCP-compatible client
 - **Git**
@@ -49,9 +49,6 @@ winget install git.git
 #Install VisualStudio Code
 winget install Microsoft.VisualStudioCode
 
-#Install PowerShell 7
-winget install 9MZ1SNWT0N5D
-
 #Install Node.js 21
 winget install OpenJS.NodeJS.21
 
@@ -64,15 +61,12 @@ npm install
 
 # Build the project
 npm run build
-
-# Install Copilot CLI
-npm install -g @github/copilot
 ```
 
 ### Add MCP to VS Code
 
 ```bash
-# Add the server to VSCode JSON
+# Add the server to Windsurf JSON
 {
   "mcpServers": {
     "packager-mcp": {
@@ -86,29 +80,12 @@ npm install -g @github/copilot
   }
 }
 
-#Github CLI #1
+#Claude CLI #1
 /mcp add
 
 Name: packager-mcp
 Command: node
 Arguments: /path/to/Packager-MCP/dist/server.js
-
-#Github CLI #2
-Prompt:
-Configure the vscode mcp servers using the following template for this MCP server.
-Edit the configuration: %APPDATA%\Code\User\globalStorage\mcp-servers.json
-{
-  "mcpServers": {
-    "packager-mcp": {
-      "command": "node",
-      "args": [
-        "/path/to/Packager-MCP/dist/server.js"
-      ],
-      "disabled": false,
-      "autoApprove": []
-    }
-  }
-}
 ```
 
 ### Verify It's Working
@@ -116,7 +93,7 @@ Edit the configuration: %APPDATA%\Code\User\globalStorage\mcp-servers.json
 ```bash
 # List your MCP servers
 # Make sure VSCode is logged into Github
-Launch VSCode and open the chat Window and look for @packager-mcp
+Launch Windsurf and open the cascade view and look for @packager-mcp
 
 # You should see packager-mcp in the list
 ```
