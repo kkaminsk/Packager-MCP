@@ -1,0 +1,458 @@
+{{> header}}
+
+{{> initialize}}
+
+#region Configuration Variables
+# Application Information
+$AppName = '{{applicationName}}'
+$AppVendor = '{{applicationVendor}}'
+$AppVersion = '{{applicationVersion}}'
+
+# Installer Configuration
+$InstallerFile = '{{installerFileName}}'
+$SilentArgs = '{{silentArgs}}'
+$UninstallArgs = '{{uninstallArgs}}'
+
+# Expected installation path (for verification)
+$InstallPath = "$env:ProgramFiles\$AppVendor\$AppName"  # CUSTOMIZE: Set actual path
+$MainExecutable = "$AppName.exe"  # CUSTOMIZE: Set actual executable name
+
+# Applications to close
+{{#if closeApps}}
+$AppsToClose = '{{closeApps}}'
+{{else}}
+$AppsToClose = ''  # CUSTOMIZE: Add comma-separated process names
+{{/if}}
+
+# Feature flags
+$AllowDeferral = $true
+$MaxDeferrals = 3
+$CheckDiskSpace = $true
+{{#if requiredDiskSpace}}
+$RequiredDiskSpaceMB = {{requiredDiskSpace}}
+{{else}}
+$RequiredDiskSpaceMB = 500  # CUSTOMIZE: Set required disk space in MB
+{{/if}}
+$RemovePreviousVersions = $true
+$VerifyByFile = $true  # Use file-based verification in addition to registry
+#endregion
+
+#region Helper Functions
+function Test-Prerequisites {
+    <#
+    .SYNOPSIS
+        Validates all prerequisites before installation
+    #>
+    $prerequisites = @{
+        DiskSpace = $true
+        AdminRights = $true
+        WindowsVersion = $true
+        Dependencies = $true
+    }
+
+    # Check disk space
+    if ($CheckDiskSpace) {
+        $diskSpace = Get-ADTDiskSpace -Drive 'C:'
+        if ($diskSpace.FreeMB -lt $RequiredDiskSpaceMB) {
+            Write-ADTLogEntry -Message "Insufficient disk space: $($diskSpace.FreeMB) MB available, $RequiredDiskSpaceMB MB required" -Severity 3
+            $prerequisites.DiskSpace = $false
+        }
+    }
+
+    # Check admin rights
+    if (-not $ADTSession.IsAdmin) {
+        Write-ADTLogEntry -Message "Installation requires administrator rights" -Severity 3
+        $prerequisites.AdminRights = $false
+    }
+
+    {{#if minimumWindowsVersion}}
+    # Check Windows version
+    if ($envOSVersionBuild -lt {{minimumWindowsVersion}}) {
+        Write-ADTLogEntry -Message "Windows build {{minimumWindowsVersion}} or later required. Current: $envOSVersionBuild" -Severity 3
+        $prerequisites.WindowsVersion = $false
+    }
+    {{/if}}
+
+    # CUSTOMIZE: Add dependency checks
+    # $vcRedist = Get-ADTInstalledApplication -Name '*Visual C++*2019*'
+    # if (-not $vcRedist) {
+    #     Write-ADTLogEntry -Message "Visual C++ 2019 Redistributable not found" -Severity 3
+    #     $prerequisites.Dependencies = $false
+    # }
+
+    $failed = $prerequisites.GetEnumerator() | Where-Object { -not $_.Value }
+    if ($failed) {
+        $failedList = ($failed | ForEach-Object { $_.Key }) -join ', '
+        throw "Prerequisites check failed: $failedList"
+    }
+
+    Write-ADTLogEntry -Message "All prerequisites validated successfully"
+    return $true
+}
+
+function Remove-PreviousVersion {
+    <#
+    .SYNOPSIS
+        Removes any previous version of the application
+    #>
+    $existingApps = Get-ADTInstalledApplication -Name $AppName
+
+    foreach ($app in $existingApps) {
+        if ($app.UninstallString) {
+            Write-ADTLogEntry -Message "Removing previous version: $($app.DisplayVersion)"
+
+            # Parse uninstall string
+            $uninstallCmd = $app.UninstallString
+            if ($uninstallCmd -match '^"([^"]+)"') {
+                $uninstallPath = $Matches[1]
+            } elseif ($uninstallCmd -match '^(\S+)') {
+                $uninstallPath = $Matches[1]
+            } else {
+                $uninstallPath = $uninstallCmd
+            }
+
+            if (Test-Path $uninstallPath) {
+                try {
+                    Start-ADTProcess -FilePath $uninstallPath -Arguments $UninstallArgs
+                    Start-Sleep -Seconds 5  # Wait for uninstall to complete
+                }
+                catch {
+                    Write-ADTLogEntry -Message "Failed to remove previous version: $($_.Exception.Message)" -Severity 2
+                }
+            }
+        }
+    }
+}
+
+function Test-Installation {
+    <#
+    .SYNOPSIS
+        Verifies application is properly installed
+    #>
+    $verified = $false
+
+    # Method 1: Registry check
+    $regApp = Get-ADTInstalledApplication -Name $AppName
+    if ($regApp) {
+        Write-ADTLogEntry -Message "Registry verification passed: $($regApp.DisplayName) v$($regApp.DisplayVersion)"
+        $verified = $true
+    }
+
+    # Method 2: File check (if enabled)
+    if ($VerifyByFile) {
+        $exePath = Join-Path $InstallPath $MainExecutable
+        if (Test-Path $exePath) {
+            $fileVersion = (Get-Item $exePath).VersionInfo.FileVersion
+            Write-ADTLogEntry -Message "File verification passed: $exePath (v$fileVersion)"
+            $verified = $true
+        } else {
+            Write-ADTLogEntry -Message "File verification: Executable not found at $exePath" -Severity 2
+        }
+    }
+
+    return $verified
+}
+
+function Set-ApplicationConfiguration {
+    <#
+    .SYNOPSIS
+        Configures application after installation
+    #>
+    Write-ADTLogEntry -Message "Applying post-installation configuration"
+
+    # CUSTOMIZE: Add configuration tasks
+
+    # Example: Copy configuration file
+    # $configSource = Join-Path -Path $ADTSession.FilesDirectory -ChildPath 'config.xml'
+    # if (Test-Path $configSource) {
+    #     $configDest = "$env:ProgramData\$AppVendor\$AppName\config.xml"
+    #     New-ADTFolder -Path (Split-Path $configDest)
+    #     Copy-ADTFile -Path $configSource -Destination $configDest
+    # }
+
+    # Example: Set registry preferences
+    # Set-ADTRegistryKey -Key "HKLM:\SOFTWARE\$AppVendor\$AppName" -Name 'AutoUpdate' -Value 0 -Type 'DWord'
+
+    # Example: Create desktop shortcut
+    # $targetPath = Join-Path $InstallPath $MainExecutable
+    # if (Test-Path $targetPath) {
+    #     New-ADTShortcut -Path "$env:PUBLIC\Desktop\$AppName.lnk" `
+    #         -TargetPath $targetPath `
+    #         -Description $AppName
+    # }
+
+    Write-ADTLogEntry -Message "Configuration completed"
+}
+
+function Remove-ApplicationData {
+    <#
+    .SYNOPSIS
+        Removes application data during uninstall
+    #>
+    Write-ADTLogEntry -Message "Cleaning up application data"
+
+    $cleanupPaths = @(
+        $InstallPath
+        "$env:ProgramData\$AppVendor\$AppName"
+        "$env:LocalAppData\$AppVendor\$AppName"
+    )
+
+    foreach ($path in $cleanupPaths) {
+        if (Test-Path $path) {
+            Write-ADTLogEntry -Message "Removing: $path"
+            Remove-ADTFolder -Path $path -ContinueOnError
+        }
+    }
+
+    # Remove shortcuts
+    $shortcuts = @(
+        "$env:PUBLIC\Desktop\$AppName.lnk"
+        "$env:ProgramData\Microsoft\Windows\Start Menu\Programs\$AppName.lnk"
+    )
+
+    foreach ($shortcut in $shortcuts) {
+        if (Test-Path $shortcut) {
+            Remove-ADTFile -Path $shortcut -ContinueOnError
+        }
+    }
+
+    # Remove registry entries
+    # Remove-ADTRegistryKey -Key "HKLM:\SOFTWARE\$AppVendor\$AppName" -Recurse -ContinueOnError
+
+    Write-ADTLogEntry -Message "Cleanup completed"
+}
+
+function Get-InstallerExitCodeMeaning {
+    param([int]$ExitCode)
+
+    # Common exit codes - CUSTOMIZE based on your installer type
+    $meanings = @{
+        0 = 'Success'
+        1 = 'General error'
+        2 = 'User cancelled'
+        3 = 'Fatal error'
+        1641 = 'Restart initiated'
+        3010 = 'Restart required'
+    }
+
+    if ($meanings.ContainsKey($ExitCode)) {
+        return $meanings[$ExitCode]
+    }
+    return "Unknown exit code: $ExitCode"
+}
+#endregion
+
+#region Main Deployment Logic
+try {
+    Write-ADTLogEntry -Message "=============================================="
+    Write-ADTLogEntry -Message "Starting $DeploymentType of $AppName $AppVersion"
+    Write-ADTLogEntry -Message "Deploy Mode: $DeployMode"
+    Write-ADTLogEntry -Message "Running as: $(if ($ADTSession.IsSystemAccount) {'SYSTEM'} else {$env:USERNAME})"
+    Write-ADTLogEntry -Message "Installer Type: EXE ({{installerType}})"
+    Write-ADTLogEntry -Message "=============================================="
+
+    switch ($DeploymentType) {
+        'Install' {
+            #region Pre-Installation
+            Write-ADTLogEntry -Message "=== Pre-Installation Phase ==="
+
+            # Show welcome dialog
+            if ($AppsToClose) {
+                $welcomeParams = @{
+                    CloseApps           = $AppsToClose
+                    CloseAppsCountdown  = 300
+                    PersistPrompt       = $true
+                    BlockExecution      = $true
+                }
+
+                if ($AllowDeferral) {
+                    $welcomeParams.AllowDefer = $true
+                    $welcomeParams.DeferTimes = $MaxDeferrals
+                }
+
+                Show-ADTInstallationWelcome @welcomeParams
+            }
+
+            # Validate prerequisites
+            Test-Prerequisites
+
+            # Remove previous versions if configured
+            if ($RemovePreviousVersions) {
+                Remove-PreviousVersion
+            }
+
+            Show-ADTInstallationProgress -StatusMessage "Installing $AppName $AppVersion..."
+            #endregion
+
+            #region Installation
+            Write-ADTLogEntry -Message "=== Installation Phase ==="
+
+            $installerPath = Join-Path -Path $ADTSession.FilesDirectory -ChildPath $InstallerFile
+            Write-ADTLogEntry -Message "Executing: $installerPath $SilentArgs"
+
+            $result = Start-ADTProcess -FilePath $installerPath `
+                -Arguments $SilentArgs `
+                -PassThru
+
+            $exitMeaning = Get-InstallerExitCodeMeaning -ExitCode $result.ExitCode
+            Write-ADTLogEntry -Message "Installer exit code: $($result.ExitCode) ($exitMeaning)"
+
+            # Handle exit codes
+            switch ($result.ExitCode) {
+                0 {
+                    Write-ADTLogEntry -Message "Installation reported success"
+                }
+                { $_ -in @(3010, 1641) } {
+                    Write-ADTLogEntry -Message "Installation successful - restart required" -Severity 2
+                    $script:RestartRequired = $true
+                }
+                { $_ -in @(1, 2) } {
+                    throw "Installation failed or was cancelled (exit code: $($result.ExitCode))"
+                }
+                default {
+                    # Log but don't fail - some installers return non-zero on success
+                    Write-ADTLogEntry -Message "Installer returned non-standard exit code: $($result.ExitCode)" -Severity 2
+                }
+            }
+            #endregion
+
+            #region Post-Installation
+            Write-ADTLogEntry -Message "=== Post-Installation Phase ==="
+
+            # Wait for installer to finish (some spawn child processes)
+            Start-Sleep -Seconds 3
+
+            # Verify installation
+            if (-not (Test-Installation)) {
+                throw "Installation verification failed - application not properly installed"
+            }
+
+            # Apply configuration
+            Set-ApplicationConfiguration
+
+            {{#if rebootBehavior}}
+            # Handle reboot
+            if ($script:RestartRequired) {
+                {{#ifEquals rebootBehavior "prompt"}}
+                Write-ADTLogEntry -Message "Prompting for restart"
+                Show-ADTInstallationRestartPrompt -CountdownSeconds 600 -NoCountdown $false
+                {{/ifEquals}}
+                {{#ifEquals rebootBehavior "force"}}
+                Write-ADTLogEntry -Message "Restart required - returning 3010"
+                Complete-ADTDeployment -DeploymentStatus 'RestartRequired'
+                return
+                {{/ifEquals}}
+            }
+            {{/if}}
+
+            Write-ADTLogEntry -Message "Post-installation completed"
+            #endregion
+        }
+
+        'Uninstall' {
+            #region Pre-Uninstallation
+            Write-ADTLogEntry -Message "=== Pre-Uninstallation Phase ==="
+
+            if ($AppsToClose) {
+                Show-ADTInstallationWelcome -CloseApps $AppsToClose -CloseAppsCountdown 60
+            }
+
+            Show-ADTInstallationProgress -StatusMessage "Uninstalling $AppName..."
+            #endregion
+
+            #region Uninstallation
+            Write-ADTLogEntry -Message "=== Uninstallation Phase ==="
+
+            $apps = Get-ADTInstalledApplication -Name $AppName
+            $uninstalled = $false
+
+            foreach ($app in $apps) {
+                if ($app.UninstallString) {
+                    Write-ADTLogEntry -Message "Found: $($app.DisplayName) v$($app.DisplayVersion)"
+
+                    # Parse uninstall string
+                    $uninstallCmd = $app.UninstallString
+                    if ($uninstallCmd -match '^"([^"]+)"(.*)$') {
+                        $uninstallPath = $Matches[1]
+                    } elseif ($uninstallCmd -match '^(\S+)(.*)$') {
+                        $uninstallPath = $Matches[1]
+                    } else {
+                        $uninstallPath = $uninstallCmd
+                    }
+
+                    if (Test-Path $uninstallPath) {
+                        Write-ADTLogEntry -Message "Executing uninstaller: $uninstallPath $UninstallArgs"
+                        Start-ADTProcess -FilePath $uninstallPath -Arguments $UninstallArgs
+                        $uninstalled = $true
+                    } else {
+                        Write-ADTLogEntry -Message "Uninstaller not found: $uninstallPath" -Severity 2
+                    }
+                }
+            }
+
+            if (-not $uninstalled) {
+                Write-ADTLogEntry -Message "No uninstallable installations found" -Severity 2
+            }
+            #endregion
+
+            #region Post-Uninstallation
+            Write-ADTLogEntry -Message "=== Post-Uninstallation Phase ==="
+
+            # Clean up remaining files
+            Remove-ApplicationData
+
+            Write-ADTLogEntry -Message "Uninstallation completed"
+            #endregion
+        }
+        {{#if includeRepair}}
+
+        'Repair' {
+            #region Repair
+            Write-ADTLogEntry -Message "=== Repair Phase ==="
+
+            if ($AppsToClose) {
+                Show-ADTInstallationWelcome -CloseApps $AppsToClose
+            }
+
+            Show-ADTInstallationProgress -StatusMessage "Repairing $AppName..."
+
+            # For EXE installers, repair typically means reinstall
+            Write-ADTLogEntry -Message "Performing repair via reinstall"
+
+            # Remove current installation
+            $app = Get-ADTInstalledApplication -Name $AppName
+            if ($app.UninstallString) {
+                $uninstallPath = ($app.UninstallString -split ' ')[0] -replace '"', ''
+                if (Test-Path $uninstallPath) {
+                    Write-ADTLogEntry -Message "Removing current installation"
+                    Start-ADTProcess -FilePath $uninstallPath -Arguments $UninstallArgs
+                    Start-Sleep -Seconds 5
+                }
+            }
+
+            # Reinstall
+            Write-ADTLogEntry -Message "Reinstalling application"
+            $installerPath = Join-Path -Path $ADTSession.FilesDirectory -ChildPath $InstallerFile
+            Start-ADTProcess -FilePath $installerPath -Arguments $SilentArgs
+
+            # Verify and configure
+            Start-Sleep -Seconds 3
+            if (-not (Test-Installation)) {
+                throw "Repair verification failed"
+            }
+
+            Set-ApplicationConfiguration
+
+            Write-ADTLogEntry -Message "Repair completed"
+            #endregion
+        }
+        {{/if}}
+    }
+
+    Write-ADTLogEntry -Message "=============================================="
+    Write-ADTLogEntry -Message "$DeploymentType of $AppName completed successfully"
+    Write-ADTLogEntry -Message "=============================================="
+
+    Complete-ADTDeployment -DeploymentStatus 'Complete'
+}
+{{> error-handling}}

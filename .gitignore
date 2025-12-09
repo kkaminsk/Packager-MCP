@@ -1,0 +1,9 @@
+node_modules/
+dist/
+*.log
+
+# Config files with secrets
+packager-mcp.yaml
+packager-mcp.yml
+config.yaml
+config.yml

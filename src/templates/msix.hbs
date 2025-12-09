@@ -1,0 +1,172 @@
+{{> header}}
+
+{{> initialize}}
+
+#region Variables
+# MSIX Package Configuration
+$PackageFile = '{{installerFileName}}'
+$PackageName = '{{applicationVendor}}.{{applicationName}}'  # CUSTOMIZE: Set actual package name
+$PackageFamilyName = ''  # CUSTOMIZE: Set after first install (e.g., 'Publisher.App_abcdef123')
+
+# Dependencies directory (relative to Files folder)
+$DependenciesFolder = 'Dependencies'
+#endregion
+
+#region Helper Functions
+function Install-Dependencies {
+    <#
+    .SYNOPSIS
+        Installs MSIX package dependencies
+    #>
+    $depPath = Join-Path -Path $ADTSession.FilesDirectory -ChildPath $DependenciesFolder
+
+    if (Test-Path $depPath) {
+        $dependencies = Get-ChildItem -Path $depPath -Include '*.msix', '*.appx' -Recurse
+
+        foreach ($dep in $dependencies) {
+            Write-ADTLogEntry -Message "Installing dependency: $($dep.Name)"
+            try {
+                Add-AppxPackage -Path $dep.FullName -ErrorAction Stop
+            }
+            catch {
+                # Dependency might already be installed or is a different architecture
+                Write-ADTLogEntry -Message "Dependency note: $($_.Exception.Message)" -Severity 2
+            }
+        }
+    }
+}
+#endregion
+
+#region Main Deployment Logic
+try {
+    switch ($DeploymentType) {
+        'Install' {
+            #region Pre-Installation
+            Write-ADTLogEntry -Message "=== Pre-Installation Phase ==="
+
+            # Check for existing installation
+            $existingPackage = Get-AppxPackage -Name $PackageName -ErrorAction SilentlyContinue
+            if ($existingPackage) {
+                Write-ADTLogEntry -Message "Found existing package: $($existingPackage.Name) v$($existingPackage.Version)"
+
+                # Remove existing version for clean install
+                Write-ADTLogEntry -Message "Removing existing package"
+                Remove-AppxPackage -Package $existingPackage.PackageFullName
+            }
+
+            Show-ADTInstallationProgress -StatusMessage 'Installing {{applicationName}}...'
+            #endregion
+
+            #region Installation
+            Write-ADTLogEntry -Message "=== Installation Phase ==="
+
+            # Install dependencies first
+            Install-Dependencies
+
+            # Install main package
+            $packagePath = Join-Path -Path $ADTSession.FilesDirectory -ChildPath $PackageFile
+            Write-ADTLogEntry -Message "Installing MSIX package: $packagePath"
+
+            if ($ADTSession.IsSystemAccount) {
+                # Running as SYSTEM - provision for all users
+                Write-ADTLogEntry -Message "Provisioning package for all users"
+                Add-AppxProvisionedPackage -Online -PackagePath $packagePath -SkipLicense
+            } else {
+                # Running as current user
+                Add-AppxPackage -Path $packagePath
+            }
+
+            Write-ADTLogEntry -Message "MSIX installation completed"
+            #endregion
+
+            #region Post-Installation
+            Write-ADTLogEntry -Message "=== Post-Installation Phase ==="
+
+            # Verify installation
+            Start-Sleep -Seconds 2
+            $installed = Get-AppxPackage -Name $PackageName -ErrorAction SilentlyContinue
+            if (-not $installed) {
+                throw "Installation verification failed - package not found"
+            }
+
+            Write-ADTLogEntry -Message "Verified: $($installed.Name) v$($installed.Version)"
+            Write-ADTLogEntry -Message "Package Family Name: $($installed.PackageFamilyName)"
+
+            # CUSTOMIZE: Add post-installation configuration if needed
+            # Note: MSIX apps have limited configuration options due to containerization
+            #endregion
+        }
+
+        'Uninstall' {
+            #region Uninstallation
+            Write-ADTLogEntry -Message "=== Uninstallation Phase ==="
+
+            Show-ADTInstallationProgress -StatusMessage 'Uninstalling {{applicationName}}...'
+
+            # Remove provisioned package (prevents install for new users)
+            if ($ADTSession.IsAdmin) {
+                $provisioned = Get-AppxProvisionedPackage -Online | Where-Object { $_.DisplayName -eq $PackageName }
+                if ($provisioned) {
+                    Write-ADTLogEntry -Message "Removing provisioned package"
+                    Remove-AppxProvisionedPackage -Online -PackageName $provisioned.PackageName
+                }
+            }
+
+            # Remove installed packages for all users
+            if ($PackageFamilyName) {
+                $packages = Get-AppxPackage -PackageFamilyName $PackageFamilyName -AllUsers -ErrorAction SilentlyContinue
+            } else {
+                $packages = Get-AppxPackage -Name $PackageName -AllUsers -ErrorAction SilentlyContinue
+            }
+
+            foreach ($package in $packages) {
+                Write-ADTLogEntry -Message "Removing: $($package.PackageFullName)"
+                try {
+                    Remove-AppxPackage -Package $package.PackageFullName -AllUsers -ErrorAction Stop
+                }
+                catch {
+                    # Try without AllUsers if it fails
+                    Remove-AppxPackage -Package $package.PackageFullName -ErrorAction SilentlyContinue
+                }
+            }
+
+            # Verify removal
+            $remaining = Get-AppxPackage -Name $PackageName -ErrorAction SilentlyContinue
+            if ($remaining) {
+                Write-ADTLogEntry -Message "Warning: Package may still exist for some users" -Severity 2
+            } else {
+                Write-ADTLogEntry -Message "Package successfully removed"
+            }
+            #endregion
+        }
+        {{#if includeRepair}}
+
+        'Repair' {
+            #region Repair
+            Write-ADTLogEntry -Message "=== Repair Phase ==="
+
+            Show-ADTInstallationProgress -StatusMessage 'Repairing {{applicationName}}...'
+
+            # For MSIX, repair means reinstall
+            Write-ADTLogEntry -Message "MSIX repair: Removing and reinstalling package"
+
+            # Remove existing
+            $existing = Get-AppxPackage -Name $PackageName -ErrorAction SilentlyContinue
+            if ($existing) {
+                Remove-AppxPackage -Package $existing.PackageFullName
+            }
+
+            # Reinstall
+            Install-Dependencies
+            $packagePath = Join-Path -Path $ADTSession.FilesDirectory -ChildPath $PackageFile
+            Add-AppxPackage -Path $packagePath
+
+            Write-ADTLogEntry -Message "Repair completed"
+            #endregion
+        }
+        {{/if}}
+    }
+
+    Complete-ADTDeployment -DeploymentStatus 'Complete'
+}
+{{> error-handling}}

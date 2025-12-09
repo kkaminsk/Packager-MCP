@@ -1,0 +1,366 @@
+{{> header}}
+
+{{> initialize}}
+
+#region Configuration Variables
+# Application Information
+$AppName = '{{applicationName}}'
+$AppVendor = '{{applicationVendor}}'
+$AppVersion = '{{applicationVersion}}'
+
+# MSI Configuration
+$InstallerFile = '{{installerFileName}}'
+{{#if productCode}}
+$ProductCode = '{{productCode}}'
+{{else}}
+# CUSTOMIZE: Set the MSI product code
+$ProductCode = '{PRODUCT-CODE-GUID}'
+{{/if}}
+{{#if transformFile}}
+$TransformFile = '{{transformFile}}'
+{{/if}}
+
+# Silent Arguments
+$InstallParameters = '{{silentArgs}}{{#if msiProperties}} {{msiProperties}}{{/if}}'
+$UninstallParameters = '/qn /norestart'
+
+# Applications to close
+{{#if closeApps}}
+$AppsToClose = '{{closeApps}}'
+{{else}}
+$AppsToClose = ''  # CUSTOMIZE: Add comma-separated process names
+{{/if}}
+
+# Feature flags
+$AllowDeferral = $true
+$MaxDeferrals = 3
+$CheckDiskSpace = $true
+{{#if requiredDiskSpace}}
+$RequiredDiskSpaceMB = {{requiredDiskSpace}}
+{{else}}
+$RequiredDiskSpaceMB = 500  # CUSTOMIZE: Set required disk space in MB
+{{/if}}
+
+# Logging
+$CustomLogPath = $null  # Use default PSADT logging
+#endregion
+
+#region Helper Functions
+function Test-Prerequisites {
+    <#
+    .SYNOPSIS
+        Validates all prerequisites before installation
+    #>
+    $prerequisites = @{
+        DiskSpace = $true
+        AdminRights = $true
+        WindowsVersion = $true
+        Dependencies = $true
+    }
+
+    # Check disk space
+    if ($CheckDiskSpace) {
+        $diskSpace = Get-ADTDiskSpace -Drive 'C:'
+        if ($diskSpace.FreeMB -lt $RequiredDiskSpaceMB) {
+            Write-ADTLogEntry -Message "Insufficient disk space: $($diskSpace.FreeMB) MB available, $RequiredDiskSpaceMB MB required" -Severity 3
+            $prerequisites.DiskSpace = $false
+        }
+    }
+
+    # Check admin rights
+    if (-not $ADTSession.IsAdmin) {
+        Write-ADTLogEntry -Message "Installation requires administrator rights" -Severity 3
+        $prerequisites.AdminRights = $false
+    }
+
+    {{#if minimumWindowsVersion}}
+    # Check Windows version
+    if ($envOSVersionBuild -lt {{minimumWindowsVersion}}) {
+        Write-ADTLogEntry -Message "Windows build {{minimumWindowsVersion}} or later required. Current: $envOSVersionBuild" -Severity 3
+        $prerequisites.WindowsVersion = $false
+    }
+    {{/if}}
+
+    # CUSTOMIZE: Add dependency checks here
+    # Example:
+    # $vcRedist = Get-ADTInstalledApplication -Name '*Visual C++*2019*'
+    # if (-not $vcRedist) {
+    #     Write-ADTLogEntry -Message "Visual C++ 2019 Redistributable not found" -Severity 3
+    #     $prerequisites.Dependencies = $false
+    # }
+
+    $failed = $prerequisites.GetEnumerator() | Where-Object { -not $_.Value }
+    if ($failed) {
+        $failedList = ($failed | ForEach-Object { $_.Key }) -join ', '
+        throw "Prerequisites check failed: $failedList"
+    }
+
+    Write-ADTLogEntry -Message "All prerequisites validated successfully"
+    return $true
+}
+
+function Remove-PreviousVersion {
+    <#
+    .SYNOPSIS
+        Removes any previous version of the application
+    #>
+    $existingApps = Get-ADTInstalledApplication -Name $AppName
+
+    foreach ($app in $existingApps) {
+        if ($app.ProductCode -and $app.ProductCode -ne $ProductCode) {
+            Write-ADTLogEntry -Message "Removing previous version: $($app.DisplayVersion) [$($app.ProductCode)]"
+            try {
+                Start-ADTMsiProcess -Action Uninstall -Path $app.ProductCode
+            }
+            catch {
+                Write-ADTLogEntry -Message "Failed to remove previous version: $($_.Exception.Message)" -Severity 2
+            }
+        }
+    }
+}
+
+function Set-ApplicationConfiguration {
+    <#
+    .SYNOPSIS
+        Configures application after installation
+    #>
+    Write-ADTLogEntry -Message "Applying post-installation configuration"
+
+    # CUSTOMIZE: Add configuration tasks here
+    # Examples:
+
+    # Copy configuration file
+    # $configSource = Join-Path -Path $ADTSession.FilesDirectory -ChildPath 'config.xml'
+    # $configDest = "$env:ProgramData\$AppVendor\$AppName\config.xml"
+    # if (Test-Path $configSource) {
+    #     New-ADTFolder -Path (Split-Path $configDest)
+    #     Copy-ADTFile -Path $configSource -Destination $configDest
+    # }
+
+    # Set registry values
+    # Set-ADTRegistryKey -Key "HKLM:\SOFTWARE\$AppVendor\$AppName" -Name 'AutoUpdate' -Value 0 -Type 'DWord'
+
+    # Create desktop shortcut
+    # New-ADTShortcut -Path "$env:PUBLIC\Desktop\$AppName.lnk" `
+    #     -TargetPath "$env:ProgramFiles\$AppVendor\$AppName\$AppName.exe" `
+    #     -IconLocation "$env:ProgramFiles\$AppVendor\$AppName\$AppName.exe" `
+    #     -Description $AppName
+
+    Write-ADTLogEntry -Message "Configuration completed"
+}
+
+function Remove-ApplicationData {
+    <#
+    .SYNOPSIS
+        Removes application data during uninstall
+    #>
+    Write-ADTLogEntry -Message "Cleaning up application data"
+
+    # CUSTOMIZE: Add cleanup tasks here
+    $cleanupPaths = @(
+        # "$env:ProgramData\$AppVendor\$AppName"
+        # "$env:LocalAppData\$AppVendor\$AppName"
+    )
+
+    foreach ($path in $cleanupPaths) {
+        if (Test-Path $path) {
+            Write-ADTLogEntry -Message "Removing: $path"
+            Remove-ADTFolder -Path $path -ContinueOnError
+        }
+    }
+
+    # Remove registry entries
+    # Remove-ADTRegistryKey -Key "HKLM:\SOFTWARE\$AppVendor\$AppName" -Recurse -ContinueOnError
+
+    Write-ADTLogEntry -Message "Cleanup completed"
+}
+#endregion
+
+#region Main Deployment Logic
+try {
+    Write-ADTLogEntry -Message "=============================================="
+    Write-ADTLogEntry -Message "Starting $DeploymentType of $AppName $AppVersion"
+    Write-ADTLogEntry -Message "Deploy Mode: $DeployMode"
+    Write-ADTLogEntry -Message "Running as: $(if ($ADTSession.IsSystemAccount) {'SYSTEM'} else {$env:USERNAME})"
+    Write-ADTLogEntry -Message "=============================================="
+
+    switch ($DeploymentType) {
+        'Install' {
+            #region Pre-Installation
+            Write-ADTLogEntry -Message "=== Pre-Installation Phase ==="
+
+            # Show welcome dialog
+            if ($AppsToClose) {
+                $welcomeParams = @{
+                    CloseApps           = $AppsToClose
+                    CloseAppsCountdown  = 300
+                    PersistPrompt       = $true
+                    BlockExecution      = $true
+                }
+
+                if ($AllowDeferral) {
+                    $welcomeParams.AllowDefer = $true
+                    $welcomeParams.DeferTimes = $MaxDeferrals
+                }
+
+                Show-ADTInstallationWelcome @welcomeParams
+            }
+
+            # Validate prerequisites
+            Test-Prerequisites
+
+            # Remove previous versions
+            Remove-PreviousVersion
+
+            Show-ADTInstallationProgress -StatusMessage "Installing $AppName $AppVersion..."
+            #endregion
+
+            #region Installation
+            Write-ADTLogEntry -Message "=== Installation Phase ==="
+
+            $msiParams = @{
+                Action     = 'Install'
+                Path       = Join-Path -Path $ADTSession.FilesDirectory -ChildPath $InstallerFile
+                Parameters = $InstallParameters
+            }
+            {{#if transformFile}}
+            $msiParams.Transform = Join-Path -Path $ADTSession.FilesDirectory -ChildPath $TransformFile
+            {{/if}}
+
+            $result = Start-ADTMsiProcess @msiParams
+
+            Write-ADTLogEntry -Message "MSI installation completed with exit code: $($result.ExitCode)"
+            #endregion
+
+            #region Post-Installation
+            Write-ADTLogEntry -Message "=== Post-Installation Phase ==="
+
+            # Verify installation
+            Start-Sleep -Seconds 2  # Brief pause for registry to update
+            $installed = Get-ADTInstalledApplication -Name $AppName
+            if (-not $installed) {
+                throw "Installation verification failed - application not found"
+            }
+            Write-ADTLogEntry -Message "Verified: $($installed.DisplayName) v$($installed.DisplayVersion)"
+
+            # Apply configuration
+            Set-ApplicationConfiguration
+
+            {{#if rebootBehavior}}
+            # Handle reboot
+            {{#ifEquals rebootBehavior "prompt"}}
+            if ($result.ExitCode -eq 3010 -or $ADTSession.RebootRequired) {
+                Write-ADTLogEntry -Message "Restart required - prompting user"
+                Show-ADTInstallationRestartPrompt -CountdownSeconds 600 -NoCountdown $false
+            }
+            {{/ifEquals}}
+            {{#ifEquals rebootBehavior "force"}}
+            if ($result.ExitCode -eq 3010 -or $ADTSession.RebootRequired) {
+                Write-ADTLogEntry -Message "Restart required - returning 3010"
+                Complete-ADTDeployment -DeploymentStatus 'RestartRequired'
+                return
+            }
+            {{/ifEquals}}
+            {{/if}}
+
+            Write-ADTLogEntry -Message "Post-installation completed"
+            #endregion
+        }
+
+        'Uninstall' {
+            #region Pre-Uninstallation
+            Write-ADTLogEntry -Message "=== Pre-Uninstallation Phase ==="
+
+            if ($AppsToClose) {
+                Show-ADTInstallationWelcome -CloseApps $AppsToClose -CloseAppsCountdown 60
+            }
+
+            Show-ADTInstallationProgress -StatusMessage "Uninstalling $AppName..."
+            #endregion
+
+            #region Uninstallation
+            Write-ADTLogEntry -Message "=== Uninstallation Phase ==="
+
+            # Try product code first
+            $uninstalled = $false
+            {{#if productCode}}
+            try {
+                Start-ADTMsiProcess -Action Uninstall -Path $ProductCode -Parameters $UninstallParameters
+                $uninstalled = $true
+            }
+            catch {
+                Write-ADTLogEntry -Message "Uninstall by product code failed: $($_.Exception.Message)" -Severity 2
+            }
+            {{/if}}
+
+            # Fallback to finding by name
+            if (-not $uninstalled) {
+                $apps = Get-ADTInstalledApplication -Name $AppName
+                foreach ($app in $apps) {
+                    if ($app.ProductCode) {
+                        Write-ADTLogEntry -Message "Uninstalling: $($app.DisplayName) [$($app.ProductCode)]"
+                        Start-ADTMsiProcess -Action Uninstall -Path $app.ProductCode -Parameters $UninstallParameters
+                        $uninstalled = $true
+                    }
+                }
+            }
+
+            if (-not $uninstalled) {
+                Write-ADTLogEntry -Message "No installation found to remove" -Severity 2
+            }
+            #endregion
+
+            #region Post-Uninstallation
+            Write-ADTLogEntry -Message "=== Post-Uninstallation Phase ==="
+
+            # Clean up application data
+            Remove-ApplicationData
+
+            Write-ADTLogEntry -Message "Uninstallation completed"
+            #endregion
+        }
+        {{#if includeRepair}}
+
+        'Repair' {
+            #region Repair
+            Write-ADTLogEntry -Message "=== Repair Phase ==="
+
+            if ($AppsToClose) {
+                Show-ADTInstallationWelcome -CloseApps $AppsToClose
+            }
+
+            Show-ADTInstallationProgress -StatusMessage "Repairing $AppName..."
+
+            # Find installed product
+            $app = Get-ADTInstalledApplication -Name $AppName | Select-Object -First 1
+
+            if ($app -and $app.ProductCode) {
+                Write-ADTLogEntry -Message "Repairing: $($app.DisplayName) [$($app.ProductCode)]"
+                Start-ADTMsiProcess -Action Repair -Path $app.ProductCode
+            }
+            {{#if productCode}}
+            elseif ($ProductCode -ne '{PRODUCT-CODE-GUID}') {
+                Write-ADTLogEntry -Message "Repairing using configured product code"
+                Start-ADTMsiProcess -Action Repair -Path $ProductCode
+            }
+            {{/if}}
+            else {
+                throw "Cannot repair - no product code found. Try reinstalling the application."
+            }
+
+            # Re-apply configuration in case files were corrupted
+            Set-ApplicationConfiguration
+
+            Write-ADTLogEntry -Message "Repair completed"
+            #endregion
+        }
+        {{/if}}
+    }
+
+    Write-ADTLogEntry -Message "=============================================="
+    Write-ADTLogEntry -Message "$DeploymentType of $AppName completed successfully"
+    Write-ADTLogEntry -Message "=============================================="
+
+    Complete-ADTDeployment -DeploymentStatus 'Complete'
+}
+{{> error-handling}}

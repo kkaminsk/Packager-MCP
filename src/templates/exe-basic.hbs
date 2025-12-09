@@ -1,0 +1,52 @@
+{{> header}}
+
+{{> initialize}}
+
+#region Main Deployment Logic
+try {
+    switch ($DeploymentType) {
+        'Install' {
+            #region Installation
+            Write-ADTLogEntry -Message "Starting installation of {{applicationName}} {{applicationVersion}}"
+
+            {{#if closeApps}}
+            # Close running applications
+            Show-ADTInstallationWelcome -CloseApps '{{closeApps}}' -CloseAppsCountdown 60
+            {{/if}}
+
+            # Execute installer
+            # CUSTOMIZE: Verify silent arguments for your specific installer type
+            $installerPath = Join-Path -Path $ADTSession.FilesDirectory -ChildPath '{{installerFileName}}'
+            Start-ADTProcess -FilePath $installerPath `
+                -Arguments '{{silentArgs}}'
+
+            Write-ADTLogEntry -Message "Installation completed successfully"
+            #endregion
+        }
+        'Uninstall' {
+            #region Uninstallation
+            Write-ADTLogEntry -Message "Starting uninstallation of {{applicationName}}"
+
+            {{#if closeApps}}
+            # Close running applications
+            Show-ADTInstallationWelcome -CloseApps '{{closeApps}}'
+            {{/if}}
+
+            # Find and execute uninstaller
+            # CUSTOMIZE: Adjust uninstall logic based on your application
+            $app = Get-ADTInstalledApplication -Name '{{applicationName}}'
+            if ($app.UninstallString) {
+                $uninstallPath = ($app.UninstallString -split ' ')[0] -replace '"', ''
+                if (Test-Path $uninstallPath) {
+                    Start-ADTProcess -FilePath $uninstallPath -Arguments '{{uninstallArgs}}'
+                }
+            }
+
+            Write-ADTLogEntry -Message "Uninstallation completed successfully"
+            #endregion
+        }
+    }
+
+    Complete-ADTDeployment -DeploymentStatus 'Complete'
+}
+{{> error-handling}}

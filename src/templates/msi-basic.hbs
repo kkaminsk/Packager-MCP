@@ -1,0 +1,56 @@
+{{> header}}
+
+{{> initialize}}
+
+#region Main Deployment Logic
+try {
+    switch ($DeploymentType) {
+        'Install' {
+            #region Installation
+            Write-ADTLogEntry -Message "Starting installation of {{applicationName}} {{applicationVersion}}"
+
+            {{#if closeApps}}
+            # Close running applications
+            Show-ADTInstallationWelcome -CloseApps '{{closeApps}}' -CloseAppsCountdown 60
+            {{/if}}
+
+            # Execute MSI installation
+            # CUSTOMIZE: Modify MSI parameters as needed
+            $msiPath = Join-Path -Path $ADTSession.FilesDirectory -ChildPath '{{installerFileName}}'
+            Start-ADTMsiProcess -Action Install `
+                -Path $msiPath `
+                {{#if transformFile}}-Transform (Join-Path -Path $ADTSession.FilesDirectory -ChildPath '{{transformFile}}') `{{/if}}
+                -Parameters '{{silentArgs}}{{#if msiProperties}} {{msiProperties}}{{/if}}'
+
+            Write-ADTLogEntry -Message "Installation completed successfully"
+            #endregion
+        }
+        'Uninstall' {
+            #region Uninstallation
+            Write-ADTLogEntry -Message "Starting uninstallation of {{applicationName}}"
+
+            {{#if closeApps}}
+            # Close running applications
+            Show-ADTInstallationWelcome -CloseApps '{{closeApps}}'
+            {{/if}}
+
+            # Execute MSI uninstallation
+            {{#if productCode}}
+            Start-ADTMsiProcess -Action Uninstall -Path '{{productCode}}'
+            {{else}}
+            # CUSTOMIZE: Replace with actual product code
+            # Start-ADTMsiProcess -Action Uninstall -Path '{PRODUCT-CODE-GUID}'
+            $app = Get-ADTInstalledApplication -Name '{{applicationName}}'
+            if ($app.ProductCode) {
+                Start-ADTMsiProcess -Action Uninstall -Path $app.ProductCode
+            }
+            {{/if}}
+
+            Write-ADTLogEntry -Message "Uninstallation completed successfully"
+            #endregion
+        }
+    }
+
+    Complete-ADTDeployment -DeploymentStatus 'Complete'
+}
+{{> error-handling}}

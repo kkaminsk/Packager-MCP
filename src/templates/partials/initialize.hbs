@@ -1,0 +1,30 @@
+#region Import Module and Initialize
+try {
+    # Import PSADT module
+    Import-Module "$PSScriptRoot\PSAppDeployToolkit" -Force -ErrorAction Stop
+}
+catch {
+    Write-Error "Failed to import PSAppDeployToolkit module: $($_.Exception.Message)"
+    exit 60001
+}
+
+# Initialize deployment session
+$adtParams = @{
+    InstallName         = '{{applicationName}}'
+    InstallVersion      = '{{applicationVersion}}'
+    Publisher           = '{{applicationVendor}}'
+    DeploymentType      = $DeploymentType
+    DeployMode          = $DeployMode
+    AllowRebootPassThru = $AllowRebootPassThru
+    TerminalServerMode  = $TerminalServerMode
+    DisableLogging      = $DisableLogging
+}
+
+try {
+    Initialize-ADTDeployment @adtParams
+}
+catch {
+    Write-Error "Failed to initialize deployment: $($_.Exception.Message)"
+    exit 60001
+}
+#endregion
