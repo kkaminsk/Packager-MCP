@@ -47,7 +47,7 @@ When you connect this server to Claude CLI (or another MCP-compatible client), C
 winget install git.git
 
 #Install VisualStudio Code
-winget install Microsoft.VisualStudioCode
+winget install Codeium.Windsurf
 
 #Install Node.js 21
 winget install OpenJS.NodeJS.21
