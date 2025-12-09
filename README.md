@@ -25,6 +25,12 @@ When you connect this server to Claude CLI (or another MCP-compatible client), C
 
 ---
 
+## Version Notes
+
+**V0.5 Packager-MCP** is currently in alpha. Feel free to test, but be aware that there is some fine-tuning still happening.
+
+---
+
 ## Quick Start
 
 ### Prerequisites
