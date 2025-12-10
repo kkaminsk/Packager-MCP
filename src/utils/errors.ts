@@ -63,29 +63,6 @@ export class ResourceError extends McpError {
   }
 }
 
-export class DownloadError extends McpError {
-  constructor(
-    message: string,
-    public readonly url?: string,
-    public readonly statusCode?: number,
-    details?: Record<string, unknown>
-  ) {
-    super(message, 'DOWNLOAD_ERROR', { ...details, url, statusCode });
-    this.name = 'DownloadError';
-  }
-}
-
-export class ExtractionError extends McpError {
-  constructor(
-    message: string,
-    public readonly archivePath?: string,
-    details?: Record<string, unknown>
-  ) {
-    super(message, 'EXTRACTION_ERROR', { ...details, archivePath });
-    this.name = 'ExtractionError';
-  }
-}
-
 export function formatErrorForClient(error: unknown): string {
   if (error instanceof McpError) {
     return `[${error.code}] ${error.message}`;

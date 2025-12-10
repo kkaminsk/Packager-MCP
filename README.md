@@ -102,7 +102,7 @@ Launch Windsurf and open the cascade view and look for @packager-mcp
 
 ## What Can It Do?
 
-### 7 Powerful Tools
+### 5 Powerful Tools
 
 | Tool | What It Does | Example Use |
 |------|--------------|-------------|
@@ -111,8 +111,8 @@ Launch Windsurf and open the cascade view and look for @packager-mcp
 | `get_psadt_template` | Generate PSADT v4 deployment scripts | "Create a PSADT script for 7-Zip" |
 | `validate_package` | Check scripts for errors and best practices | "Validate my deployment script" |
 | `generate_intune_detection` | Create Intune detection rules | "Generate a file detection rule for Notepad++" |
-| `download_installer` | Download installers with hash verification | "Download the Chrome installer" |
-| `download_psadt_toolkit` | Get the PSADT toolkit from GitHub | "Download PSADT v4.0.4" |
+
+**Note:** Use `search_winget` to get installer URLs, then download with PowerShell's `Invoke-WebRequest`. The PSADT toolkit is bundled in `dist/knowledge/v4github/` - copy these files to your package directory.
 
 ### 11 Knowledge Resources
 
@@ -263,21 +263,20 @@ Packager-MCP/
 ├── src/
 │   ├── server.ts           # MCP server entry point
 │   ├── handlers/
-│   │   ├── tools.ts        # Tool implementations (7 tools)
+│   │   ├── tools.ts        # Tool implementations (5 tools)
 │   │   ├── resources.ts    # Resource handlers (11 resources)
 │   │   └── prompts.ts      # Prompt workflows (4 prompts)
 │   ├── services/
 │   │   ├── winget.ts       # Winget API integration
 │   │   ├── psadt.ts        # PSADT template generation
-│   │   ├── psadt-download.ts # PSADT toolkit download
-│   │   ├── download.ts     # Installer download with SHA256
 │   │   ├── validation.ts   # Package validation engine
 │   │   └── detection.ts    # Intune detection rules
 │   ├── knowledge/          # Embedded documentation
 │   │   ├── psadt/          # PSADT v4 docs
 │   │   ├── installers/     # Installer type guides
 │   │   ├── patterns/       # Packaging patterns
-│   │   └── reference/      # Silent args, exit codes
+│   │   ├── reference/      # Silent args, exit codes
+│   │   └── v4github/       # Static PSADT v4.1.7 toolkit
 │   └── types/              # TypeScript definitions
 ├── dist/                   # Compiled JavaScript (after build)
 ├── packager-mcp.example.yaml
@@ -438,7 +437,10 @@ A: Yes, any MCP-compatible client works. Add the server to your MCP config.
 A: Arguments come from Microsoft's Winget repository with confidence levels (verified, high, medium, low).
 
 **Q: Can I download the actual installers?**
-A: Yes! The `download_installer` tool downloads from Winget with SHA256 verification. Files too large will have a download URL.
+A: Use `search_winget` to get installer URLs and SHA256 hashes, then download with PowerShell's `Invoke-WebRequest`.
+
+**Q: Where do I get the PSADT toolkit files?**
+A: The PSADT v4.1.7 toolkit is bundled in `dist/knowledge/v4github/`. Copy these files to your package directory to create a complete deployment package.
 
 ---
 

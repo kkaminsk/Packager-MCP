@@ -258,24 +258,47 @@ For interactive deployments, simply omit `-DeployMode Silent` - PSADT handles us
 | Defer exit code | Custom | 1602 (default) |
 | Module GUID | N/A | 8c3c366b-8606-4576-9f2d-4051144f7ca2 |
 
-## Automatic Toolkit Download
+## Automatic Package Creation
 
-The MCP server can automatically download the PSADT toolkit from GitHub using the `download_psadt_toolkit` tool:
+The `get_psadt_template` tool can automatically create a complete PSADT package by specifying `output_directory`:
 
 ```json
 {
-  "output_directory": "C:\\Packages\\MyApp",
-  "version": "4.0.4"
+  "application_name": "7-Zip",
+  "application_vendor": "Igor Pavlov",
+  "application_version": "23.01",
+  "installer_type": "exe",
+  "installer_file_name": "7z2301-x64.exe",
+  "silent_args": "/S",
+  "output_directory": "C:\\Packages\\7zip"
 }
 ```
 
-This creates the complete package structure with all required files. You can also use `get_psadt_template` with `download_toolkit: true` to generate a customized script and download the toolkit in a single operation.
+This automatically:
+1. Copies PSADT v4.1.7 toolkit files from `ReferenceKnowledge/PSAppDeployToolkit_Template_v4/`
+2. Generates a customized `Invoke-AppDeployToolkit.ps1` script
+3. Creates the complete package structure ready for your installer
+
+### Created Package Structure
+
+```
+C:\Packages\7zip\
+├── PSAppDeployToolkit/            # Core module (v4.1.7, 135 functions)
+│   ├── PSAppDeployToolkit.psd1    # Module manifest
+│   ├── PSAppDeployToolkit.psm1    # Module implementation
+│   └── ...
+├── Config/config.psd1             # Default configuration
+├── Assets/                        # Icons and banners
+├── Files/                         # Place installers here
+├── Invoke-AppDeployToolkit.exe    # Launcher executable
+└── Invoke-AppDeployToolkit.ps1    # Generated deployment script
+```
 
 ### Benefits
-- No manual download required
-- Version pinning for reproducible builds
-- Cached downloads (24-hour TTL) for faster subsequent operations
-- SHA-verified files from official GitHub releases
+- No network dependency - toolkit bundled with MCP server
+- Version pinned to v4.1.7 for reproducible builds
+- Instant access - no download delays or rate limits
+- Verified source from official PSADT release
 
 ## Resources
 

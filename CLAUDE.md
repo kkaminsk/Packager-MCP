@@ -33,17 +33,16 @@ src/
 ├── services/
 │   ├── winget.ts       # Winget API integration
 │   ├── psadt.ts        # PSADT template generation
-│   ├── psadt-download.ts # PSADT toolkit download from GitHub
 │   ├── validation.ts   # Package validation
 │   └── detection.ts    # Intune detection rule generation
 ├── knowledge/          # Embedded documentation
 │   ├── psadt/          # PSADT v4 docs and patterns
 │   ├── installers/     # Installer type guides
-│   └── reference/      # Silent args, exit codes
+│   ├── reference/      # Silent args, exit codes
+│   └── v4github/       # Static PSADT v4.1.7 toolkit files
 └── types/              # TypeScript type definitions
     ├── winget.ts       # Winget types
     ├── psadt.ts        # PSADT types
-    ├── psadt-download.ts # PSADT download types
     ├── validation.ts   # Validation types
     └── intune.ts       # Intune detection types
 
@@ -63,13 +62,12 @@ ReferenceKnowledge/     # Source reference materials
 | Tool | Purpose |
 |------|---------|
 | `search_winget` | Query Winget repo for app metadata, installer URLs, silent args |
-| `get_psadt_template` | Generate PSADT v4 scripts based on installer type (optionally with toolkit download) |
+| `get_psadt_template` | Generate PSADT v4 scripts based on installer type (with optional package creation) |
 | `validate_package` | Check scripts against best practices |
 | `get_silent_install_args` | Retrieve/derive silent install parameters |
 | `generate_intune_detection` | Create Intune detection rules (file/registry/MSI/script) |
-| `download_psadt_toolkit` | Download PSADT toolkit from GitHub releases with caching and version pinning |
 
-Note: Use `search_winget` to get installer URLs and SHA256 hashes, then download installers using PowerShell's `Invoke-WebRequest`.
+Note: Use `search_winget` to get installer URLs and SHA256 hashes, then download installers using PowerShell's `Invoke-WebRequest`. When using `get_psadt_template` with `output_directory`, the tool automatically copies PSADT toolkit files from `ReferenceKnowledge/PSAppDeployToolkit_Template_v4/` and creates a complete deployment package.
 
 ## MCP Resources
 
@@ -184,8 +182,9 @@ All proposals have been implemented and archived in `openspec/changes/archive/`.
 | 8 | `8-add-installer-download` | `download_installer` tool with SHA256 verification | Archived (removed) |
 | 9 | `9-fix-file-version-format` | Fixed file version format in detection rules | Archived |
 | 10 | `10-add-large-file-download-guidance` | Large file warnings, manual download URL, configurable thresholds | Archived (removed) |
-| 11 | `11-add-psadt-toolkit-download` | `download_psadt_toolkit` tool with caching and version pinning | Archived |
-| 12 | `remove-installer-download` | Removed `download_installer` tool; use `Invoke-WebRequest` instead | Applied |
+| 11 | `11-add-psadt-toolkit-download` | `download_psadt_toolkit` tool with caching and version pinning | Archived (removed) |
+| 12 | `remove-installer-download` | Removed `download_installer` tool; use `Invoke-WebRequest` instead | Archived |
+| 13 | `remove-psadt-download` | Removed `download_psadt_toolkit` tool; use static `dist/knowledge/v4github/` instead | Applied |
 
 ### Creating New Proposals
 

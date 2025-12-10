@@ -183,71 +183,13 @@ $Installer = $Installers | Where-Object { $_.Architecture -eq 'x64' }
 Invoke-WebRequest -Uri $Installer.InstallerUrl -OutFile $OutputPath
 ```
 
-## PSADT Toolkit Download
+## PSADT Toolkit Files
 
-The `download_psadt_toolkit` tool downloads the PSAppDeployToolkit from GitHub releases, creating a complete package structure.
+The MCP server includes PSADT v4.1.7 toolkit files in `ReferenceKnowledge/PSAppDeployToolkit_Template_v4/`. The `get_psadt_template` tool can automatically copy these files when you specify `output_directory`.
 
-### Basic Toolkit Download
+### Automatic Package Creation
 
-Download the latest version:
-
-```json
-{
-  "output_directory": "C:\\Packages\\MyApp"
-}
-```
-
-### Version-Specific Download
-
-Download a specific version for reproducible builds:
-
-```json
-{
-  "output_directory": "C:\\Packages\\MyApp",
-  "version": "4.0.4"
-}
-```
-
-### Include Extensions Module
-
-Download with the optional Extensions module:
-
-```json
-{
-  "output_directory": "C:\\Packages\\MyApp",
-  "include_extensions": true
-}
-```
-
-### Toolkit Output Structure
-
-After download, the output directory contains:
-
-```
-{output_directory}/
-├── PSAppDeployToolkit/
-│   ├── PSAppDeployToolkit.psd1
-│   ├── PSAppDeployToolkit.psm1
-│   └── ...
-├── PSAppDeployToolkit.Extensions/ (if requested)
-├── Config/
-├── Assets/
-├── Strings/
-├── Files/                    # Place installers here
-├── Invoke-AppDeployToolkit.exe
-└── Invoke-AppDeployToolkit.ps1
-```
-
-### Caching Behavior
-
-- Downloaded releases are cached for 24 hours (configurable)
-- Cache key is based on version tag
-- Subsequent downloads of the same version use cached files
-- Response indicates source: `"downloadedFrom": "cache"` or `"github"`
-
-### Combined Template and Toolkit Download
-
-Use `get_psadt_template` with `download_toolkit: true` to generate a script and download the toolkit in one operation:
+Use the `get_psadt_template` tool with `output_directory` to create a complete package:
 
 ```json
 {
@@ -255,15 +197,44 @@ Use `get_psadt_template` with `download_toolkit: true` to generate a script and 
   "application_vendor": "Igor Pavlov",
   "application_version": "23.01",
   "installer_type": "exe",
-  "download_toolkit": true,
+  "installer_file_name": "7z2301-x64.exe",
+  "silent_args": "/S",
   "output_directory": "C:\\Packages\\7zip"
 }
 ```
 
-This creates:
-- Complete toolkit structure
-- Customized `Invoke-AppDeployToolkit.ps1` with your application details
-- Empty `Files/` directory ready for the installer
+This automatically creates:
+
+```
+C:\Packages\7zip\
+├── PSAppDeployToolkit/
+│   ├── PSAppDeployToolkit.psd1    # Module manifest (v4.1.7)
+│   ├── PSAppDeployToolkit.psm1    # Module implementation
+│   └── ...
+├── Config/
+│   └── config.psd1
+├── Assets/
+│   ├── AppIcon.png
+│   └── Banner.Classic.png
+├── Files/                         # Place installers here
+├── Invoke-AppDeployToolkit.exe    # Launcher executable
+└── Invoke-AppDeployToolkit.ps1    # Generated deployment script
+```
+
+### Complete Packaging Workflow
+
+1. Use `search_winget` to find the application and get installer URL
+2. Download the installer using PowerShell's `Invoke-WebRequest`
+3. Use `get_psadt_template` with `output_directory` to create the package
+4. Copy your downloaded installer to the `Files/` directory
+5. Package for Intune deployment
+
+### Benefits
+
+- **No network dependency**: Toolkit bundled with MCP server
+- **Version consistency**: Pinned to v4.1.7 for reproducible builds
+- **Instant access**: No download delays or GitHub rate limits
+- **Verified source**: From official PSAppDeployToolkit release
 
 ## Best Practices
 
