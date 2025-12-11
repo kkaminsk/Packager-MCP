@@ -254,7 +254,7 @@ describe('Convert Legacy Workflow', () => {
         const v4Script = `
       Import-Module PSAppDeployToolkit
       Initialize-ADTDeployment
-      Start-ADTProcess -FilePath "setup.exe" -Arguments "/S"
+      Start-ADTProcess -FilePath "setup.exe" -ArgumentList "/S"
       Complete-ADTDeployment
     `;
         const result = await executeConvertLegacyWorkflow({

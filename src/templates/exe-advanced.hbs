@@ -60,7 +60,7 @@ function Test-Prerequisites {
     }
 
     # Check admin rights
-    if (-not $ADTSession.IsAdmin) {
+    if (-not $adtSession.IsAdmin) {
         Write-ADTLogEntry -Message "Installation requires administrator rights" -Severity 3
         $prerequisites.AdminRights = $false
     }
@@ -74,7 +74,7 @@ function Test-Prerequisites {
     {{/if}}
 
     # CUSTOMIZE: Add dependency checks
-    # $vcRedist = Get-ADTInstalledApplication -Name '*Visual C++*2019*'
+    # $vcRedist = Get-ADTApplication -Name '*Visual C++*2019*'
     # if (-not $vcRedist) {
     #     Write-ADTLogEntry -Message "Visual C++ 2019 Redistributable not found" -Severity 3
     #     $prerequisites.Dependencies = $false
@@ -95,7 +95,7 @@ function Remove-PreviousVersion {
     .SYNOPSIS
         Removes any previous version of the application
     #>
-    $existingApps = Get-ADTInstalledApplication -Name $AppName
+    $existingApps = Get-ADTApplication -Name $AppName
 
     foreach ($app in $existingApps) {
         if ($app.UninstallString) {
@@ -113,7 +113,7 @@ function Remove-PreviousVersion {
 
             if (Test-Path $uninstallPath) {
                 try {
-                    Start-ADTProcess -FilePath $uninstallPath -Arguments $UninstallArgs
+                    Start-ADTProcess -FilePath $uninstallPath -ArgumentList $UninstallArgs
                     Start-Sleep -Seconds 5  # Wait for uninstall to complete
                 }
                 catch {
@@ -132,7 +132,7 @@ function Test-Installation {
     $verified = $false
 
     # Method 1: Registry check
-    $regApp = Get-ADTInstalledApplication -Name $AppName
+    $regApp = Get-ADTApplication -Name $AppName
     if ($regApp) {
         Write-ADTLogEntry -Message "Registry verification passed: $($regApp.DisplayName) v$($regApp.DisplayVersion)"
         $verified = $true
@@ -163,7 +163,7 @@ function Set-ApplicationConfiguration {
     # CUSTOMIZE: Add configuration tasks
 
     # Example: Copy configuration file
-    # $configSource = Join-Path -Path $ADTSession.FilesDirectory -ChildPath 'config.xml'
+    # $configSource = Join-Path -Path $adtSession.DirFiles -ChildPath 'config.xml'
     # if (Test-Path $configSource) {
     #     $configDest = "$env:ProgramData\$AppVendor\$AppName\config.xml"
     #     New-ADTFolder -Path (Split-Path $configDest)
@@ -247,7 +247,7 @@ try {
     Write-ADTLogEntry -Message "=============================================="
     Write-ADTLogEntry -Message "Starting $DeploymentType of $AppName $AppVersion"
     Write-ADTLogEntry -Message "Deploy Mode: $DeployMode"
-    Write-ADTLogEntry -Message "Running as: $(if ($ADTSession.IsSystemAccount) {'SYSTEM'} else {$env:USERNAME})"
+    Write-ADTLogEntry -Message "Running as: $(if ($adtSession.IsSystemAccount) {'SYSTEM'} else {$env:USERNAME})"
     Write-ADTLogEntry -Message "Installer Type: EXE ({{installerType}})"
     Write-ADTLogEntry -Message "=============================================="
 
@@ -287,12 +287,10 @@ try {
             #region Installation
             Write-ADTLogEntry -Message "=== Installation Phase ==="
 
-            $installerPath = Join-Path -Path $ADTSession.FilesDirectory -ChildPath $InstallerFile
+            $installerPath = Join-Path -Path $adtSession.DirFiles -ChildPath $InstallerFile
             Write-ADTLogEntry -Message "Executing: $installerPath $SilentArgs"
 
-            $result = Start-ADTProcess -FilePath $installerPath `
-                -Arguments $SilentArgs `
-                -PassThru
+            $result = Start-ADTProcess -FilePath $installerPath -ArgumentList $SilentArgs -PassThru
 
             $exitMeaning = Get-InstallerExitCodeMeaning -ExitCode $result.ExitCode
             Write-ADTLogEntry -Message "Installer exit code: $($result.ExitCode) ($exitMeaning)"
@@ -339,7 +337,7 @@ try {
                 {{/ifEquals}}
                 {{#ifEquals rebootBehavior "force"}}
                 Write-ADTLogEntry -Message "Restart required - returning 3010"
-                Complete-ADTDeployment -DeploymentStatus 'RestartRequired'
+                Close-ADTSession -ExitCode 3010
                 return
                 {{/ifEquals}}
             }
@@ -363,7 +361,7 @@ try {
             #region Uninstallation
             Write-ADTLogEntry -Message "=== Uninstallation Phase ==="
 
-            $apps = Get-ADTInstalledApplication -Name $AppName
+            $apps = Get-ADTApplication -Name $AppName
             $uninstalled = $false
 
             foreach ($app in $apps) {
@@ -382,7 +380,7 @@ try {
 
                     if (Test-Path $uninstallPath) {
                         Write-ADTLogEntry -Message "Executing uninstaller: $uninstallPath $UninstallArgs"
-                        Start-ADTProcess -FilePath $uninstallPath -Arguments $UninstallArgs
+                        Start-ADTProcess -FilePath $uninstallPath -ArgumentList $UninstallArgs
                         $uninstalled = $true
                     } else {
                         Write-ADTLogEntry -Message "Uninstaller not found: $uninstallPath" -Severity 2
@@ -420,20 +418,20 @@ try {
             Write-ADTLogEntry -Message "Performing repair via reinstall"
 
             # Remove current installation
-            $app = Get-ADTInstalledApplication -Name $AppName
+            $app = Get-ADTApplication -Name $AppName
             if ($app.UninstallString) {
                 $uninstallPath = ($app.UninstallString -split ' ')[0] -replace '"', ''
                 if (Test-Path $uninstallPath) {
                     Write-ADTLogEntry -Message "Removing current installation"
-                    Start-ADTProcess -FilePath $uninstallPath -Arguments $UninstallArgs
+                    Start-ADTProcess -FilePath $uninstallPath -ArgumentList $UninstallArgs
                     Start-Sleep -Seconds 5
                 }
             }
 
             # Reinstall
             Write-ADTLogEntry -Message "Reinstalling application"
-            $installerPath = Join-Path -Path $ADTSession.FilesDirectory -ChildPath $InstallerFile
-            Start-ADTProcess -FilePath $installerPath -Arguments $SilentArgs
+            $installerPath = Join-Path -Path $adtSession.DirFiles -ChildPath $InstallerFile
+            Start-ADTProcess -FilePath $installerPath -ArgumentList $SilentArgs
 
             # Verify and configure
             Start-Sleep -Seconds 3
@@ -453,6 +451,6 @@ try {
     Write-ADTLogEntry -Message "$DeploymentType of $AppName completed successfully"
     Write-ADTLogEntry -Message "=============================================="
 
-    Complete-ADTDeployment -DeploymentStatus 'Complete'
+    Close-ADTSession
 }
 {{> error-handling}}

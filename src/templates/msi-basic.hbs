@@ -2,55 +2,78 @@
 
 {{> initialize}}
 
-#region Main Deployment Logic
-try {
-    switch ($DeploymentType) {
-        'Install' {
-            #region Installation
-            Write-ADTLogEntry -Message "Starting installation of {{applicationName}} {{applicationVersion}}"
+#region Deployment Functions
+function Install-ADTDeployment {
+    [CmdletBinding()]
+    param()
 
-            {{#if closeApps}}
-            # Close running applications
-            Show-ADTInstallationWelcome -CloseApps '{{closeApps}}' -CloseAppsCountdown 60
-            {{/if}}
+    # Pre-Install
+    $adtSession.InstallPhase = "Pre-$($adtSession.DeploymentType)"
+    Write-ADTLogEntry -Message "Starting installation of {{applicationName}} {{applicationVersion}}"
 
-            # Execute MSI installation
-            # CUSTOMIZE: Modify MSI parameters as needed
-            $msiPath = Join-Path -Path $ADTSession.FilesDirectory -ChildPath '{{installerFileName}}'
-            Start-ADTMsiProcess -Action Install `
-                -Path $msiPath `
-                {{#if transformFile}}-Transform (Join-Path -Path $ADTSession.FilesDirectory -ChildPath '{{transformFile}}') `{{/if}}
-                -Parameters '{{silentArgs}}{{#if msiProperties}} {{msiProperties}}{{/if}}'
+    {{#if closeApps}}
+    # Close running applications
+    Show-ADTInstallationWelcome -CloseProcesses $adtSession.AppProcessesToClose -CloseProcessesCountdown 60
+    {{/if}}
+    Show-ADTInstallationProgress
 
-            Write-ADTLogEntry -Message "Installation completed successfully"
-            #endregion
-        }
-        'Uninstall' {
-            #region Uninstallation
-            Write-ADTLogEntry -Message "Starting uninstallation of {{applicationName}}"
+    # Install
+    $adtSession.InstallPhase = $adtSession.DeploymentType
+    # Execute MSI installation
+    # CUSTOMIZE: Modify MSI parameters as needed
+    $msiPath = Join-Path -Path $adtSession.DirFiles -ChildPath '{{installerFileName}}'
+    Start-ADTMsiProcess -Action Install -FilePath $msiPath {{#if transformFile}}-Transforms (Join-Path -Path $adtSession.DirFiles -ChildPath '{{transformFile}}') {{/if}}-AdditionalArgumentList '{{#if msiProperties}}{{msiProperties}}{{/if}}'
 
-            {{#if closeApps}}
-            # Close running applications
-            Show-ADTInstallationWelcome -CloseApps '{{closeApps}}'
-            {{/if}}
+    # Post-Install
+    $adtSession.InstallPhase = "Post-$($adtSession.DeploymentType)"
+    Write-ADTLogEntry -Message "Installation completed successfully"
+}
 
-            # Execute MSI uninstallation
-            {{#if productCode}}
-            Start-ADTMsiProcess -Action Uninstall -Path '{{productCode}}'
-            {{else}}
-            # CUSTOMIZE: Replace with actual product code
-            # Start-ADTMsiProcess -Action Uninstall -Path '{PRODUCT-CODE-GUID}'
-            $app = Get-ADTInstalledApplication -Name '{{applicationName}}'
-            if ($app.ProductCode) {
-                Start-ADTMsiProcess -Action Uninstall -Path $app.ProductCode
-            }
-            {{/if}}
+function Uninstall-ADTDeployment {
+    [CmdletBinding()]
+    param()
 
-            Write-ADTLogEntry -Message "Uninstallation completed successfully"
-            #endregion
-        }
+    # Pre-Uninstall
+    $adtSession.InstallPhase = "Pre-$($adtSession.DeploymentType)"
+    Write-ADTLogEntry -Message "Starting uninstallation of {{applicationName}}"
+
+    {{#if closeApps}}
+    # Close running applications
+    Show-ADTInstallationWelcome -CloseProcesses $adtSession.AppProcessesToClose -CloseProcessesCountdown 60
+    {{/if}}
+    Show-ADTInstallationProgress
+
+    # Uninstall
+    $adtSession.InstallPhase = $adtSession.DeploymentType
+    {{#if productCode}}
+    Start-ADTMsiProcess -Action Uninstall -ProductCode '{{productCode}}'
+    {{else}}
+    # CUSTOMIZE: Replace with actual product code
+    # Start-ADTMsiProcess -Action Uninstall -ProductCode '{PRODUCT-CODE-GUID}'
+    $app = Get-ADTApplication -Name '{{applicationName}}'
+    if ($app.ProductCode) {
+        Start-ADTMsiProcess -Action Uninstall -ProductCode $app.ProductCode
     }
+    {{/if}}
 
-    Complete-ADTDeployment -DeploymentStatus 'Complete'
+    # Post-Uninstall
+    $adtSession.InstallPhase = "Post-$($adtSession.DeploymentType)"
+    Write-ADTLogEntry -Message "Uninstallation completed successfully"
+}
+
+function Repair-ADTDeployment {
+    [CmdletBinding()]
+    param()
+    # Repair logic - typically re-run MSI repair
+    $adtSession.InstallPhase = $adtSession.DeploymentType
+    $msiPath = Join-Path -Path $adtSession.DirFiles -ChildPath '{{installerFileName}}'
+    Start-ADTMsiProcess -Action Repair -FilePath $msiPath
+}
+#endregion
+
+#region Invocation
+try {
+    & "$($adtSession.DeploymentType)-ADTDeployment"
+    Close-ADTSession
 }
 {{> error-handling}}

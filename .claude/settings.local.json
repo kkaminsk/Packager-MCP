@@ -21,7 +21,9 @@
       "Bash(node:*)",
       "Bash(GITHUB_TOKEN=\"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\" node \"C:/temp/Packager-MCP/test-github.mjs\")",
       "Bash(find:*)",
-      "Bash(timeout 5 node:*)"
+      "Bash(timeout 5 node:*)",
+      "Bash(npm run openspec:*)",
+      "Bash(where:*)"
     ],
     "deny": [],
     "ask": []

@@ -115,31 +115,39 @@ const VALIDATION_RULES: ValidationRule[] = [
     },
   },
   {
-    id: 'initialize-called',
-    name: 'Initialize-ADTDeployment Called',
-    description: 'Must call Initialize-ADTDeployment to start PSADT workflow',
+    id: 'open-session-called',
+    name: 'Open-ADTSession Called',
+    description: 'Must call Open-ADTSession to initialize PSADT v4 workflow',
     severity: 'error',
     category: 'psadt',
     minLevel: 'basic',
-    suggestion: 'Add: Initialize-ADTDeployment at the start of your deployment logic',
+    suggestion: 'Add: Open-ADTSession at the start of your deployment logic',
     check: (script: string, lines: string[]): ValidationMatch[] => {
-      if (!/Initialize-ADTDeployment/i.test(script)) {
-        return [{ context: 'Initialize-ADTDeployment not called' }];
+      if (!/Open-ADTSession/i.test(script)) {
+        // Check for legacy incorrect function name
+        if (/Initialize-ADTDeployment/i.test(script)) {
+          return [{ context: 'Initialize-ADTDeployment is not a valid PSADT v4 function. Use Open-ADTSession instead.' }];
+        }
+        return [{ context: 'Open-ADTSession not called' }];
       }
       return [];
     },
   },
   {
-    id: 'complete-called',
-    name: 'Complete-ADTDeployment Called',
-    description: 'Must call Complete-ADTDeployment to finalize PSADT workflow',
+    id: 'close-session-called',
+    name: 'Close-ADTSession Called',
+    description: 'Must call Close-ADTSession to finalize PSADT v4 workflow',
     severity: 'error',
     category: 'psadt',
     minLevel: 'basic',
-    suggestion: 'Add: Complete-ADTDeployment at the end of your deployment logic',
+    suggestion: 'Add: Close-ADTSession at the end of your deployment logic',
     check: (script: string, lines: string[]): ValidationMatch[] => {
-      if (!/Complete-ADTDeployment/i.test(script)) {
-        return [{ context: 'Complete-ADTDeployment not called' }];
+      if (!/Close-ADTSession/i.test(script)) {
+        // Check for legacy incorrect function name
+        if (/Complete-ADTDeployment/i.test(script)) {
+          return [{ context: 'Complete-ADTDeployment is not a valid PSADT v4 function. Use Close-ADTSession instead.' }];
+        }
+        return [{ context: 'Close-ADTSession not called' }];
       }
       return [];
     },
@@ -163,6 +171,9 @@ const VALIDATION_RULES: ValidationRule[] = [
         { legacy: /\bExecute-MSI\b/gi, v4: 'Start-ADTMsiProcess' },
         { legacy: /\bRemove-MSIApplications\b/gi, v4: 'Remove-ADTApplication' },
         { legacy: /\bGet-InstalledApplication\b/gi, v4: 'Get-ADTApplication' },
+        { legacy: /\bGet-ADTInstalledApplication\b/gi, v4: 'Get-ADTApplication' },
+        { legacy: /\bInitialize-ADTDeployment\b/gi, v4: 'Open-ADTSession' },
+        { legacy: /\bComplete-ADTDeployment\b/gi, v4: 'Close-ADTSession' },
         { legacy: /\bClose-InstallationProgress\b/gi, v4: 'Close-ADTInstallationProgress' },
       ];
 
@@ -188,31 +199,30 @@ const VALIDATION_RULES: ValidationRule[] = [
     severity: 'warning',
     category: 'psadt',
     minLevel: 'standard',
-    suggestion: 'Use Complete-ADTDeployment with -ExitCode parameter to report status',
+    suggestion: 'Use Close-ADTSession with -ExitCode parameter to report non-zero status',
     check: (script: string, lines: string[]): ValidationMatch[] => {
-      // Check if Complete-ADTDeployment uses exit code
-      if (/Complete-ADTDeployment/i.test(script)) {
-        if (!/Complete-ADTDeployment.*-ExitCode/i.test(script) && !/-ExitCode.*Complete-ADTDeployment/i.test(script)) {
-          return [{ context: 'Complete-ADTDeployment called without -ExitCode parameter' }];
-        }
+      // Check if Close-ADTSession is called (exit code 0 is implicit)
+      if (/Close-ADTSession/i.test(script)) {
+        // This is valid - exit code 0 is default
+        return [];
       }
       return [];
     },
   },
   {
     id: 'adt-session-usage',
-    name: 'ADTSession Object Usage',
-    description: 'PSADT v4 uses $ADTSession for state management',
+    name: 'adtSession Object Usage',
+    description: 'PSADT v4 uses $adtSession hashtable for session configuration',
     severity: 'info',
     category: 'psadt',
     minLevel: 'strict',
-    suggestion: 'Consider using $ADTSession object for accessing deployment state',
+    suggestion: 'Use $adtSession hashtable for session configuration and accessing deployment state',
     check: (script: string, _lines: string[]): ValidationMatch[] => {
-      // Only flag if PSADT functions are used but $ADTSession is not
-      const usesPsadt = /Initialize-ADTDeployment/i.test(script);
-      const usesAdtSession = /\$ADTSession/i.test(script);
+      // Only flag if PSADT functions are used but $adtSession is not
+      const usesPsadt = /Open-ADTSession/i.test(script);
+      const usesAdtSession = /\$adtSession/i.test(script);
       if (usesPsadt && !usesAdtSession) {
-        return [{ context: '$ADTSession object not used for state management' }];
+        return [{ context: '$adtSession hashtable not used for session configuration' }];
       }
       return [];
     },
@@ -253,7 +263,7 @@ const VALIDATION_RULES: ValidationRule[] = [
     suggestion: 'Ensure all user prompts can be suppressed in silent mode',
     check: (script: string, _lines: string[]): ValidationMatch[] => {
       // Check for deployment mode handling
-      const hasDeployModeCheck = /\$deployMode|\$ADTSession\.DeployMode|DeployMode/i.test(script);
+      const hasDeployModeCheck = /\$deployMode|\$adtSession\.DeployMode|DeployMode/i.test(script);
       const hasSilentSwitch = /-DeployMode\s+(Silent|NonInteractive)/i.test(script);
 
       if (!hasDeployModeCheck && !hasSilentSwitch) {
@@ -305,9 +315,9 @@ const VALIDATION_RULES: ValidationRule[] = [
     environments: ['intune', 'sccm'],
     suggestion: 'Ensure script exits with 0 for success, non-zero for failure',
     check: (script: string, _lines: string[]): ValidationMatch[] => {
-      const hasExitStatement = /\bexit\s+\d+|\bexit\s+\$|Complete-ADTDeployment.*-ExitCode/i.test(script);
+      const hasExitStatement = /\bexit\s+\d+|\bexit\s+\$|Close-ADTSession/i.test(script);
       if (!hasExitStatement) {
-        return [{ context: 'No explicit exit code found. Use "exit 0" or Complete-ADTDeployment -ExitCode' }];
+        return [{ context: 'No explicit exit code found. Use "exit 0" or Close-ADTSession' }];
       }
       return [];
     },

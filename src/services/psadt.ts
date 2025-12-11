@@ -98,6 +98,12 @@ export class PsadtService {
       if (!Array.isArray(arr)) return '';
       return arr.join(typeof separator === 'string' ? separator : ',');
     });
+
+    // Helper for string split
+    Handlebars.registerHelper('split', function (str: string, separator: string) {
+      if (typeof str !== 'string') return [];
+      return str.split(typeof separator === 'string' ? separator : ',');
+    });
   }
 
   private registerPartials(): void {
@@ -234,7 +240,8 @@ export class PsadtService {
 
   private extractCustomizationPoints(script: string): CustomizationPoint[] {
     const points: CustomizationPoint[] = [];
-    const lines = script.split('\n');
+    // Normalize line endings before splitting
+    const lines = script.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
 
     // Pattern to match CUSTOMIZE comments
     const customizePattern = /^(\s*)#\s*CUSTOMIZE:\s*(.+)$/;

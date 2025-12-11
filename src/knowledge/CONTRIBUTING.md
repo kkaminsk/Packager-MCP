@@ -97,7 +97,7 @@ Always use fenced code blocks with language specification:
 ````markdown
 ```powershell
 # Good: Language specified
-Start-ADTProcess -FilePath 'installer.exe' -Arguments '/S'
+Start-ADTProcess -FilePath 'installer.exe' -ArgumentList '/S'
 ```
 ````
 

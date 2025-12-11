@@ -113,7 +113,7 @@ try {
             Write-ADTLogEntry -Message "=== Installation Phase ==="
 
             # Extract ZIP archive
-            $zipPath = Join-Path -Path $ADTSession.FilesDirectory -ChildPath $ZipFile
+            $zipPath = Join-Path -Path $adtSession.DirFiles -ChildPath $ZipFile
             Expand-ZipArchive -SourcePath $zipPath -DestinationPath $ExtractPath
 
             Write-ADTLogEntry -Message "Files extracted successfully"
@@ -219,7 +219,7 @@ try {
             $exePath = Join-Path $ExtractPath $MainExecutable
             if (Test-Path $exePath) {
                 # Just re-extract over existing
-                $zipPath = Join-Path -Path $ADTSession.FilesDirectory -ChildPath $ZipFile
+                $zipPath = Join-Path -Path $adtSession.DirFiles -ChildPath $ZipFile
                 Expand-ZipArchive -SourcePath $zipPath -DestinationPath $ExtractPath
             }
 
@@ -232,6 +232,6 @@ try {
         {{/if}}
     }
 
-    Complete-ADTDeployment -DeploymentStatus 'Complete'
+    Close-ADTSession
 }
 {{> error-handling}}

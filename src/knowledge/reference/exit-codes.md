@@ -1,8 +1,8 @@
 ---
 title: "Installer Exit Codes Reference"
 id: "ref-exit-codes"
-psadt_target: "4.0.x"
-last_updated: "2024-12-07"
+psadt_target: "4.1.7"
+last_updated: "2025-12-11"
 verified_by: "maintainer"
 source_ref: "ReferenceKnowledge/V4DOCS.md#exit-codes"
 tags: ["exit-codes", "reference", "msi", "troubleshooting"]
@@ -155,10 +155,10 @@ Understanding exit codes is critical for proper error handling and deployment au
 
 ## Handling Exit Codes in PSADT
 
-### Basic Exit Code Handling
+### Basic Exit Code Handling (PSADT v4.1.7)
 
 ```powershell
-$result = Start-ADTProcess -FilePath 'setup.exe' -Arguments '/S' -PassThru
+$result = Start-ADTProcess -FilePath 'setup.exe' -ArgumentList '/S' -PassThru
 
 switch ($result.ExitCode) {
     0 {
@@ -166,22 +166,22 @@ switch ($result.ExitCode) {
     }
     3010 {
         Write-ADTLogEntry -Message "Installation successful - restart required" -Severity 2
-        Complete-ADTDeployment -DeploymentStatus 'RestartRequired'
+        Close-ADTSession -ExitCode 3010
         return
     }
     1641 {
         Write-ADTLogEntry -Message "Installation successful - restart initiated" -Severity 2
-        Complete-ADTDeployment -DeploymentStatus 'RestartRequired'
+        Close-ADTSession -ExitCode 3010
         return
     }
     1602 {
         Write-ADTLogEntry -Message "Installation cancelled by user" -Severity 2
-        Complete-ADTDeployment -DeploymentStatus 'Failed' -ErrorMessage "User cancelled"
+        Close-ADTSession -ExitCode 60010
         return
     }
     1618 {
         Write-ADTLogEntry -Message "Another installation in progress" -Severity 2
-        Complete-ADTDeployment -DeploymentStatus 'FastRetry'
+        Close-ADTSession -ExitCode 60001
         return
     }
     default {
@@ -196,7 +196,7 @@ switch ($result.ExitCode) {
 
 ```powershell
 # Ignore specific non-fatal exit codes
-Start-ADTProcess -FilePath 'setup.exe' -Arguments '/S' -IgnoreExitCodes '1,2,3010'
+Start-ADTProcess -FilePath 'setup.exe' -ArgumentList '/S' -IgnoreExitCodes '1,2,3010'
 ```
 
 ### Mapping Exit Codes to PSADT Status
@@ -233,15 +233,15 @@ function Convert-InstallerExitCode {
 }
 
 # Usage
-$result = Start-ADTProcess -FilePath 'setup.exe' -Arguments '/S' -PassThru
+$result = Start-ADTProcess -FilePath 'setup.exe' -ArgumentList '/S' -PassThru
 $status = Convert-InstallerExitCode -ExitCode $result.ExitCode
 
 if ($status.Status -eq 'Complete') {
-    Complete-ADTDeployment -DeploymentStatus 'Complete'
+    Close-ADTSession
 } elseif ($status.Status -eq 'RestartRequired') {
-    Complete-ADTDeployment -DeploymentStatus 'RestartRequired'
+    Close-ADTSession -ExitCode 3010
 } elseif ($status.Status -eq 'FastRetry') {
-    Complete-ADTDeployment -DeploymentStatus 'FastRetry'
+    Close-ADTSession -ExitCode 60001
 } else {
     throw $status.Message
 }

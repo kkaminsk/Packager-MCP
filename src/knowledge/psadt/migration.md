@@ -294,10 +294,10 @@ Find and replace all function calls with their v4 equivalents:
 Execute-Process -Path "setup.exe" -Parameters "/S"
 
 # v4
-Start-ADTProcess -FilePath "setup.exe" -Arguments "/S"
+Start-ADTProcess -FilePath "setup.exe" -ArgumentList "/S"
 ```
 
-Note: `-Parameters` changed to `-Arguments` in some functions.
+Note: `-Parameters` changed to `-ArgumentList` in v4.
 
 ### 2. Update Path References
 
@@ -377,12 +377,12 @@ Show-ADTInstallationWelcome -CloseApps "app1,app2" -AllowDefer -DeferTimes 3 -Ch
 Execute-Process -Path "setup.exe" -Parameters "/S" -WindowStyle "Hidden" -IgnoreExitCodes "1,2"
 
 # v4
-Start-ADTProcess -FilePath "setup.exe" -Arguments "/S" -WindowStyle "Hidden" -IgnoreExitCodes "1,2"
+Start-ADTProcess -FilePath "setup.exe" -ArgumentList "/S" -WindowStyle "Hidden" -IgnoreExitCodes "1,2"
 ```
 
 Key changes:
 - `-Path` → `-FilePath`
-- `-Parameters` → `-Arguments`
+- `-Parameters` → `-ArgumentList`
 
 ### Execute-MSI to Start-ADTMsiProcess
 

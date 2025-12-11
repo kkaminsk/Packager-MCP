@@ -18,7 +18,7 @@ function Install-Dependencies {
     .SYNOPSIS
         Installs MSIX package dependencies
     #>
-    $depPath = Join-Path -Path $ADTSession.FilesDirectory -ChildPath $DependenciesFolder
+    $depPath = Join-Path -Path $adtSession.DirFiles -ChildPath $DependenciesFolder
 
     if (Test-Path $depPath) {
         $dependencies = Get-ChildItem -Path $depPath -Include '*.msix', '*.appx' -Recurse
@@ -64,10 +64,10 @@ try {
             Install-Dependencies
 
             # Install main package
-            $packagePath = Join-Path -Path $ADTSession.FilesDirectory -ChildPath $PackageFile
+            $packagePath = Join-Path -Path $adtSession.DirFiles -ChildPath $PackageFile
             Write-ADTLogEntry -Message "Installing MSIX package: $packagePath"
 
-            if ($ADTSession.IsSystemAccount) {
+            if ($adtSession.IsSystemAccount) {
                 # Running as SYSTEM - provision for all users
                 Write-ADTLogEntry -Message "Provisioning package for all users"
                 Add-AppxProvisionedPackage -Online -PackagePath $packagePath -SkipLicense
@@ -104,7 +104,7 @@ try {
             Show-ADTInstallationProgress -StatusMessage 'Uninstalling {{applicationName}}...'
 
             # Remove provisioned package (prevents install for new users)
-            if ($ADTSession.IsAdmin) {
+            if ($adtSession.IsAdmin) {
                 $provisioned = Get-AppxProvisionedPackage -Online | Where-Object { $_.DisplayName -eq $PackageName }
                 if ($provisioned) {
                     Write-ADTLogEntry -Message "Removing provisioned package"
@@ -158,7 +158,7 @@ try {
 
             # Reinstall
             Install-Dependencies
-            $packagePath = Join-Path -Path $ADTSession.FilesDirectory -ChildPath $PackageFile
+            $packagePath = Join-Path -Path $adtSession.DirFiles -ChildPath $PackageFile
             Add-AppxPackage -Path $packagePath
 
             Write-ADTLogEntry -Message "Repair completed"
@@ -167,6 +167,6 @@ try {
         {{/if}}
     }
 
-    Complete-ADTDeployment -DeploymentStatus 'Complete'
+    Close-ADTSession
 }
 {{> error-handling}}

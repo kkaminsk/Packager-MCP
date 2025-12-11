@@ -82,7 +82,7 @@ Add-AppxPackage -Path $msixPath
 
 # Or with PSADT process execution
 Start-ADTProcess -FilePath 'powershell.exe' `
-    -Arguments "-NoProfile -ExecutionPolicy Bypass -Command `"Add-AppxPackage -Path '$msixPath'`""
+    -ArgumentList "-NoProfile -ExecutionPolicy Bypass -Command `"Add-AppxPackage -Path '$msixPath'`""
 ```
 
 ### Install with Dependencies

@@ -45,7 +45,7 @@ EXE installers are the most common format for Windows application installation. 
 **PSADT Example**:
 ```powershell
 Start-ADTProcess -FilePath "$($adtSession.DirFiles)\setup.exe" `
-    -Arguments '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /CLOSEAPPLICATIONS /RESTARTAPPLICATIONS'
+    -ArgumentList '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /CLOSEAPPLICATIONS /RESTARTAPPLICATIONS'
 ```
 
 ### NSIS (Nullsoft)
@@ -69,7 +69,7 @@ Start-ADTProcess -FilePath "$($adtSession.DirFiles)\setup.exe" `
 **PSADT Example**:
 ```powershell
 Start-ADTProcess -FilePath "$($adtSession.DirFiles)\setup.exe" `
-    -Arguments '/S'
+    -ArgumentList '/S'
 ```
 
 ### InstallShield
@@ -98,11 +98,11 @@ Start-ADTProcess -FilePath "$($adtSession.DirFiles)\setup.exe" `
 ```powershell
 # Modern InstallShield
 Start-ADTProcess -FilePath "$($adtSession.DirFiles)\setup.exe" `
-    -Arguments '/s /v"/qn REBOOT=ReallySuppress"'
+    -ArgumentList '/s /v"/qn REBOOT=ReallySuppress"'
 
 # With response file
 Start-ADTProcess -FilePath "$($adtSession.DirFiles)\setup.exe" `
-    -Arguments "/s /f1`"$($adtSession.DirFiles)\setup.iss`""
+    -ArgumentList "/s /f1`"$($adtSession.DirFiles)\setup.iss`""
 ```
 
 ### WiX Burn
@@ -126,7 +126,7 @@ Start-ADTProcess -FilePath "$($adtSession.DirFiles)\setup.exe" `
 **PSADT Example**:
 ```powershell
 Start-ADTProcess -FilePath "$($adtSession.DirFiles)\setup.exe" `
-    -Arguments '/quiet /norestart'
+    -ArgumentList '/quiet /norestart'
 ```
 
 ### Advanced Installer
@@ -227,7 +227,7 @@ $silentArgs = @(
 
 ```powershell
 $result = Start-ADTProcess -FilePath "$($adtSession.DirFiles)\setup.exe" `
-    -Arguments '/S' `
+    -ArgumentList '/S' `
     -PassThru
 
 switch ($result.ExitCode) {
@@ -246,11 +246,11 @@ Some installers spawn child processes:
 
 ```powershell
 Start-ADTProcess -FilePath "$($adtSession.DirFiles)\setup.exe" `
-    -Arguments '/S' `
+    -ArgumentList '/S' `
     -WaitForMsiExec  # Wait if MSI operations are triggered
 
 # Or manually wait for a specific process
-Start-ADTProcess -FilePath "$($adtSession.DirFiles)\setup.exe" -Arguments '/S'
+Start-ADTProcess -FilePath "$($adtSession.DirFiles)\setup.exe" -ArgumentList '/S'
 do {
     Start-Sleep -Seconds 2
     $installer = Get-Process -Name 'installer_child' -ErrorAction SilentlyContinue
@@ -264,11 +264,11 @@ Many EXE installers are MSI wrappers:
 ```powershell
 # Check if it's extracting to temp
 Start-ADTProcess -FilePath "$($adtSession.DirFiles)\setup.exe" `
-    -Arguments '/s /v"/qn REBOOT=ReallySuppress"'
+    -ArgumentList '/s /v"/qn REBOOT=ReallySuppress"'
 
 # Or extract first
 Start-ADTProcess -FilePath "$($adtSession.DirFiles)\setup.exe" `
-    -Arguments '/extract /a'
+    -ArgumentList '/extract /a'
 # Then find and install the MSI
 $msi = Get-ChildItem -Path "$env:TEMP" -Filter "*.msi" -Recurse | Select-Object -First 1
 Start-ADTMsiProcess -Action Install -Path $msi.FullName
@@ -291,7 +291,7 @@ if ($uninstallString -match 'msiexec') {
 } else {
     # EXE uninstall
     $uninstallPath = $uninstallString -replace '"', ''
-    Start-ADTProcess -FilePath $uninstallPath -Arguments '/S'
+    Start-ADTProcess -FilePath $uninstallPath -ArgumentList '/S'
 }
 ```
 
@@ -312,7 +312,7 @@ $app = Get-ADTApplication -Name 'Application Name'
 if ($app.UninstallString) {
     # Execute uninstall
     $uninstallPath = ($app.UninstallString -split ' ')[0] -replace '"', ''
-    Start-ADTProcess -FilePath $uninstallPath -Arguments '/S'
+    Start-ADTProcess -FilePath $uninstallPath -ArgumentList '/S'
 }
 
 # Clean up remaining files
@@ -321,7 +321,7 @@ Remove-ADTFolder -Path "$env:ProgramData\Application" -ContinueOnError
 Remove-ADTRegistryKey -Key 'HKLM:\SOFTWARE\Application' -Recurse -ContinueOnError
 ```
 
-## Complete PSADT Example
+## Complete PSADT v4.1.7 Example
 
 ```powershell
 #Requires -Version 5.1
@@ -331,87 +331,112 @@ param (
     [ValidateSet('Install', 'Uninstall', 'Repair')]
     [string]$DeploymentType = 'Install',
     [ValidateSet('Interactive', 'Silent', 'NonInteractive')]
-    [string]$DeployMode = 'Interactive'
+    [string]$DeployMode = 'Interactive',
+    [switch]$AllowRebootPassThru,
+    [switch]$TerminalServerMode,
+    [switch]$DisableLogging
 )
 
-Import-Module "$PSScriptRoot\PSAppDeployToolkit" -Force
-
-Initialize-ADTDeployment @{
-    InstallName = 'Application Name'
-    InstallVersion = '1.0.0'
-    Publisher = 'Publisher'
-    DeploymentType = $DeploymentType
-    DeployMode = $DeployMode
+# Session configuration
+$adtSession = @{
+    AppVendor = 'Publisher'
+    AppName = 'Application Name'
+    AppVersion = '1.0.0'
+    AppArch = 'x64'
+    AppLang = 'EN'
+    AppRevision = '01'
+    AppSuccessExitCodes = @(0)
+    AppRebootExitCodes = @(1641, 3010)
+    AppProcessesToClose = @(@{ Name = 'appname'; Description = 'Application Name' })
+    AppScriptVersion = '1.0.0'
+    AppScriptDate = (Get-Date -Format 'yyyy-MM-dd')
+    AppScriptAuthor = 'IT Admin'
+    RequireAdmin = $true
 }
 
+# Initialize
+$ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
 try {
-    switch ($DeploymentType) {
-        'Install' {
-            Show-ADTInstallationWelcome -CloseApps 'appname' -CloseAppsCountdown 300
+    Import-Module -FullyQualifiedName @{ ModuleName = "$PSScriptRoot\PSAppDeployToolkit\PSAppDeployToolkit.psd1"; Guid = '8c3c366b-8606-4576-9f2d-4051144f7ca2'; ModuleVersion = '4.1.7' } -Force
+    $iadtParams = Get-ADTBoundParametersAndDefaultValues -Invocation $MyInvocation
+    $adtSession = Open-ADTSession @adtSession @iadtParams -PassThru
+}
+catch {
+    $Host.UI.WriteErrorLine((Out-String -InputObject $_ -Width ([System.Int32]::MaxValue)))
+    exit 60008
+}
 
-            # Check for existing installation
-            $existing = Get-ADTApplication -Name 'Application Name'
-            if ($existing) {
-                Write-ADTLogEntry -Message "Removing existing version: $($existing.DisplayVersion)"
-                $uninstallPath = ($existing.UninstallString -split ' ')[0] -replace '"', ''
-                if (Test-Path $uninstallPath) {
-                    Start-ADTProcess -FilePath $uninstallPath -Arguments '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART'
-                }
-            }
+# Deployment functions
+function Install-ADTDeployment {
+    [CmdletBinding()]
+    param()
 
-            Show-ADTInstallationProgress -StatusMessage 'Installing Application Name...'
+    $adtSession.InstallPhase = "Pre-$($adtSession.DeploymentType)"
+    Show-ADTInstallationWelcome -CloseProcesses $adtSession.AppProcessesToClose -CloseProcessesCountdown 300
+    Show-ADTInstallationProgress
 
-            # Inno Setup installer
-            Start-ADTProcess -FilePath "$($adtSession.DirFiles)\setup.exe" `
-                -Arguments '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /CLOSEAPPLICATIONS'
-
-            # Verify installation
-            $installed = Get-ADTApplication -Name 'Application Name'
-            if (-not $installed) {
-                throw "Installation verification failed"
-            }
-            Write-ADTLogEntry -Message "Successfully installed version: $($installed.DisplayVersion)"
-
-            # Post-installation configuration
-            Copy-ADTFile -Path "$($adtSession.DirFiles)\config.xml" `
-                -Destination "$env:ProgramFiles\Application\config.xml"
-        }
-        'Uninstall' {
-            Show-ADTInstallationWelcome -CloseApps 'appname'
-
-            $app = Get-ADTApplication -Name 'Application Name'
-            if ($app) {
-                $uninstallPath = ($app.UninstallString -split ' ')[0] -replace '"', ''
-                Start-ADTProcess -FilePath $uninstallPath `
-                    -Arguments '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART'
-            }
-
-            # Cleanup
-            Remove-ADTFolder -Path "$env:ProgramFiles\Application" -ContinueOnError
-            Remove-ADTFolder -Path "$env:LocalAppData\Application" -ContinueOnError
-        }
-        'Repair' {
-            # For EXE installers, repair is often a reinstall
-            Write-ADTLogEntry -Message "Repair requested - performing reinstall"
-
-            # Uninstall
-            $app = Get-ADTApplication -Name 'Application Name'
-            if ($app.UninstallString) {
-                $uninstallPath = ($app.UninstallString -split ' ')[0] -replace '"', ''
-                Start-ADTProcess -FilePath $uninstallPath -Arguments '/VERYSILENT /NORESTART'
-            }
-
-            # Reinstall
-            Start-ADTProcess -FilePath "$($adtSession.DirFiles)\setup.exe" `
-                -Arguments '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART'
+    # Check for existing installation
+    $existing = Get-ADTApplication -Name 'Application Name'
+    if ($existing) {
+        Write-ADTLogEntry -Message "Removing existing version: $($existing.DisplayVersion)"
+        $uninstallPath = ($existing.UninstallString -split ' ')[0] -replace '"', ''
+        if (Test-Path $uninstallPath) {
+            Start-ADTProcess -FilePath $uninstallPath -ArgumentList '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART'
         }
     }
 
-    Complete-ADTDeployment -DeploymentStatus 'Complete'
+    $adtSession.InstallPhase = $adtSession.DeploymentType
+    # Inno Setup installer
+    Start-ADTProcess -FilePath "$($adtSession.DirFiles)\setup.exe" -ArgumentList '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /CLOSEAPPLICATIONS'
+
+    $adtSession.InstallPhase = "Post-$($adtSession.DeploymentType)"
+    # Verify installation
+    $installed = Get-ADTApplication -Name 'Application Name'
+    if (-not $installed) {
+        throw "Installation verification failed"
+    }
+    Write-ADTLogEntry -Message "Successfully installed version: $($installed.DisplayVersion)"
+
+    # Post-installation configuration
+    Copy-ADTFile -Path "$($adtSession.DirFiles)\config.xml" -Destination "$env:ProgramFiles\Application\config.xml"
+}
+
+function Uninstall-ADTDeployment {
+    [CmdletBinding()]
+    param()
+
+    $adtSession.InstallPhase = "Pre-$($adtSession.DeploymentType)"
+    Show-ADTInstallationWelcome -CloseProcesses $adtSession.AppProcessesToClose
+    Show-ADTInstallationProgress
+
+    $adtSession.InstallPhase = $adtSession.DeploymentType
+    $app = Get-ADTApplication -Name 'Application Name'
+    if ($app) {
+        $uninstallPath = ($app.UninstallString -split ' ')[0] -replace '"', ''
+        Start-ADTProcess -FilePath $uninstallPath -ArgumentList '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART'
+    }
+
+    $adtSession.InstallPhase = "Post-$($adtSession.DeploymentType)"
+    Remove-ADTFolder -Path "$env:ProgramFiles\Application" -ContinueOnError
+    Remove-ADTFolder -Path "$env:LocalAppData\Application" -ContinueOnError
+}
+
+function Repair-ADTDeployment {
+    [CmdletBinding()]
+    param()
+    Write-ADTLogEntry -Message "Repair requested - performing reinstall"
+    Uninstall-ADTDeployment
+    Install-ADTDeployment
+}
+
+# Invoke deployment
+try {
+    & "$($adtSession.DeploymentType)-ADTDeployment"
+    Close-ADTSession
 }
 catch {
-    Write-ADTLogEntry -Message "Error: $($_.Exception.Message)" -Severity 3
-    Complete-ADTDeployment -DeploymentStatus 'Failed' -ErrorMessage $_.Exception.Message
+    Write-ADTLogEntry -Message "Unhandled error: $(Resolve-ADTErrorRecord -ErrorRecord $_)" -Severity 3
+    Close-ADTSession -ExitCode 60001
 }
 ```
 

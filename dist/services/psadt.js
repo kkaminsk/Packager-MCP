@@ -66,6 +66,12 @@ export class PsadtService {
                 return '';
             return arr.join(typeof separator === 'string' ? separator : ',');
         });
+        // Helper for string split
+        Handlebars.registerHelper('split', function (str, separator) {
+            if (typeof str !== 'string')
+                return [];
+            return str.split(typeof separator === 'string' ? separator : ',');
+        });
     }
     registerPartials() {
         const partialsDir = join(this.templatesDir, 'partials');
@@ -179,7 +185,8 @@ export class PsadtService {
     }
     extractCustomizationPoints(script) {
         const points = [];
-        const lines = script.split('\n');
+        // Normalize line endings before splitting
+        const lines = script.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
         // Pattern to match CUSTOMIZE comments
         const customizePattern = /^(\s*)#\s*CUSTOMIZE:\s*(.+)$/;
         lines.forEach((line, index) => {

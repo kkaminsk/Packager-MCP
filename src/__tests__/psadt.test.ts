@@ -47,7 +47,8 @@ describe('PsadtService', () => {
       const result = service.generateScript(options);
 
       expect(result.script).toContain('{12345678-1234-1234-1234-123456789ABC}');
-      expect(result.script).toContain('testapp,testprocess');
+      // New v4.1.7 format uses AppProcessesToClose array instead of comma-separated string
+      expect(result.script).toContain('testapp');
       expect(result.script).toContain('Show-ADTInstallationWelcome');
       expect(result.metadata.complexity).toBe('standard');
     });
@@ -132,8 +133,9 @@ describe('PsadtService', () => {
 
       const result = service.generateScript(options);
 
-      expect(result.script).toContain('/qn');
-      expect(result.script).toContain('/norestart');
+      // v4.1.7 uses Start-ADTMsiProcess which handles silent args internally
+      expect(result.script).toContain('Start-ADTMsiProcess');
+      expect(result.script).toContain('Action Install');
     });
 
     it('should use custom silent args when provided', () => {
@@ -370,7 +372,8 @@ describe('PsadtService', () => {
 
       const result = service.generateScript(options);
 
-      expect(result.script).toContain('RestartRequired');
+      // v4.1.7 uses exit code 3010 for restart required
+      expect(result.script).toContain('3010');
     });
   });
 });

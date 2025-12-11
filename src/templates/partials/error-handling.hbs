@@ -1,12 +1,4 @@
 catch {
-    Write-ADTLogEntry -Message "Deployment failed: $($_.Exception.Message)" -Severity 3
-    Write-ADTLogEntry -Message "Stack trace: $($_.ScriptStackTrace)" -Severity 3
-
-    try {
-        Complete-ADTDeployment -DeploymentStatus 'Failed' -ErrorMessage $_.Exception.Message
-    }
-    catch {
-        Write-Error "Failed to complete deployment: $($_.Exception.Message)"
-        exit 60008
-    }
+    Write-ADTLogEntry -Message "Unhandled error: $(Resolve-ADTErrorRecord -ErrorRecord $_)" -Severity 3
+    Close-ADTSession -ExitCode 60001
 }

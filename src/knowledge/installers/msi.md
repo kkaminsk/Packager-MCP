@@ -186,7 +186,7 @@ Log is created at: `C:\Windows\Logs\Software\{AppName}_{Version}_Install.log`
 ```powershell
 # Using msiexec directly
 Start-ADTProcess -FilePath 'msiexec.exe' `
-    -Arguments "/i `"$($adtSession.DirFiles)\app.msi`" /qn /l*v `"C:\Logs\MyApp_Install.log`""
+    -ArgumentList "/i `"$($adtSession.DirFiles)\app.msi`" /qn /l*v `"C:\Logs\MyApp_Install.log`""
 ```
 
 ### Log File Flags
@@ -303,7 +303,7 @@ If getting 1618 (another install in progress):
 Start-ADTMsiProcess -Action Install -Path "$($adtSession.DirFiles)\app.msi" -WaitForMsiExec
 ```
 
-## Complete PSADT Example
+## Complete PSADT v4.1.7 Example
 
 ```powershell
 #Requires -Version 5.1
@@ -313,58 +313,97 @@ param (
     [ValidateSet('Install', 'Uninstall', 'Repair')]
     [string]$DeploymentType = 'Install',
     [ValidateSet('Interactive', 'Silent', 'NonInteractive')]
-    [string]$DeployMode = 'Interactive'
+    [string]$DeployMode = 'Interactive',
+    [switch]$AllowRebootPassThru,
+    [switch]$TerminalServerMode,
+    [switch]$DisableLogging
 )
-
-Import-Module "$PSScriptRoot\PSAppDeployToolkit" -Force
 
 $productCode = '{12345678-1234-1234-1234-123456789012}'
 
-Initialize-ADTDeployment @{
-    InstallName = 'Application Name'
-    InstallVersion = '1.0.0'
-    Publisher = 'Publisher'
-    DeploymentType = $DeploymentType
-    DeployMode = $DeployMode
+# Session configuration
+$adtSession = @{
+    AppVendor = 'Publisher'
+    AppName = 'Application Name'
+    AppVersion = '1.0.0'
+    AppArch = 'x64'
+    AppLang = 'EN'
+    AppRevision = '01'
+    AppSuccessExitCodes = @(0)
+    AppRebootExitCodes = @(1641, 3010)
+    AppProcessesToClose = @(@{ Name = 'appname'; Description = 'Application Name' })
+    AppScriptVersion = '1.0.0'
+    AppScriptDate = (Get-Date -Format 'yyyy-MM-dd')
+    AppScriptAuthor = 'IT Admin'
+    RequireAdmin = $true
 }
 
+# Initialize
+$ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
 try {
-    switch ($DeploymentType) {
-        'Install' {
-            Show-ADTInstallationWelcome -CloseApps 'appname' -CloseAppsCountdown 300
-
-            # Remove previous version if different product code
-            $existing = Get-ADTApplication -Name 'Application Name'
-            if ($existing -and $existing.ProductCode -ne $productCode) {
-                Write-ADTLogEntry -Message "Removing old version: $($existing.DisplayVersion)"
-                Start-ADTMsiProcess -Action Uninstall -Path $existing.ProductCode
-            }
-
-            Show-ADTInstallationProgress -StatusMessage 'Installing Application Name...'
-
-            Start-ADTMsiProcess -Action Install `
-                -Path "$($adtSession.DirFiles)\app.msi" `
-                -Parameters 'ALLUSERS=1 REBOOT=ReallySuppress'
-
-            # Verify installation
-            $installed = Get-ADTApplication -ProductCode $productCode
-            if (-not $installed) {
-                throw "Installation verification failed"
-            }
-        }
-        'Uninstall' {
-            Show-ADTInstallationWelcome -CloseApps 'appname'
-            Start-ADTMsiProcess -Action Uninstall -Path $productCode
-        }
-        'Repair' {
-            Start-ADTMsiProcess -Action Repair -Path $productCode
-        }
-    }
-
-    Complete-ADTDeployment -DeploymentStatus 'Complete'
+    Import-Module -FullyQualifiedName @{ ModuleName = "$PSScriptRoot\PSAppDeployToolkit\PSAppDeployToolkit.psd1"; Guid = '8c3c366b-8606-4576-9f2d-4051144f7ca2'; ModuleVersion = '4.1.7' } -Force
+    $iadtParams = Get-ADTBoundParametersAndDefaultValues -Invocation $MyInvocation
+    $adtSession = Open-ADTSession @adtSession @iadtParams -PassThru
 }
 catch {
-    Write-ADTLogEntry -Message "Error: $($_.Exception.Message)" -Severity 3
-    Complete-ADTDeployment -DeploymentStatus 'Failed' -ErrorMessage $_.Exception.Message
+    $Host.UI.WriteErrorLine((Out-String -InputObject $_ -Width ([System.Int32]::MaxValue)))
+    exit 60008
+}
+
+# Deployment functions
+function Install-ADTDeployment {
+    [CmdletBinding()]
+    param()
+
+    $adtSession.InstallPhase = "Pre-$($adtSession.DeploymentType)"
+    Show-ADTInstallationWelcome -CloseProcesses $adtSession.AppProcessesToClose -CloseProcessesCountdown 300
+    Show-ADTInstallationProgress
+
+    # Remove previous version if different product code
+    $existing = Get-ADTApplication -Name 'Application Name'
+    if ($existing -and $existing.ProductCode -ne $productCode) {
+        Write-ADTLogEntry -Message "Removing old version: $($existing.DisplayVersion)"
+        Start-ADTMsiProcess -Action Uninstall -ProductCode $existing.ProductCode
+    }
+
+    $adtSession.InstallPhase = $adtSession.DeploymentType
+    Start-ADTMsiProcess -Action Install -FilePath "$($adtSession.DirFiles)\app.msi" -AdditionalArgumentList 'ALLUSERS=1 REBOOT=ReallySuppress'
+
+    $adtSession.InstallPhase = "Post-$($adtSession.DeploymentType)"
+    # Verify installation
+    $installed = Get-ADTApplication -ProductCode $productCode
+    if (-not $installed) {
+        throw "Installation verification failed"
+    }
+}
+
+function Uninstall-ADTDeployment {
+    [CmdletBinding()]
+    param()
+
+    $adtSession.InstallPhase = "Pre-$($adtSession.DeploymentType)"
+    Show-ADTInstallationWelcome -CloseProcesses $adtSession.AppProcessesToClose
+    Show-ADTInstallationProgress
+
+    $adtSession.InstallPhase = $adtSession.DeploymentType
+    Start-ADTMsiProcess -Action Uninstall -ProductCode $productCode
+}
+
+function Repair-ADTDeployment {
+    [CmdletBinding()]
+    param()
+
+    $adtSession.InstallPhase = $adtSession.DeploymentType
+    Start-ADTMsiProcess -Action Repair -ProductCode $productCode
+}
+
+# Invoke deployment
+try {
+    & "$($adtSession.DeploymentType)-ADTDeployment"
+    Close-ADTSession
+}
+catch {
+    Write-ADTLogEntry -Message "Unhandled error: $(Resolve-ADTErrorRecord -ErrorRecord $_)" -Severity 3
+    Close-ADTSession -ExitCode 60001
 }
 ```

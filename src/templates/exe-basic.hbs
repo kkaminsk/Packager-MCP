@@ -2,51 +2,73 @@
 
 {{> initialize}}
 
-#region Main Deployment Logic
-try {
-    switch ($DeploymentType) {
-        'Install' {
-            #region Installation
-            Write-ADTLogEntry -Message "Starting installation of {{applicationName}} {{applicationVersion}}"
+#region Deployment Functions
+function Install-ADTDeployment {
+    [CmdletBinding()]
+    param()
 
-            {{#if closeApps}}
-            # Close running applications
-            Show-ADTInstallationWelcome -CloseApps '{{closeApps}}' -CloseAppsCountdown 60
-            {{/if}}
+    # Pre-Install
+    $adtSession.InstallPhase = "Pre-$($adtSession.DeploymentType)"
+    Write-ADTLogEntry -Message "Starting installation of {{applicationName}} {{applicationVersion}}"
 
-            # Execute installer
-            # CUSTOMIZE: Verify silent arguments for your specific installer type
-            $installerPath = Join-Path -Path $ADTSession.FilesDirectory -ChildPath '{{installerFileName}}'
-            Start-ADTProcess -FilePath $installerPath `
-                -Arguments '{{silentArgs}}'
+    {{#if closeApps}}
+    # Close running applications
+    Show-ADTInstallationWelcome -CloseProcesses $adtSession.AppProcessesToClose -CloseProcessesCountdown 60
+    {{/if}}
+    Show-ADTInstallationProgress
 
-            Write-ADTLogEntry -Message "Installation completed successfully"
-            #endregion
-        }
-        'Uninstall' {
-            #region Uninstallation
-            Write-ADTLogEntry -Message "Starting uninstallation of {{applicationName}}"
+    # Install
+    $adtSession.InstallPhase = $adtSession.DeploymentType
+    # CUSTOMIZE: Verify silent arguments for your specific installer type
+    $installerPath = Join-Path -Path $adtSession.DirFiles -ChildPath '{{installerFileName}}'
+    Start-ADTProcess -FilePath $installerPath -ArgumentList '{{silentArgs}}'
 
-            {{#if closeApps}}
-            # Close running applications
-            Show-ADTInstallationWelcome -CloseApps '{{closeApps}}'
-            {{/if}}
+    # Post-Install
+    $adtSession.InstallPhase = "Post-$($adtSession.DeploymentType)"
+    Write-ADTLogEntry -Message "Installation completed successfully"
+}
 
-            # Find and execute uninstaller
-            # CUSTOMIZE: Adjust uninstall logic based on your application
-            $app = Get-ADTInstalledApplication -Name '{{applicationName}}'
-            if ($app.UninstallString) {
-                $uninstallPath = ($app.UninstallString -split ' ')[0] -replace '"', ''
-                if (Test-Path $uninstallPath) {
-                    Start-ADTProcess -FilePath $uninstallPath -Arguments '{{uninstallArgs}}'
-                }
-            }
+function Uninstall-ADTDeployment {
+    [CmdletBinding()]
+    param()
 
-            Write-ADTLogEntry -Message "Uninstallation completed successfully"
-            #endregion
+    # Pre-Uninstall
+    $adtSession.InstallPhase = "Pre-$($adtSession.DeploymentType)"
+    Write-ADTLogEntry -Message "Starting uninstallation of {{applicationName}}"
+
+    {{#if closeApps}}
+    # Close running applications
+    Show-ADTInstallationWelcome -CloseProcesses $adtSession.AppProcessesToClose -CloseProcessesCountdown 60
+    {{/if}}
+    Show-ADTInstallationProgress
+
+    # Uninstall
+    $adtSession.InstallPhase = $adtSession.DeploymentType
+    # CUSTOMIZE: Adjust uninstall logic based on your application
+    $app = Get-ADTApplication -Name '{{applicationName}}'
+    if ($app.UninstallString) {
+        $uninstallPath = ($app.UninstallString -split ' ')[0] -replace '"', ''
+        if (Test-Path $uninstallPath) {
+            Start-ADTProcess -FilePath $uninstallPath -ArgumentList '{{uninstallArgs}}'
         }
     }
 
-    Complete-ADTDeployment -DeploymentStatus 'Complete'
+    # Post-Uninstall
+    $adtSession.InstallPhase = "Post-$($adtSession.DeploymentType)"
+    Write-ADTLogEntry -Message "Uninstallation completed successfully"
+}
+
+function Repair-ADTDeployment {
+    [CmdletBinding()]
+    param()
+    # Repair logic - typically re-run installation
+    Install-ADTDeployment
+}
+#endregion
+
+#region Invocation
+try {
+    & "$($adtSession.DeploymentType)-ADTDeployment"
+    Close-ADTSession
 }
 {{> error-handling}}
