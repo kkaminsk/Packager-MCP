@@ -16,11 +16,11 @@ This server gives your AI assistant (like Claude) superpowers for creating Windo
 
 ## What is MCP?
 
-**MCP (Model Context Protocol)** is a standard that lets AI assistants use external tools. Think of it like giving your AI assistant access to specialized functions it can call.
+**MCP (Model Context Protocol)** is a standard that enables AI assistants to integrate with external tools. Think of it like giving your AI assistant access to specialised functions it can call.
 
 When you connect this server to Claude CLI (or another MCP-compatible client), Claude gains access to:
 - **Tools** - Functions it can call (search Winget, generate scripts, validate packages)
-- **Resources** - Documentation it can read (PSADT guides, installer references)
+- **Resources** - Documentation that can be read (PSADT guides, installer references)
 - **Prompts** - Pre-built workflows it can execute (package an app, troubleshoot issues)
 
 ---
@@ -36,9 +36,8 @@ When you connect this server to Claude CLI (or another MCP-compatible client), C
 ### Prerequisites
 
 - **Node.js 20** or higher
-- **VSCode**
-- **Copilot CLI** or another MCP-compatible client
-- **Git**
+- **Windsurf**
+- **Git Token** (https://github.com/settings/tokens?type=beta)
 
 ### Installation
 
@@ -72,8 +71,11 @@ npm run build
     "packager-mcp": {
       "command": "node",
       "args": [
-        "/path/to/Packager-MCP/dist/server.js"
+        "C:/MCP/Packager-MCP/dist/server.js"
       ],
+      "env": {
+        "GITHUB_TOKEN": "ghp_your_token_here"
+      },
       "disabled": false,
       "autoApprove": []
     }
@@ -102,7 +104,7 @@ Launch Windsurf and open the cascade view and look for @packager-mcp
 
 ## What Can It Do?
 
-### 5 Powerful Tools
+### Five Powerful Tools
 
 | Tool | What It Does | Example Use |
 |------|--------------|-------------|
@@ -114,11 +116,12 @@ Launch Windsurf and open the cascade view and look for @packager-mcp
 
 **Note:** Use `search_winget` to get installer URLs, then download with PowerShell's `Invoke-WebRequest`. The PSADT toolkit is bundled in `dist/knowledge/v4github/` - copy these files to your package directory.
 
-### 11 Knowledge Resources
+### Knowledge Resources
 
 Claude can read these built-in guides to help you better:
 
 **PSADT Documentation:**
+
 - `psadt://docs/overview` - Architecture and concepts
 - `psadt://docs/functions` - All 135 ADT-prefixed functions
 - `psadt://docs/variables` - Built-in variables and $ADTSession
@@ -135,7 +138,7 @@ Claude can read these built-in guides to help you better:
 - `kb://patterns/prerequisites` - Handling dependencies
 - `ref://exit-codes` - Common exit codes explained
 
-### 4 Guided Workflows (Prompts)
+### Four Guided Workflows (Prompts)
 
 | Prompt | Description |
 |--------|-------------|

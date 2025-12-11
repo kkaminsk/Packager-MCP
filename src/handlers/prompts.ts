@@ -27,6 +27,7 @@ const packageAppArgsSchema = z.object({
   'no-validate': z.string().optional().describe('Skip validation step (true/false)'),
   architecture: z.enum(['x64', 'x86', 'arm64']).optional().describe('Preferred architecture'),
   complexity: z.enum(['basic', 'standard', 'advanced']).optional().describe('Template complexity'),
+  'output-directory': z.string().optional().describe('Directory to create the complete PSADT package with toolkit files'),
 });
 
 const convertLegacyArgsSchema = z.object({

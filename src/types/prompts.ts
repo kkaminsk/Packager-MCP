@@ -41,6 +41,8 @@ export interface PackageAppArguments {
   complexity?: TemplateComplexity;
   /** Target deployment environment */
   environment?: TargetEnvironment;
+  /** Directory to create the complete PSADT package with toolkit files */
+  outputDirectory?: string;
 }
 
 /** Winget lookup step result */
@@ -105,6 +107,12 @@ export interface PackageAppResult extends WorkflowResult {
   package?: PackageStructure;
   /** Next steps for the user */
   nextSteps: string[];
+  /** Package creation info (when output_directory was specified) */
+  packageCreation?: {
+    outputDirectory: string;
+    scriptPath: string;
+    copiedFiles: string[];
+  };
 }
 
 // ============================================
