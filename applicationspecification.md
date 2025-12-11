@@ -1,4 +1,4 @@
-# Application Specification: Intune Packaging Assistant MCP Server
+# Application Specification: Packager-MCP
 
 ## Document Information
 
@@ -572,7 +572,7 @@ For team/enterprise use, deploy as a remote MCP server:
 ```yaml
 # config.yaml
 server:
-  name: "Intune Packaging Assistant"
+  name: "Packager-MCP"
   version: "1.0.0"
 
 github:

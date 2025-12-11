@@ -229,7 +229,7 @@ function generateV4Header() {
     Review all MANUAL_REVIEW markers for items requiring attention.
 
 .NOTES
-    Converted by Intune Packaging Assistant MCP Server
+    Converted by Packager-MCP
 #>
 
 [CmdletBinding()]

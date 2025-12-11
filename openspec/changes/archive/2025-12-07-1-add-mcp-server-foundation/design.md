@@ -1,6 +1,6 @@
 ## Context
 
-This proposal establishes the MCP server foundation for the Intune Packaging Assistant. The server must comply with the Model Context Protocol specification and be compatible with Claude CLI, Claude Desktop, and other MCP clients.
+This proposal establishes the MCP server foundation for Packager-MCP. The server must comply with the Model Context Protocol specification and be compatible with Claude CLI, Claude Desktop, and other MCP clients.
 
 **Stakeholders**: Developers building on this foundation, end users via MCP clients
 **Constraints**: Node.js 20+, TypeScript strict mode, MCP protocol compliance

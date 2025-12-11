@@ -1,7 +1,7 @@
 # Design: Knowledge Base Maintenance Strategy
 
 ## Context
-The PSADT knowledge base is a critical component of the Intune Packaging Assistant, providing the "brain" for package generation and troubleshooting. Unlike code, knowledge requires manual curation and regular updates to remain accurate.
+The PSADT knowledge base is a critical component of Packager-MCP, providing the "brain" for package generation and troubleshooting. Unlike code, knowledge requires manual curation and regular updates to remain accurate.
 
 The project maintains a `ReferenceKnowledge/` folder containing authoritative source material:
 - **V3DOCS.md** (~486KB) - Complete PSADT v3 documentation

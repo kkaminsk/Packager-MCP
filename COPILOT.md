@@ -1,4 +1,4 @@
-# Intune Packaging Assistant MCP Server - GitHub Copilot CLI
+# Packager-MCP - GitHub Copilot CLI
 
 An MCP (Model Context Protocol) server that transforms GitHub Copilot CLI into an expert Windows application packaging assistant for Microsoft Intune.
 

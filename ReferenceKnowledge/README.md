@@ -1,6 +1,6 @@
 # Reference Knowledge
 
-This folder contains the authoritative source material for the Intune Packaging Assistant's knowledge base. Content here serves as the **source of truth** for updating the curated `src/knowledge/` files.
+This folder contains the authoritative source material for Packager-MCP's knowledge base. Content here serves as the **source of truth** for updating the curated `src/knowledge/` files.
 
 ## Contents
 

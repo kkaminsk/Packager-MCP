@@ -2,7 +2,7 @@
 
 ## Purpose
 
-**Intune Packaging Assistant MCP Server** - An MCP (Model Context Protocol) server that transforms Claude CLI and compatible AI tools into expert Windows application packaging assistants.
+**Packager-MCP** - An MCP (Model Context Protocol) server that transforms Claude CLI and compatible AI tools into expert Windows application packaging assistants.
 
 ### Goals
 1. Automate Winget package lookups for installer metadata, URLs, and silent install parameters

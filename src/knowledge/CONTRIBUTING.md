@@ -1,6 +1,6 @@
 # Contributing to the Knowledge Base
 
-This guide explains how to contribute to and maintain the Intune Packaging Assistant knowledge base.
+This guide explains how to contribute to and maintain the Packager-MCP knowledge base.
 
 ## Knowledge Base Structure
 

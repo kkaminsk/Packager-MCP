@@ -1,4 +1,4 @@
-# Intune Packaging Assistant MCP Server
+# Packager-MCP
 
 An MCP (Model Context Protocol) server that transforms Claude CLI and compatible AI tools into expert Windows application packaging assistants for Microsoft Intune.
 
