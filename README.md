@@ -420,7 +420,7 @@ npm run validate:knowledge
 
 ```
 ┌─────────────────┐      ┌──────────────────┐     ┌─────────────────┐
-│   Claude CLI    │────▶│  Packager-MCP    │────▶│  GitHub API     │
+│   Windsurf      │────▶│  Packager-MCP    │────▶│  GitHub API     │
 │   (MCP Client)  │◀────│  (MCP Server)    │◀────│  (Winget Repo)  │
 └─────────────────┘      └──────────────────┘     └─────────────────┘
                                │
@@ -449,7 +449,7 @@ A: No! The scripts work standalone. Intune-specific features (detection rules) a
 **Q: Does it support PSADT v3?**
 A: It generates v4 scripts, but includes a conversion tool for v3 → v4 migration.
 
-**Q: Can I use this with Claude Desktop instead of CLI?**
+**Q: Can I use this with other tools?**
 A: Yes, any MCP-compatible client works. Add the server to your MCP config.
 
 **Q: How accurate are the silent install arguments?**
@@ -484,4 +484,4 @@ MIT
 - [PSADT Documentation](https://psappdeploytoolkit.com)
 - [Winget Repository](https://github.com/microsoft/winget-pkgs)
 - [MCP Specification](https://modelcontextprotocol.io)
-- [Claude CLI](https://claude.ai/cli)
+- [Windsurf]([Windsurf - The best AI for Coding](https://windsurf.com/))
