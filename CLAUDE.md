@@ -14,7 +14,7 @@ This server combines:
 
 | Component | Technology |
 |-----------|------------|
-| Runtime | Node.js 20+ (primary) or Python 3.11+ |
+| Runtime | Node.js 20+ |
 | MCP SDK | `@modelcontextprotocol/sdk` (TypeScript) |
 | HTTP Client | `fetch` for GitHub API calls |
 | Caching | In-memory LRU (optional Redis for remote) |
@@ -25,36 +25,39 @@ This server combines:
 
 ```
 src/
-├── server.ts           # MCP server entry point
+├── server.ts              # MCP server entry point
 ├── handlers/
-│   ├── tools.ts        # Tool implementations
-│   ├── resources.ts    # Resource handlers
-│   └── prompts.ts      # Prompt workflows
+│   ├── tools.ts           # Tool implementations
+│   ├── resources.ts       # Resource handlers
+│   └── prompts.ts         # Prompt workflows
 ├── services/
-│   ├── winget.ts       # Winget API integration
-│   ├── psadt.ts        # PSADT template generation
-│   ├── validation.ts   # Package validation
-│   └── detection.ts    # Intune detection rule generation
-├── knowledge/          # Embedded documentation
-│   ├── psadt/          # PSADT v4 docs and patterns
-│   ├── installers/     # Installer type guides
-│   ├── reference/      # Silent args, exit codes
-│   └── v4github/       # Static PSADT v4.1.7 toolkit files
-└── types/              # TypeScript type definitions
-    ├── winget.ts       # Winget types
-    ├── psadt.ts        # PSADT types
-    ├── validation.ts   # Validation types
-    └── intune.ts       # Intune detection types
+│   ├── winget.ts          # Winget API integration
+│   ├── psadt.ts           # PSADT template generation
+│   ├── validation.ts      # Package validation
+│   └── detection.ts       # Intune detection rule generation
+├── workflows/             # Prompt workflow implementations
+│   ├── package-app.ts     # /package-app workflow
+│   ├── convert-legacy.ts  # /convert-legacy workflow
+│   ├── troubleshoot.ts    # /troubleshoot workflow
+│   └── bulk-lookup.ts     # /bulk-lookup workflow
+├── knowledge/             # Embedded documentation
+│   ├── psadt/             # PSADT v4 docs (overview, functions, variables, migration, best-practices)
+│   ├── installers/        # Installer type guides (msi, exe, msix)
+│   ├── patterns/          # Packaging patterns (detection, prerequisites, download)
+│   ├── reference/         # Silent args database (JSON), exit codes
+│   └── v4github/          # Static PSADT v4.1.7 toolkit files
+├── templates/             # Handlebars templates for PSADT scripts
+├── cache/                 # LRU cache implementation
+├── config/                # Configuration loader and schema
+├── utils/                 # Logger and error utilities
+└── types/                 # TypeScript type definitions
 
-ReferenceKnowledge/     # Source reference materials
-├── V4Assets/           # PSADT v4.1.7 source files
-│   ├── Invoke-AppDeployToolkit.ps1  # Main deployment script
-│   └── PSAppDeployToolkit/          # Module files
-│       └── PSAppDeployToolkit.psd1  # Module manifest (135 functions)
-├── functionsdoc.md     # Complete function reference documentation
-├── V3DOCS.md           # Legacy v3 documentation
-├── V4DOCS.md           # v4 documentation
-└── Examples/           # Example deployments
+ReferenceKnowledge/        # Source reference materials (not distributed)
+├── V4Assets/              # PSADT v4.1.7 source files
+├── functionsdoc.md        # Complete function reference
+├── V3DOCS.md              # Legacy v3 documentation
+├── V4DOCS.md              # v4 documentation
+└── Examples/              # Example deployments
 ```
 
 ## MCP Tools
@@ -67,7 +70,7 @@ ReferenceKnowledge/     # Source reference materials
 | `get_silent_install_args` | Retrieve/derive silent install parameters |
 | `generate_intune_detection` | Create Intune detection rules (file/registry/MSI/script) |
 
-Note: Use `search_winget` to get installer URLs and SHA256 hashes, then download installers using PowerShell's `Invoke-WebRequest`. When using `get_psadt_template` with `output_directory`, the tool automatically copies PSADT toolkit files from `ReferenceKnowledge/PSAppDeployToolkit_Template_v4/` and creates a complete deployment package.
+Note: Use `search_winget` to get installer URLs and SHA256 hashes, then download installers using PowerShell's `Invoke-WebRequest`. When using `get_psadt_template` with `output_directory`, the tool automatically copies PSADT toolkit files from `dist/knowledge/v4github/` and creates a complete deployment package.
 
 ## MCP Resources
 
@@ -75,9 +78,10 @@ Note: Use `search_winget` to get installer URLs and SHA256 hashes, then download
 |-------------|---------|
 | `psadt://docs/*` | PSADT v4 documentation (overview, functions, variables, migration, best-practices) |
 | `kb://installers/*` | Installer type guides (msi, exe, msix) |
-| `kb://patterns/*` | Packaging patterns (detection, prerequisites, user-context) |
-| `ref://silent-args` | Known silent install arguments database |
+| `kb://patterns/*` | Packaging patterns (detection, prerequisites) |
 | `ref://exit-codes` | Common installer exit codes |
+
+Note: Silent install arguments are stored in `src/knowledge/reference/silent-args.json` and accessed via the `get_silent_install_args` tool.
 
 ## MCP Prompts
 
@@ -161,42 +165,6 @@ Note: Use `search_winget` to get installer URLs and SHA256 hashes, then download
 2. **Registry**: Check registry key/value exists
 3. **MSI**: Check MSI product code
 4. **Script**: PowerShell script returns exit code 0 for detected
-
----
-
-## Implementation Roadmap
-
-All proposals have been implemented and archived in `openspec/changes/archive/`.
-
-### Proposal Summary
-
-| # | Proposal | Capability | Status |
-|---|----------|------------|--------|
-| 1 | `1-add-mcp-server-foundation` | MCP server core, config, caching, logging | Archived |
-| 2 | `2-add-winget-integration` | `search_winget`, `get_silent_install_args` tools | Archived |
-| 3 | `3-add-psadt-templates` | `get_psadt_template` tool, knowledge base resources | Archived |
-| 4 | `4-add-validation-engine` | `validate_package` tool | Archived |
-| 5 | `5-add-intune-detection` | `generate_intune_detection` tool | Archived |
-| 6 | `6-add-mcp-prompts` | `/package-app`, `/convert-legacy`, `/troubleshoot`, `/bulk-lookup` | Archived |
-| 7 | `7-knowledge-maintenance` | Knowledge base versioning, maintenance workflow, validation | Archived |
-| 8 | `8-add-installer-download` | `download_installer` tool with SHA256 verification | Archived (removed) |
-| 9 | `9-fix-file-version-format` | Fixed file version format in detection rules | Archived |
-| 10 | `10-add-large-file-download-guidance` | Large file warnings, manual download URL, configurable thresholds | Archived (removed) |
-| 11 | `11-add-psadt-toolkit-download` | `download_psadt_toolkit` tool with caching and version pinning | Archived (removed) |
-| 12 | `remove-installer-download` | Removed `download_installer` tool; use `Invoke-WebRequest` instead | Archived |
-| 13 | `remove-psadt-download` | Removed `download_psadt_toolkit` tool; use static `dist/knowledge/v4github/` instead | Applied |
-
-### Creating New Proposals
-
-To propose new changes:
-```bash
-/openspec:proposal <change-id>
-```
-
-To view archived proposals:
-```bash
-openspec list --archived
-```
 
 ---
 

@@ -27,7 +27,7 @@ When you connect this server to Claude CLI (or another MCP-compatible client), C
 
 ## Version Notes
 
-**V0.5 Packager-MCP** is currently in alpha. Feel free to test, but be aware that there is some fine-tuning still happening.
+**Packager-MCP v1.0** - Production ready. The server provides complete Windows application packaging assistance with PSADT v4.1.7 support.
 
 ---
 
@@ -36,20 +36,15 @@ When you connect this server to Claude CLI (or another MCP-compatible client), C
 ### Prerequisites
 
 - **Node.js 20** or higher
-- **Windsurf**
-- **Git Token** (https://github.com/settings/tokens?type=beta)
+- **MCP-compatible AI client** (Claude CLI, Windsurf, Claude Desktop, etc.)
+- **GitHub Token** (recommended) - [Create one here](https://github.com/settings/tokens?type=beta)
 
 ### Installation
 
 ```bash
-# Install Git
+# Install prerequisites (if not already installed)
 winget install git.git
-
-#Install VisualStudio Code
-winget install Codeium.Windsurf
-
-#Install Node.js 21
-winget install OpenJS.NodeJS.21
+winget install OpenJS.NodeJS.LTS
 
 # Clone the repository
 git clone https://github.com/kkaminsk/Packager-MCP.git
@@ -62,43 +57,49 @@ npm install
 npm run build
 ```
 
-### Add MCP to VS Code
+### Add MCP to Your Client
 
-```bash
-# Add the server to Windsurf JSON
+**For Windsurf/VS Code (mcp_config.json):**
+
+```json
 {
   "mcpServers": {
     "packager-mcp": {
       "command": "node",
-      "args": [
-        "C:/MCP/Packager-MCP/dist/server.js"
-      ],
+      "args": ["C:/path/to/Packager-MCP/dist/server.js"],
       "env": {
         "GITHUB_TOKEN": "ghp_your_token_here"
-      },
-      "disabled": false,
-      "autoApprove": []
+      }
     }
   }
 }
+```
 
-#Claude CLI #1
-/mcp add
+**For Claude CLI:**
 
-Name: packager-mcp
-Command: node
-Arguments: /path/to/Packager-MCP/dist/server.js
+```bash
+claude mcp add packager-mcp node /path/to/Packager-MCP/dist/server.js
+```
+
+**For Claude Desktop (claude_desktop_config.json):**
+
+```json
+{
+  "mcpServers": {
+    "packager-mcp": {
+      "command": "node",
+      "args": ["C:/path/to/Packager-MCP/dist/server.js"],
+      "env": {
+        "GITHUB_TOKEN": "ghp_your_token_here"
+      }
+    }
+  }
+}
 ```
 
 ### Verify It's Working
 
-```bash
-# List your MCP servers
-# Make sure VSCode is logged into Github
-Launch Windsurf and open the cascade view and look for @packager-mcp
-
-# You should see packager-mcp in the list
-```
+After adding the server to your MCP client, you should see `packager-mcp` in the list of available servers. The server provides 5 tools, 11 resources, and 4 prompts.
 
 ---
 
@@ -137,6 +138,8 @@ Claude can read these built-in guides to help you better:
 - `kb://patterns/detection` - Detection rule examples
 - `kb://patterns/prerequisites` - Handling dependencies
 - `ref://exit-codes` - Common exit codes explained
+
+Note: Silent install arguments are accessed via the `get_silent_install_args` tool rather than as a resource.
 
 ### Four Guided Workflows (Prompts)
 
@@ -269,18 +272,31 @@ Packager-MCP/
 │   │   ├── tools.ts        # Tool implementations (5 tools)
 │   │   ├── resources.ts    # Resource handlers (11 resources)
 │   │   └── prompts.ts      # Prompt workflows (4 prompts)
+│   │   └── index.ts        # Handler registration
 │   ├── services/
 │   │   ├── winget.ts       # Winget API integration
 │   │   ├── psadt.ts        # PSADT template generation
 │   │   ├── validation.ts   # Package validation engine
-│   │   └── detection.ts    # Intune detection rules
+│   │   ├── detection.ts    # Intune detection rules
+│   │   └── index.ts        # Service exports
+│   ├── workflows/          # Prompt workflow implementations
+│   │   ├── package-app.ts  # /package-app workflow
+│   │   ├── convert-legacy.ts # /convert-legacy workflow
+│   │   ├── troubleshoot.ts # /troubleshoot workflow
+│   │   ├── bulk-lookup.ts  # /bulk-lookup workflow
+│   │   └── index.ts        # Workflow exports
 │   ├── knowledge/          # Embedded documentation
-│   │   ├── psadt/          # PSADT v4 docs
-│   │   ├── installers/     # Installer type guides
-│   │   ├── patterns/       # Packaging patterns
-│   │   ├── reference/      # Silent args, exit codes
-│   │   └── v4github/       # Static PSADT v4.1.7 toolkit
-│   └── types/              # TypeScript definitions
+│   │   ├── psadt/          # PSADT v4 docs (overview, functions, variables, migration, best-practices)
+│   │   ├── installers/     # Installer type guides (msi, exe, msix)
+│   │   ├── patterns/       # Packaging patterns (detection, prerequisites, download)
+│   │   ├── reference/      # Silent args (JSON), exit codes
+│   │   └── v4github/       # Static PSADT v4.1.7 toolkit files
+│   ├── templates/          # Handlebars templates for PSADT scripts
+│   ├── cache/              # LRU cache implementation
+│   ├── config/             # Configuration loader and schema
+│   ├── utils/              # Logger and error utilities
+│   ├── types/              # TypeScript type definitions
+│   └── __tests__/          # Unit tests
 ├── dist/                   # Compiled JavaScript (after build)
 ├── packager-mcp.example.yaml
 └── package.json

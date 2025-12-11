@@ -52,6 +52,11 @@ The system SHALL provide a `get_psadt_template` MCP tool that generates PSADT v4
 - **WHEN** the user specifies `install_scope: "machine"` or `install_scope: "user"`
 - **THEN** the generated script SHALL configure installation context accordingly
 
+#### Scenario: Template references static toolkit location
+- **WHEN** any template is generated
+- **THEN** the response SHALL include guidance to copy toolkit files from `dist/knowledge/v4github/`
+- **AND** the response SHALL NOT include any `download_toolkit` or `toolkit_download` fields
+
 ### Requirement: Template Output Structure
 The system SHALL return template output with structured metadata in addition to the script content.
 
@@ -151,75 +156,20 @@ All generated templates SHALL comply with PSADT v4 module-based architecture.
 - **THEN** the script SHALL call `Initialize-ADTDeployment` at the start
 - **AND** the script SHALL call `Complete-ADTDeployment` at the end
 
-### Requirement: Download PSADT Toolkit
-The system SHALL provide a `download_psadt_toolkit` MCP tool that downloads the PSAppDeployToolkit from its official GitHub repository.
+### Requirement: Static PSADT Toolkit Knowledge Base
+The system SHALL include a static copy of PSADT v4 toolkit files in the `dist/knowledge/v4github/` directory for reliable offline access.
 
-#### Scenario: Download latest toolkit version
-- **WHEN** the user invokes `download_psadt_toolkit` with an `output_directory`
-- **THEN** the system SHALL fetch the latest release from `PSAppDeployToolkit/PSAppDeployToolkit` GitHub repository
-- **AND** the system SHALL download and extract the release ZIP
-- **AND** the extracted files SHALL be placed in the specified output directory
-- **AND** the response SHALL include the version downloaded and file paths
-
-#### Scenario: Download specific toolkit version
-- **WHEN** the user invokes `download_psadt_toolkit` with `version: "4.0.4"`
-- **THEN** the system SHALL fetch the release matching that version tag
-- **AND** the system SHALL return an error if the version does not exist
-
-#### Scenario: Download with Extensions module
-- **WHEN** the user invokes `download_psadt_toolkit` with `include_extensions: true`
-- **THEN** the system SHALL include the `PSAppDeployToolkit.Extensions` module in the output
-
-#### Scenario: Toolkit already cached
-- **WHEN** a release was previously downloaded within the cache TTL
-- **THEN** the system SHALL copy from cache instead of re-downloading
-- **AND** the response SHALL indicate the source was cache
-
-#### Scenario: GitHub rate limit reached
-- **WHEN** the GitHub API returns a 429 rate limit response
-- **THEN** the system SHALL return an error message explaining the rate limit
-- **AND** the message SHALL suggest configuring a `GITHUB_TOKEN` environment variable
-
-#### Scenario: Download failure
-- **WHEN** the ZIP download fails due to network error or timeout
-- **THEN** the system SHALL return an error with the direct download URL
-- **AND** the user can manually download and extract the toolkit
-
-### Requirement: Toolkit Download Output Structure
-The system SHALL extract toolkit files into a standard directory structure suitable for PSADT package creation.
-
-#### Scenario: Standard extraction structure
-- **WHEN** toolkit download completes successfully
-- **THEN** the output directory SHALL contain:
-  - `PSAppDeployToolkit/` directory with module files
-  - `Config/` directory with default configuration
+#### Scenario: Static toolkit files available
+- **WHEN** the MCP server is installed
+- **THEN** the `dist/knowledge/v4github/` directory SHALL contain:
+  - `PSAppDeployToolkit/` directory with module files (PSAppDeployToolkit.psd1, PSAppDeployToolkit.psm1)
+  - `Config/` directory with default configuration (config.psd1)
   - `Assets/` directory with icons and images
-  - `Strings/` directory with localization files
-  - `Files/` empty directory for installer placement
-  - `Invoke-AppDeployToolkit.exe` executable wrapper
-  - `Invoke-AppDeployToolkit.ps1` main script template
+  - `Files/` directory for user installer placement
+  - Frontend scripts in `PSAppDeployToolkit/Frontend/v4/` (Invoke-AppDeployToolkit.exe, Invoke-AppDeployToolkit.ps1)
 
-#### Scenario: Return download metadata
-- **WHEN** toolkit download completes
-- **THEN** the response SHALL include:
-  - `version`: The downloaded version
-  - `outputDirectory`: Where files were extracted
-  - `files`: Array of extracted file paths
-  - `downloadedFrom`: "cache" or "github"
-  - `releaseUrl`: URL to the GitHub release page
-
-### Requirement: Integrated Template and Toolkit Download
-The system SHALL support downloading the toolkit as part of template generation for streamlined package creation.
-
-#### Scenario: Template with toolkit download
-- **WHEN** the user invokes `get_psadt_template` with `download_toolkit: true` and `output_directory`
-- **THEN** the system SHALL generate the PSADT script
-- **AND** the system SHALL download the toolkit to the output directory
-- **AND** the generated script SHALL be saved as `Invoke-AppDeployToolkit.ps1` in the output directory
-- **AND** the response SHALL include both the script content and toolkit download status
-
-#### Scenario: Template without toolkit download
-- **WHEN** the user invokes `get_psadt_template` without `download_toolkit` or with `download_toolkit: false`
-- **THEN** the system SHALL generate only the script content
-- **AND** the behavior SHALL remain unchanged from current implementation
+#### Scenario: Toolkit version pinned
+- **WHEN** the static toolkit files are accessed
+- **THEN** the version SHALL be PSADT v4.1.7 with 135 exported functions
+- **AND** the module GUID SHALL be `8c3c366b-8606-4576-9f2d-4051144f7ca2`
 
