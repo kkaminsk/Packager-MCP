@@ -425,7 +425,7 @@ function identifyManualReviewPoints(
       points.push({
         lineNumber: index + 1,
         category: 'variable',
-        description: 'Variable declaration should be moved to Initialize-ADTDeployment parameters',
+        description: 'Variable declaration should be moved to the $adtSession hashtable passed to Open-ADTSession',
         originalCode: line.trim(),
       });
     }

@@ -57,7 +57,7 @@ vi.mock('../services/psadt.js', () => ({
                 metadata: {
                     complexity: 'standard',
                     installerType: 'exe',
-                    psadtVersion: '4.0',
+                    psadtVersion: '4.1.7',
                     generatedAt: '2024-01-01T00:00:00.000Z',
                     templateVersion: '1.0.0',
                 },
@@ -253,9 +253,9 @@ describe('Convert Legacy Workflow', () => {
     it('should detect v4 script', async () => {
         const v4Script = `
       Import-Module PSAppDeployToolkit
-      Initialize-ADTDeployment
+      $adtSession = Open-ADTSession @sessionParams -PassThru
       Start-ADTProcess -FilePath "setup.exe" -ArgumentList "/S"
-      Complete-ADTDeployment
+      Close-ADTSession
     `;
         const result = await executeConvertLegacyWorkflow({
             scriptPathOrContent: v4Script,

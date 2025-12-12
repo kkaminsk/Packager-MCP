@@ -264,7 +264,7 @@ describe('PsadtService', () => {
                 complexity: 'basic',
             };
             const result = service.generateScript(options);
-            expect(result.metadata.psadtVersion).toBe('4.0');
+            expect(result.metadata.psadtVersion).toBe('4.1.7');
         });
         it('should include generation timestamp', () => {
             const options = {

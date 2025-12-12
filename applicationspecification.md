@@ -735,66 +735,108 @@ Installers:
 
 ```powershell
 [CmdletBinding()]
-Param (
+param (
     [Parameter(Mandatory = $false)]
     [ValidateSet('Install', 'Uninstall', 'Repair')]
-    [String]$DeploymentType = 'Install',
+    [System.String]$DeploymentType,
+
     [Parameter(Mandatory = $false)]
-    [ValidateSet('Interactive', 'Silent', 'NonInteractive')]
-    [String]$DeployMode = 'Interactive',
+    [ValidateSet('Auto', 'Interactive', 'NonInteractive', 'Silent')]
+    [System.String]$DeployMode,
+
     [Parameter(Mandatory = $false)]
-    [switch]$AllowRebootPassThru,
+    [System.Management.Automation.SwitchParameter]$SuppressRebootPassThru,
+
     [Parameter(Mandatory = $false)]
-    [switch]$TerminalServerMode,
+    [System.Management.Automation.SwitchParameter]$TerminalServerMode,
+
     [Parameter(Mandatory = $false)]
-    [switch]$DisableLogging
+    [System.Management.Automation.SwitchParameter]$DisableLogging
 )
 
-Try {
-    ## Import the PSADT module
-    Import-Module -Name "$PSScriptRoot\AppDeployToolkit\PSAppDeployToolkit" -Force
-
-    ## Initialize deployment
-    Initialize-ADTDeployment -DeploymentType $DeploymentType -DeployMode $DeployMode
-
-    ##*===============================================
-    ##* PRE-INSTALLATION
-    ##*===============================================
-    
-    ## Show welcome message, close apps if needed
-    Show-ADTInstallationWelcome -CloseApps 'chrome' -AllowDefer -DeferTimes 3
-
-    ##*===============================================
-    ##* INSTALLATION
-    ##*===============================================
-
-    If ($DeploymentType -eq 'Install') {
-        ## Execute installation
-        Start-ADTProcess -Path 'chrome_installer.exe' -Parameters '--silent --install'
-    }
-
-    ##*===============================================
-    ##* POST-INSTALLATION
-    ##*===============================================
-
-    ## Display completion message
-    Show-ADTInstallationPrompt -Message 'Installation complete.' -ButtonRightText 'OK'
-
-    ##*===============================================
-    ##* UNINSTALLATION
-    ##*===============================================
-
-    If ($DeploymentType -eq 'Uninstall') {
-        ## Execute uninstallation
-        Start-ADTProcess -Path 'chrome_installer.exe' -Parameters '--uninstall --force-uninstall'
-    }
-
-    ## Complete deployment
-    Complete-ADTDeployment -ExitCode $ADTSession.ExitCode
+## Session configuration hashtable
+$adtSession = @{
+    AppVendor = 'Google'
+    AppName = 'Chrome'
+    AppVersion = '120.0.6099.130'
+    AppArch = 'x64'
+    AppLang = 'EN'
+    AppRevision = '01'
+    AppSuccessExitCodes = @(0)
+    AppRebootExitCodes = @(1641, 3010)
+    AppProcessesToClose = @('chrome', 'GoogleUpdate')
+    AppScriptVersion = '1.0.0'
+    AppScriptDate = '2025-01-01'
+    AppScriptAuthor = 'IT Admin'
+    RequireAdmin = $true
+    DeployAppScriptFriendlyName = $MyInvocation.MyCommand.Name
+    DeployAppScriptParameters = $PSBoundParameters
+    DeployAppScriptVersion = '4.1.7'
 }
-Catch {
-    ## Handle errors
-    Complete-ADTDeployment -ExitCode 60001 -ErrorMessage $_.Exception.Message
+
+## Deployment functions
+function Install-ADTDeployment {
+    [CmdletBinding()]
+    param()
+
+    $adtSession.InstallPhase = "Pre-$($adtSession.DeploymentType)"
+    Show-ADTInstallationWelcome -CloseProcesses $adtSession.AppProcessesToClose -AllowDefer -DeferTimes 3
+    Show-ADTInstallationProgress
+
+    $adtSession.InstallPhase = $adtSession.DeploymentType
+    $installerPath = Join-Path -Path $adtSession.DirFiles -ChildPath 'chrome_installer.exe'
+    Start-ADTProcess -FilePath $installerPath -ArgumentList '--silent --install'
+
+    $adtSession.InstallPhase = "Post-$($adtSession.DeploymentType)"
+}
+
+function Uninstall-ADTDeployment {
+    [CmdletBinding()]
+    param()
+
+    $adtSession.InstallPhase = "Pre-$($adtSession.DeploymentType)"
+    Show-ADTInstallationWelcome -CloseProcesses $adtSession.AppProcessesToClose -CloseProcessesCountdown 60
+    Show-ADTInstallationProgress
+
+    $adtSession.InstallPhase = $adtSession.DeploymentType
+    $app = Get-ADTApplication -Name 'Google Chrome'
+    if ($app.UninstallString) {
+        Start-ADTProcess -FilePath $app.UninstallString -ArgumentList '--uninstall --force-uninstall'
+    }
+
+    $adtSession.InstallPhase = "Post-$($adtSession.DeploymentType)"
+}
+
+function Repair-ADTDeployment {
+    [CmdletBinding()]
+    param()
+    Install-ADTDeployment
+}
+
+## Initialization
+$ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
+$ProgressPreference = [System.Management.Automation.ActionPreference]::SilentlyContinue
+Set-StrictMode -Version 1
+
+try {
+    Import-Module -FullyQualifiedName @{ ModuleName = "$PSScriptRoot\PSAppDeployToolkit\PSAppDeployToolkit.psd1"; Guid = '8c3c366b-8606-4576-9f2d-4051144f7ca2'; ModuleVersion = '4.1.7' } -Force
+    $iadtParams = Get-ADTBoundParametersAndDefaultValues -Invocation $MyInvocation
+    $adtSession = Remove-ADTHashtableNullOrEmptyValues -Hashtable $adtSession
+    $adtSession = Open-ADTSession @adtSession @iadtParams -PassThru
+}
+catch {
+    $Host.UI.WriteErrorLine((Out-String -InputObject $_ -Width ([System.Int32]::MaxValue)))
+    exit 60008
+}
+
+## Invocation
+try {
+    & "$($adtSession.DeploymentType)-ADTDeployment"
+    Close-ADTSession
+}
+catch {
+    Write-ADTLogEntry -Message "Unhandled error: $(Resolve-ADTErrorRecord -ErrorRecord $_)" -Severity 3
+    Close-ADTSession -ExitCode 60001
 }
 ```
 
