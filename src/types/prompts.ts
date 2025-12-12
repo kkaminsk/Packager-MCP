@@ -286,3 +286,77 @@ export interface PromptResponse {
     };
   }>;
 }
+
+// Convert Legacy Workflow Types
+
+/** Arguments for the convert-legacy prompt workflow */
+export interface ConvertLegacyArguments {
+  scriptPathOrContent: string;
+  outputPath?: string;
+  preserveComments?: boolean;
+  isFilePath?: boolean;
+  verbose?: boolean;
+}
+
+/** Function mapping from v3 to v4 */
+export interface FunctionMapping {
+  v3Function: string;
+  v4Function: string;
+  parameterChanges?: string;
+  notes?: string;
+  lineNumbers: number[];
+}
+
+/** Variable mapping from v3 to v4 */
+export interface VariableMapping {
+  v3Variable: string;
+  v4Variable: string;
+  notes?: string;
+  lineNumbers: number[];
+}
+
+/** Points requiring manual review */
+export interface ManualReviewPoint {
+  lineNumber: number;
+  context?: string;
+  reason?: string;
+  suggestion?: string;
+  category?: string;
+  description?: string;
+  originalCode?: string;
+}
+
+/** Checklist item for migration */
+export interface ChecklistItem {
+  item: string;
+  completed: boolean;
+  notes?: string;
+}
+
+/** Validation result */
+export interface ConvertValidation {
+  isValid: boolean;
+  score: number;
+  issues: Array<{ severity: string; message: string }>;
+}
+
+/** Analysis result for script conversion */
+export interface ScriptAnalysis {
+  detectedVersion: 'v3' | 'v4' | 'unknown';
+  functionMappings: FunctionMapping[];
+  variableMappings: VariableMapping[];
+  manualReviewPoints?: ManualReviewPoint[];
+  structureIssues: string[];
+  originalLineCount?: number;
+  convertedLineCount?: number;
+}
+
+/** Result of the convert-legacy workflow */
+export interface ConvertLegacyResult extends WorkflowResult {
+  analysis: ScriptAnalysis;
+  convertedScript?: string;
+  warnings: string[];
+  manualReviewPoints: ManualReviewPoint[];
+  checklist: ChecklistItem[];
+  validation?: ConvertValidation;
+}

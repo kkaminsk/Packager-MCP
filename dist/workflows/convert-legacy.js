@@ -339,7 +339,7 @@ function identifyManualReviewPoints(originalScript, convertedScript, functionMap
     // Flag functions with parameter changes
     for (const mapping of functionMappings) {
         if (mapping.parameterChanges) {
-            mapping.lineNumbers.forEach(lineNum => {
+            mapping.lineNumbers.forEach((lineNum) => {
                 const originalLine = originalScript.split('\n')[lineNum - 1];
                 if (originalLine) {
                     points.push({
@@ -445,6 +445,7 @@ export async function executeConvertLegacyWorkflow(args) {
         },
         manualReviewPoints: [],
         checklist: [],
+        warnings: [],
     };
     // Get script content
     const script = args.scriptPathOrContent;
@@ -528,7 +529,7 @@ export function formatConvertLegacyResult(result) {
     // Function mappings
     if (result.analysis.functionMappings.length > 0) {
         lines.push('### Function Migrations');
-        result.analysis.functionMappings.forEach(m => {
+        result.analysis.functionMappings.forEach((m) => {
             lines.push(`- \`${m.v3Function}\` → \`${m.v4Function}\` (lines: ${m.lineNumbers.join(', ')})`);
             if (m.parameterChanges) {
                 lines.push(`  - Parameter changes: ${m.parameterChanges}`);
@@ -539,7 +540,7 @@ export function formatConvertLegacyResult(result) {
     // Variable mappings
     if (result.analysis.variableMappings.length > 0) {
         lines.push('### Variable Migrations');
-        result.analysis.variableMappings.forEach(m => {
+        result.analysis.variableMappings.forEach((m) => {
             lines.push(`- \`${m.v3Variable}\` → \`${m.v4Variable}\` (lines: ${m.lineNumbers.join(', ')})`);
         });
         lines.push('');
@@ -547,7 +548,7 @@ export function formatConvertLegacyResult(result) {
     // Manual review points
     if (result.manualReviewPoints.length > 0) {
         lines.push('### Manual Review Required');
-        result.manualReviewPoints.slice(0, 10).forEach(p => {
+        result.manualReviewPoints.slice(0, 10).forEach((p) => {
             lines.push(`- **Line ${p.lineNumber}** [${p.category}]: ${p.description}`);
         });
         if (result.manualReviewPoints.length > 10) {
@@ -563,7 +564,7 @@ export function formatConvertLegacyResult(result) {
         if (result.validation.issues.length > 0) {
             lines.push('');
             lines.push('**Top Issues:**');
-            result.validation.issues.slice(0, 5).forEach(i => {
+            result.validation.issues.slice(0, 5).forEach((i) => {
                 lines.push(`- [${i.severity.toUpperCase()}] ${i.message}`);
             });
         }
@@ -572,7 +573,7 @@ export function formatConvertLegacyResult(result) {
     // Checklist
     if (result.checklist.length > 0) {
         lines.push('### Migration Checklist');
-        result.checklist.forEach(item => {
+        result.checklist.forEach((item) => {
             const check = item.completed ? '✓' : '○';
             lines.push(`- [${check}] ${item.item}`);
             if (item.notes) {
@@ -584,7 +585,7 @@ export function formatConvertLegacyResult(result) {
     // Warnings
     if (result.warnings && result.warnings.length > 0) {
         lines.push('### Warnings');
-        result.warnings.forEach(w => lines.push(`- ${w}`));
+        result.warnings.forEach((w) => lines.push(`- ${w}`));
         lines.push('');
     }
     lines.push('*The converted script is included below for your review.*');

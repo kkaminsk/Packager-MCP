@@ -404,7 +404,7 @@ function identifyManualReviewPoints(
   // Flag functions with parameter changes
   for (const mapping of functionMappings) {
     if (mapping.parameterChanges) {
-      mapping.lineNumbers.forEach(lineNum => {
+      mapping.lineNumbers.forEach((lineNum: number) => {
         const originalLine = originalScript.split('\n')[lineNum - 1];
         if (originalLine) {
           points.push({
@@ -534,6 +534,7 @@ export async function executeConvertLegacyWorkflow(
     },
     manualReviewPoints: [],
     checklist: [],
+    warnings: [],
   };
 
   // Get script content
@@ -644,7 +645,7 @@ export function formatConvertLegacyResult(result: ConvertLegacyResult): string {
   // Function mappings
   if (result.analysis.functionMappings.length > 0) {
     lines.push('### Function Migrations');
-    result.analysis.functionMappings.forEach(m => {
+    result.analysis.functionMappings.forEach((m: FunctionMapping) => {
       lines.push(`- \`${m.v3Function}\` → \`${m.v4Function}\` (lines: ${m.lineNumbers.join(', ')})`);
       if (m.parameterChanges) {
         lines.push(`  - Parameter changes: ${m.parameterChanges}`);
@@ -656,7 +657,7 @@ export function formatConvertLegacyResult(result: ConvertLegacyResult): string {
   // Variable mappings
   if (result.analysis.variableMappings.length > 0) {
     lines.push('### Variable Migrations');
-    result.analysis.variableMappings.forEach(m => {
+    result.analysis.variableMappings.forEach((m: VariableMapping) => {
       lines.push(`- \`${m.v3Variable}\` → \`${m.v4Variable}\` (lines: ${m.lineNumbers.join(', ')})`);
     });
     lines.push('');
@@ -665,7 +666,7 @@ export function formatConvertLegacyResult(result: ConvertLegacyResult): string {
   // Manual review points
   if (result.manualReviewPoints.length > 0) {
     lines.push('### Manual Review Required');
-    result.manualReviewPoints.slice(0, 10).forEach(p => {
+    result.manualReviewPoints.slice(0, 10).forEach((p: ManualReviewPoint) => {
       lines.push(`- **Line ${p.lineNumber}** [${p.category}]: ${p.description}`);
     });
     if (result.manualReviewPoints.length > 10) {
@@ -682,7 +683,7 @@ export function formatConvertLegacyResult(result: ConvertLegacyResult): string {
     if (result.validation.issues.length > 0) {
       lines.push('');
       lines.push('**Top Issues:**');
-      result.validation.issues.slice(0, 5).forEach(i => {
+      result.validation.issues.slice(0, 5).forEach((i: { severity: string; message: string }) => {
         lines.push(`- [${i.severity.toUpperCase()}] ${i.message}`);
       });
     }
@@ -692,7 +693,7 @@ export function formatConvertLegacyResult(result: ConvertLegacyResult): string {
   // Checklist
   if (result.checklist.length > 0) {
     lines.push('### Migration Checklist');
-    result.checklist.forEach(item => {
+    result.checklist.forEach((item: { item: string; completed: boolean; notes?: string }) => {
       const check = item.completed ? '✓' : '○';
       lines.push(`- [${check}] ${item.item}`);
       if (item.notes) {
@@ -705,7 +706,7 @@ export function formatConvertLegacyResult(result: ConvertLegacyResult): string {
   // Warnings
   if (result.warnings && result.warnings.length > 0) {
     lines.push('### Warnings');
-    result.warnings.forEach(w => lines.push(`- ${w}`));
+    result.warnings.forEach((w: string) => lines.push(`- ${w}`));
     lines.push('');
   }
 
