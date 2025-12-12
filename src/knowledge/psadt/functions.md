@@ -265,7 +265,7 @@ Start-ADTProcess -FilePath 'setup.exe' -IgnoreExitCodes '1,2,3010'
 
 **Key Parameters (v4.1):**
 - `FilePath` - Path to executable (if in Files/, just filename works)
-- `ArgumentList` - Command-line arguments
+- `ArgumentList` - Command-line arguments (**NOT** `-Arguments` which does not exist)
 - `SecureArgumentList` - Hide arguments from log
 - `WaitForMsiExec` - Wait if another MSI is running
 - `WaitForChildProcesses` - Wait for spawned processes (v4.1)

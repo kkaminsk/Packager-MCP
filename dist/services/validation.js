@@ -189,6 +189,30 @@ const VALIDATION_RULES = [
         },
     },
     {
+        id: 'start-adtprocess-argumentlist',
+        name: 'Start-ADTProcess Uses ArgumentList',
+        description: 'Start-ADTProcess uses -ArgumentList parameter, not -Arguments',
+        severity: 'error',
+        category: 'psadt',
+        minLevel: 'basic',
+        suggestion: 'Change -Arguments to -ArgumentList for Start-ADTProcess',
+        check: (script, lines) => {
+            const issues = [];
+            // Match Start-ADTProcess followed by -Arguments (incorrect parameter name)
+            const incorrectPattern = /Start-ADTProcess\s+[^|;\n]*-Arguments\b/gi;
+            let match;
+            while ((match = incorrectPattern.exec(script)) !== null) {
+                const lineNumber = getLineNumber(script, match.index);
+                issues.push({
+                    lineNumber,
+                    lineContent: lines[lineNumber - 1]?.trim(),
+                    context: 'Start-ADTProcess uses -ArgumentList, not -Arguments. This parameter name does not exist.',
+                });
+            }
+            return issues;
+        },
+    },
+    {
         id: 'adt-session-usage',
         name: 'adtSession Object Usage',
         description: 'PSADT v4 uses $adtSession hashtable for session configuration',
