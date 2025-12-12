@@ -126,7 +126,6 @@ Claude can read these built-in guides to help you better:
 - `psadt://docs/overview` - Architecture and concepts
 - `psadt://docs/functions` - All 135 ADT-prefixed functions
 - `psadt://docs/variables` - Built-in variables and $ADTSession
-- `psadt://docs/migration` - Upgrading v3 scripts to v4
 - `psadt://docs/best-practices` - Recommended patterns
 
 **Installer Guides:**
@@ -141,12 +140,11 @@ Claude can read these built-in guides to help you better:
 
 Note: Silent install arguments are accessed via the `get_silent_install_args` tool rather than as a resource.
 
-### Four Guided Workflows (Prompts)
+### Three Guided Workflows (Prompts)
 
 | Prompt | Description |
 |--------|-------------|
 | `package-app` | Complete workflow: search → template → detection → validate |
-| `convert-legacy` | Migrate PSADT v3 scripts to v4 format |
 | `troubleshoot` | Diagnose package failures from error codes and logs |
 | `bulk-lookup` | Get info for multiple apps at once |
 
@@ -281,12 +279,11 @@ Packager-MCP/
 │   │   └── index.ts        # Service exports
 │   ├── workflows/          # Prompt workflow implementations
 │   │   ├── package-app.ts  # /package-app workflow
-│   │   ├── convert-legacy.ts # /convert-legacy workflow
 │   │   ├── troubleshoot.ts # /troubleshoot workflow
 │   │   ├── bulk-lookup.ts  # /bulk-lookup workflow
 │   │   └── index.ts        # Workflow exports
 │   ├── knowledge/          # Embedded documentation
-│   │   ├── psadt/          # PSADT v4 docs (overview, functions, variables, migration, best-practices)
+│   │   ├── psadt/          # PSADT v4 docs (overview, functions, variables, best-practices)
 │   │   ├── installers/     # Installer type guides (msi, exe, msix)
 │   │   ├── patterns/       # Packaging patterns (detection, prerequisites, download)
 │   │   ├── reference/      # Silent args (JSON), exit codes
@@ -323,15 +320,12 @@ The server handles different installer types automatically:
 
 This server generates **PSADT v4** (PowerShell App Deployment Toolkit version 4) scripts. Key things to know:
 
-### What Changed from v3
+### Key Concepts
 
-| v3 | v4 |
-|----|-----|
-| `Show-InstallationWelcome` | `Show-ADTInstallationWelcome` |
-| `Execute-Process` | `Start-ADTProcess` |
-| `Execute-MSI` | `Start-ADTMsiProcess` |
-| `$envProgramFiles` | `$envProgramFiles` (unchanged) |
-| Script-based | Module-based architecture |
+- Module-based architecture (Import-Module PSAppDeployToolkit)
+- `ADT` prefix on all 135 functions (e.g., `Show-ADTInstallationWelcome`, `Start-ADTProcess`)
+- `$adtSession` object for state management via `Open-ADTSession`
+- Structured error handling with `Close-ADTSession`
 
 ### Script Structure
 
@@ -447,7 +441,7 @@ npm run validate:knowledge
 A: No! The scripts work standalone. Intune-specific features (detection rules) are optional.
 
 **Q: Does it support PSADT v3?**
-A: It generates v4 scripts, but includes a conversion tool for v3 → v4 migration.
+A: No, this server focuses exclusively on PSADT v4. For v3 scripts, please refer to the official PSADT documentation for migration guidance.
 
 **Q: Can I use this with other tools?**
 A: Yes, any MCP-compatible client works. Add the server to your MCP config.

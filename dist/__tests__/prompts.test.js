@@ -143,7 +143,6 @@ vi.mock('../utils/logger.js', () => ({
 }));
 // Import after mocking
 import { parsePackageAppArgs, executePackageAppWorkflow, formatPackageAppResult, } from '../workflows/package-app.js';
-import { parseConvertLegacyArgs, executeConvertLegacyWorkflow, formatConvertLegacyResult, } from '../workflows/convert-legacy.js';
 import { parseTroubleshootArgs, executeTroubleshootWorkflow, formatTroubleshootResult, } from '../workflows/troubleshoot.js';
 import { parseBulkLookupArgs, executeBulkLookupWorkflow, formatBulkLookupResult, } from '../workflows/bulk-lookup.js';
 describe('Argument Parsing', () => {
@@ -165,19 +164,6 @@ describe('Argument Parsing', () => {
                 complexity: 'advanced',
             });
             expect(result.complexity).toBe('advanced');
-        });
-    });
-    describe('parseConvertLegacyArgs', () => {
-        it('should parse script content', () => {
-            const result = parseConvertLegacyArgs({ script: 'Execute-Process -Path test.exe' });
-            expect(result.scriptPathOrContent).toBe('Execute-Process -Path test.exe');
-        });
-        it('should parse verbose flag', () => {
-            const result = parseConvertLegacyArgs({
-                script: 'test',
-                verbose: 'true',
-            });
-            expect(result.verbose).toBe(true);
         });
     });
     describe('parseTroubleshootArgs', () => {
@@ -236,6 +222,7 @@ describe('Package App Workflow', () => {
         expect(typeof formatted).toBe('string');
     });
 });
+<<<<<<< Updated upstream
 describe('Convert Legacy Workflow', () => {
     it('should detect v3 script', async () => {
         const v3Script = `
@@ -286,6 +273,8 @@ describe('Convert Legacy Workflow', () => {
         expect(typeof formatted).toBe('string');
     });
 });
+=======
+>>>>>>> Stashed changes
 describe('Troubleshoot Workflow', () => {
     it('should look up MSI exit code 1603', async () => {
         const result = await executeTroubleshootWorkflow({
@@ -379,23 +368,6 @@ describe('Workflow Result Formatting', () => {
             });
             const formatted = formatPackageAppResult(result);
             expect(formatted).toContain('Next Steps');
-        });
-    });
-    describe('formatConvertLegacyResult', () => {
-        it('should include analysis section', async () => {
-            const result = await executeConvertLegacyWorkflow({
-                scriptPathOrContent: 'Execute-Process',
-            });
-            const formatted = formatConvertLegacyResult(result);
-            expect(formatted).toContain('Analysis');
-            expect(formatted).toContain('Detected Version');
-        });
-        it('should include checklist', async () => {
-            const result = await executeConvertLegacyWorkflow({
-                scriptPathOrContent: 'Execute-Process',
-            });
-            const formatted = formatConvertLegacyResult(result);
-            expect(formatted).toContain('Migration Checklist');
         });
     });
     describe('formatTroubleshootResult', () => {

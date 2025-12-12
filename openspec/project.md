@@ -104,7 +104,7 @@ src/
 
 ### PSADT v4.1.7 (PowerShell Application Deployment Toolkit)
 
-Key differences from v3:
+Key concepts:
 - Module-based: `Import-Module -FullyQualifiedName @{ ModuleName = 'PSAppDeployToolkit'; ModuleVersion = '4.1.7' }`
 - Function prefix: All 135 functions use `ADT` prefix (e.g., `Show-ADTInstallationWelcome`)
 - Session hashtable: `$adtSession` (lowercase) for session configuration

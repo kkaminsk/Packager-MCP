@@ -155,37 +155,37 @@ const VALIDATION_RULES: ValidationRule[] = [
   {
     id: 'uses-adt-prefix',
     name: 'Uses ADT-Prefixed Functions',
-    description: 'PSADT v4 functions should use ADT prefix (e.g., Show-ADTInstallationWelcome)',
+    description: 'PSADT v4 functions must use ADT prefix (e.g., Show-ADTInstallationWelcome)',
     severity: 'warning',
     category: 'psadt',
     minLevel: 'standard',
-    suggestion: 'Use PSADT v4 functions with ADT prefix instead of legacy v3 functions',
+    suggestion: 'Use the correct ADT-prefixed function name',
     check: (script: string, lines: string[]): ValidationMatch[] => {
       const issues: ValidationMatch[] = [];
-      // Legacy v3 function patterns that should be v4 with ADT prefix
-      const legacyPatterns = [
-        { legacy: /\bShow-InstallationWelcome\b/gi, v4: 'Show-ADTInstallationWelcome' },
-        { legacy: /\bShow-InstallationProgress\b/gi, v4: 'Show-ADTInstallationProgress' },
-        { legacy: /\bShow-InstallationPrompt\b/gi, v4: 'Show-ADTInstallationPrompt' },
-        { legacy: /\bExecute-Process\b/gi, v4: 'Start-ADTProcess' },
-        { legacy: /\bExecute-MSI\b/gi, v4: 'Start-ADTMsiProcess' },
-        { legacy: /\bRemove-MSIApplications\b/gi, v4: 'Remove-ADTApplication' },
-        { legacy: /\bGet-InstalledApplication\b/gi, v4: 'Get-ADTApplication' },
-        { legacy: /\bGet-ADTInstalledApplication\b/gi, v4: 'Get-ADTApplication' },
-        { legacy: /\bInitialize-ADTDeployment\b/gi, v4: 'Open-ADTSession' },
-        { legacy: /\bComplete-ADTDeployment\b/gi, v4: 'Close-ADTSession' },
-        { legacy: /\bClose-InstallationProgress\b/gi, v4: 'Close-ADTInstallationProgress' },
+      // Incorrect function names and their correct ADT-prefixed equivalents
+      const incorrectPatterns = [
+        { incorrect: /\bShow-InstallationWelcome\b/gi, correct: 'Show-ADTInstallationWelcome' },
+        { incorrect: /\bShow-InstallationProgress\b/gi, correct: 'Show-ADTInstallationProgress' },
+        { incorrect: /\bShow-InstallationPrompt\b/gi, correct: 'Show-ADTInstallationPrompt' },
+        { incorrect: /\bExecute-Process\b/gi, correct: 'Start-ADTProcess' },
+        { incorrect: /\bExecute-MSI\b/gi, correct: 'Start-ADTMsiProcess' },
+        { incorrect: /\bRemove-MSIApplications\b/gi, correct: 'Remove-ADTApplication' },
+        { incorrect: /\bGet-InstalledApplication\b/gi, correct: 'Get-ADTApplication' },
+        { incorrect: /\bGet-ADTInstalledApplication\b/gi, correct: 'Get-ADTApplication' },
+        { incorrect: /\bInitialize-ADTDeployment\b/gi, correct: 'Open-ADTSession' },
+        { incorrect: /\bComplete-ADTDeployment\b/gi, correct: 'Close-ADTSession' },
+        { incorrect: /\bClose-InstallationProgress\b/gi, correct: 'Close-ADTInstallationProgress' },
       ];
 
-      for (const { legacy, v4 } of legacyPatterns) {
+      for (const { incorrect, correct } of incorrectPatterns) {
         let match: RegExpExecArray | null;
-        legacy.lastIndex = 0;
-        while ((match = legacy.exec(script)) !== null) {
+        incorrect.lastIndex = 0;
+        while ((match = incorrect.exec(script)) !== null) {
           const lineNumber = getLineNumber(script, match.index);
           issues.push({
             lineNumber,
             lineContent: lines[lineNumber - 1]?.trim(),
-            context: `Legacy function "${match[0]}" found. Use "${v4}" instead.`,
+            context: `Incorrect function "${match[0]}" found. Use "${correct}" instead.`,
           });
         }
       }

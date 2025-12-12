@@ -23,7 +23,9 @@
       "Bash(find:*)",
       "Bash(timeout 5 node:*)",
       "Bash(npm run openspec:*)",
-      "Bash(where:*)"
+      "Bash(where:*)",
+      "Bash(cat:*)",
+      "Bash(git checkout:*)"
     ],
     "deny": [],
     "ask": []

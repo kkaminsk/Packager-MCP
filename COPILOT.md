@@ -100,7 +100,7 @@ This MCP server provides specialized tools and knowledge for Microsoft Intune pa
 - **`/bulk-lookup`** - Batch retrieve information for multiple applications
 
 ### Knowledge Resources
-- **PSADT v4** documentation, functions, variables, and migration guides
+- **PSADT v4** documentation, functions, variables, and best practices
 - **Installer types** (MSI, EXE, MSIX) with silent install arguments
 - **Packaging patterns** for detection, prerequisites, and user-context deployments
 - **Reference databases** for exit codes and silent install arguments

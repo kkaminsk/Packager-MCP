@@ -37,11 +37,10 @@ src/
 │   └── detection.ts       # Intune detection rule generation
 ├── workflows/             # Prompt workflow implementations
 │   ├── package-app.ts     # /package-app workflow
-│   ├── convert-legacy.ts  # /convert-legacy workflow
 │   ├── troubleshoot.ts    # /troubleshoot workflow
 │   └── bulk-lookup.ts     # /bulk-lookup workflow
 ├── knowledge/             # Embedded documentation
-│   ├── psadt/             # PSADT v4 docs (overview, functions, variables, migration, best-practices)
+│   ├── psadt/             # PSADT v4 docs (overview, functions, variables, best-practices)
 │   ├── installers/        # Installer type guides (msi, exe, msix)
 │   ├── patterns/          # Packaging patterns (detection, prerequisites, download)
 │   ├── reference/         # Silent args database (JSON), exit codes
@@ -55,7 +54,6 @@ src/
 ReferenceKnowledge/        # Source reference materials (not distributed)
 ├── V4Assets/              # PSADT v4.1.7 source files
 ├── functionsdoc.md        # Complete function reference
-├── V3DOCS.md              # Legacy v3 documentation
 ├── V4DOCS.md              # v4 documentation
 └── Examples/              # Example deployments
 ```
@@ -76,7 +74,7 @@ Note: Use `search_winget` to get installer URLs and SHA256 hashes, then download
 
 | URI Pattern | Content |
 |-------------|---------|
-| `psadt://docs/*` | PSADT v4 documentation (overview, functions, variables, migration, best-practices) |
+| `psadt://docs/*` | PSADT v4 documentation (overview, functions, variables, best-practices) |
 | `kb://installers/*` | Installer type guides (msi, exe, msix) |
 | `kb://patterns/*` | Packaging patterns (detection, prerequisites) |
 | `ref://exit-codes` | Common installer exit codes |
@@ -88,7 +86,6 @@ Note: Silent install arguments are stored in `src/knowledge/reference/silent-arg
 | Prompt | Description |
 |--------|-------------|
 | `/package-app` | Guided workflow to create complete Intune package |
-| `/convert-legacy` | Convert PSADT v3 scripts to v4 format |
 | `/troubleshoot` | Diagnose failing packages |
 | `/bulk-lookup` | Retrieve info for multiple apps |
 
@@ -152,7 +149,7 @@ Note: Silent install arguments are stored in `src/knowledge/reference/silent-arg
 - **MSIX/AppX**: Modern Windows packages, use `Add-AppxPackage`
 - **ZIP**: Extract and run setup, or xcopy deployment
 
-### PSADT v4 Key Changes from v3
+### PSADT v4 Key Concepts
 - Module-based architecture (Import-Module PSAppDeployToolkit)
 - `ADT` prefix on all 135 functions (e.g., `Show-ADTInstallationWelcome`)
 - `$adtSession` object for state management via `Open-ADTSession`

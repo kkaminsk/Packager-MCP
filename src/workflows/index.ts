@@ -7,12 +7,6 @@ export {
 } from './package-app.js';
 
 export {
-  parseConvertLegacyArgs,
-  executeConvertLegacyWorkflow,
-  formatConvertLegacyResult,
-} from './convert-legacy.js';
-
-export {
   parseTroubleshootArgs,
   executeTroubleshootWorkflow,
   formatTroubleshootResult,
