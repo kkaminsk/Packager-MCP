@@ -6,7 +6,7 @@ import { getLogger } from '../utils/logger.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 // Constants
-const PSADT_VERSION = '4.0';
+const PSADT_VERSION = '4.1.7';
 const TEMPLATE_VERSION = '1.0.0';
 // Default silent arguments by installer type
 const DEFAULT_SILENT_ARGS = {
