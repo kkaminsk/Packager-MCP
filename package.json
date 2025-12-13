@@ -8,7 +8,7 @@
     "packager-mcp": "dist/server.js"
   },
   "scripts": {
-    "build": "tsc && xcopy src\\templates dist\\templates /E /I /Y",
+    "build": "tsc && xcopy src\\templates dist\\templates /E /I /Y && xcopy src\\knowledge dist\\knowledge /E /I /Y",
     "start": "node dist/server.js",
     "dev": "tsc --watch",
     "test": "vitest run",

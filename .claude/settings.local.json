@@ -25,7 +25,10 @@
       "Bash(npm run openspec:*)",
       "Bash(where:*)",
       "Bash(cat:*)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(echo:*)",
+      "Bash(powershell:*)",
+      "Bash(xcopy:*)"
     ],
     "deny": [],
     "ask": []

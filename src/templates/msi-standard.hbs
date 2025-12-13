@@ -19,7 +19,7 @@ $TransformFile = '{{transformFile}}'
 #endregion
 
 #region Deployment Functions
-function Install-ADTDeployment {
+function Invoke-AppInstall {
     [CmdletBinding()]
     param()
 
@@ -103,7 +103,7 @@ function Install-ADTDeployment {
     {{/if}}
 }
 
-function Uninstall-ADTDeployment {
+function Invoke-AppUninstall {
     [CmdletBinding()]
     param()
 
@@ -140,7 +140,7 @@ function Uninstall-ADTDeployment {
     # CUSTOMIZE: Add cleanup tasks here
 }
 
-function Repair-ADTDeployment {
+function Invoke-AppRepair {
     [CmdletBinding()]
     param()
 
@@ -175,7 +175,11 @@ function Repair-ADTDeployment {
 
 #region Invocation
 try {
-    & "$($adtSession.DeploymentType)-ADTDeployment"
+    switch ($adtSession.DeploymentType) {
+        'Install' { Invoke-AppInstall }
+        'Uninstall' { Invoke-AppUninstall }
+        'Repair' { Invoke-AppRepair }
+    }
     Close-ADTSession
 }
 {{> error-handling}}

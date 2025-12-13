@@ -1,5 +1,48 @@
 // Validation service for PSADT package validation
 import { getLogger } from '../utils/logger.js';
+import { readFileSync, existsSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { join, dirname } from 'node:path';
+let psadtFunctionReference = null;
+function loadPsadtFunctionReference() {
+    if (psadtFunctionReference) {
+        return psadtFunctionReference;
+    }
+    const currentFilePath = fileURLToPath(import.meta.url);
+    const projectRoot = join(dirname(currentFilePath), '..');
+    const refPath = join(projectRoot, 'knowledge', 'reference', 'psadt-functions.json');
+    try {
+        const content = readFileSync(refPath, 'utf-8');
+        psadtFunctionReference = JSON.parse(content);
+        return psadtFunctionReference;
+    }
+    catch (error) {
+        // Fallback to minimal inline reference
+        psadtFunctionReference = {
+            validFunctions: [
+                'Open-ADTSession', 'Close-ADTSession', 'Get-ADTSession', 'Get-ADTConfig',
+                'Show-ADTInstallationWelcome', 'Show-ADTInstallationProgress', 'Close-ADTInstallationProgress',
+                'Show-ADTInstallationPrompt', 'Show-ADTInstallationRestartPrompt',
+                'Start-ADTProcess', 'Start-ADTProcessAsUser', 'Start-ADTMsiProcess',
+                'Get-ADTApplication', 'Uninstall-ADTApplication',
+                'Write-ADTLogEntry', 'Copy-ADTFile', 'Remove-ADTFile',
+                'Install-ADTDeployment', 'Uninstall-ADTDeployment', 'Repair-ADTDeployment',
+            ],
+            incorrectFunctionMappings: {
+                'Initialize-ADTDeployment': { correctFunction: 'Open-ADTSession', reason: 'Function does not exist in PSADT v4.' },
+                'Complete-ADTDeployment': { correctFunction: 'Close-ADTSession', reason: 'Function does not exist in PSADT v4.' },
+                'Get-ADTInstalledApplication': { correctFunction: 'Get-ADTApplication', reason: 'Function does not exist in PSADT v4.' },
+            },
+            parameterCorrections: {
+                'Start-ADTProcess': {
+                    '-Arguments': { correctParam: '-ArgumentList', reason: 'Parameter does not exist.' },
+                    '-Path': { correctParam: '-FilePath', reason: 'Parameter does not exist.' },
+                },
+            },
+        };
+        return psadtFunctionReference;
+    }
+}
 const logger = getLogger().child({ service: 'validation' });
 // Score penalties by severity
 const SCORE_PENALTIES = {
@@ -541,6 +584,137 @@ function getLineNumber(script, index) {
  * Validation service class
  */
 class ValidationService {
+    /**
+     * Verify PSADT function names in a script file
+     */
+    async verifyPsadtFunctions(input) {
+        const startTime = Date.now();
+        const { filePath } = input;
+        logger.debug('Starting PSADT function verification', { filePath });
+        // Check if file exists
+        if (!existsSync(filePath)) {
+            logger.warn('File not found for verification', { filePath });
+            return {
+                success: false,
+                error: `File not found: ${filePath}`,
+            };
+        }
+        // Read file content
+        let script;
+        try {
+            script = readFileSync(filePath, 'utf-8');
+        }
+        catch (error) {
+            logger.error('Failed to read file', { filePath, error });
+            return {
+                success: false,
+                error: `Failed to read file: ${error instanceof Error ? error.message : String(error)}`,
+            };
+        }
+        const lines = script.split('\n');
+        const ref = loadPsadtFunctionReference();
+        // Build case-insensitive lookup sets
+        const validFunctionsLower = new Set(ref.validFunctions.map(f => f.toLowerCase()));
+        const incorrectMappingsLower = new Map();
+        for (const [key, value] of Object.entries(ref.incorrectFunctionMappings)) {
+            incorrectMappingsLower.set(key.toLowerCase(), value);
+        }
+        // Track found functions
+        const invalidFunctions = [];
+        const parameterIssues = [];
+        const validFunctionsFound = new Set();
+        let totalAdtFunctionsFound = 0;
+        // Regex to find ADT function calls (Verb-ADT... or ADT-related v3 functions)
+        // Matches functions like: Show-ADTInstallationWelcome, Initialize-ADTDeployment, etc.
+        const functionPattern = /\b([A-Za-z]+-ADT[A-Za-z]+|Show-Installation\w+|Execute-\w+|Get-InstalledApplication|Remove-MSIApplications|Write-Log|Copy-File|Remove-File|New-Folder|Remove-Folder|Set-RegistryKey|Get-RegistryKey|Remove-RegistryKey|New-Shortcut|Block-AppExecution|Unblock-AppExecution|Get-PendingReboot|Get-LoggedOnUser|Get-FreeDiskSpace|Set-ActiveSetup)\b/gi;
+        let match;
+        while ((match = functionPattern.exec(script)) !== null) {
+            const functionName = match[1] ?? '';
+            if (!functionName)
+                continue;
+            const functionNameLower = functionName.toLowerCase();
+            const lineNumber = getLineNumber(script, match.index);
+            const lineContent = lines[lineNumber - 1]?.trim() || '';
+            totalAdtFunctionsFound++;
+            // Check if it's a known incorrect function
+            const incorrectMapping = incorrectMappingsLower.get(functionNameLower);
+            if (incorrectMapping) {
+                invalidFunctions.push({
+                    functionName,
+                    lineNumber,
+                    lineContent,
+                    suggestedReplacement: incorrectMapping.correctFunction,
+                    reason: incorrectMapping.reason,
+                });
+                continue;
+            }
+            // Check if it's a valid function
+            if (validFunctionsLower.has(functionNameLower)) {
+                // Find the proper-cased version
+                const properCase = ref.validFunctions.find(f => f.toLowerCase() === functionNameLower) ?? functionName;
+                validFunctionsFound.add(properCase);
+            }
+            else {
+                // Unknown ADT function - might be a hallucination or typo
+                invalidFunctions.push({
+                    functionName,
+                    lineNumber,
+                    lineContent,
+                    reason: `Function "${functionName}" is not a valid PSADT v4.1.7 function. Check spelling or consult PSADT documentation.`,
+                });
+            }
+        }
+        // Check for parameter issues on specific functions
+        for (const [funcName, paramMap] of Object.entries(ref.parameterCorrections)) {
+            const funcPattern = new RegExp(`\\b${funcName}\\b[^|;\\n]*`, 'gi');
+            let funcMatch;
+            while ((funcMatch = funcPattern.exec(script)) !== null) {
+                const callText = funcMatch[0];
+                const lineNumber = getLineNumber(script, funcMatch.index);
+                const lineContent = lines[lineNumber - 1]?.trim() || '';
+                for (const [incorrectParam, correction] of Object.entries(paramMap)) {
+                    // Create pattern that matches the incorrect parameter
+                    const paramRegex = new RegExp(`${incorrectParam}\\b`, 'i');
+                    if (paramRegex.test(callText)) {
+                        parameterIssues.push({
+                            functionName: funcName,
+                            incorrectParam,
+                            correctParam: correction.correctParam,
+                            lineNumber,
+                            lineContent,
+                            reason: correction.reason,
+                        });
+                    }
+                }
+            }
+        }
+        const isValid = invalidFunctions.length === 0 && parameterIssues.length === 0;
+        const summary = {
+            totalAdtFunctionsFound,
+            validFunctions: Array.from(validFunctionsFound).sort(),
+            invalidFunctionsCount: invalidFunctions.length,
+            parameterIssuesCount: parameterIssues.length,
+        };
+        const result = {
+            isValid,
+            filePath,
+            summary,
+            invalidFunctions,
+            parameterIssues,
+        };
+        logger.info('PSADT function verification completed', {
+            isValid,
+            totalFunctions: totalAdtFunctionsFound,
+            validCount: validFunctionsFound.size,
+            invalidCount: invalidFunctions.length,
+            parameterIssues: parameterIssues.length,
+            duration: Date.now() - startTime,
+        });
+        return {
+            success: true,
+            result,
+        };
+    }
     /**
      * Validate a PSADT script
      */

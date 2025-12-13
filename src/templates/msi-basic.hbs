@@ -3,7 +3,7 @@
 {{> initialize}}
 
 #region Deployment Functions
-function Install-ADTDeployment {
+function Invoke-AppInstall {
     [CmdletBinding()]
     param()
 
@@ -29,7 +29,7 @@ function Install-ADTDeployment {
     Write-ADTLogEntry -Message "Installation completed successfully"
 }
 
-function Uninstall-ADTDeployment {
+function Invoke-AppUninstall {
     [CmdletBinding()]
     param()
 
@@ -61,7 +61,7 @@ function Uninstall-ADTDeployment {
     Write-ADTLogEntry -Message "Uninstallation completed successfully"
 }
 
-function Repair-ADTDeployment {
+function Invoke-AppRepair {
     [CmdletBinding()]
     param()
     # Repair logic - typically re-run MSI repair
@@ -73,7 +73,11 @@ function Repair-ADTDeployment {
 
 #region Invocation
 try {
-    & "$($adtSession.DeploymentType)-ADTDeployment"
+    switch ($adtSession.DeploymentType) {
+        'Install' { Invoke-AppInstall }
+        'Uninstall' { Invoke-AppUninstall }
+        'Repair' { Invoke-AppRepair }
+    }
     Close-ADTSession
 }
 {{> error-handling}}

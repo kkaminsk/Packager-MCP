@@ -1,8 +1,12 @@
-import type { ValidatePackageInput, ValidatePackageOutput } from '../types/validation.js';
+import type { ValidatePackageInput, ValidatePackageOutput, VerifyPsadtFunctionsInput, VerifyPsadtFunctionsOutput } from '../types/validation.js';
 /**
  * Validation service class
  */
 declare class ValidationService {
+    /**
+     * Verify PSADT function names in a script file
+     */
+    verifyPsadtFunctions(input: VerifyPsadtFunctionsInput): Promise<VerifyPsadtFunctionsOutput>;
     /**
      * Validate a PSADT script
      */

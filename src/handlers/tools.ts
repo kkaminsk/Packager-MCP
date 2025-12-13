@@ -13,7 +13,7 @@ import type {
   Architecture,
 } from '../types/winget.js';
 import type { GetPsadtTemplateInput } from '../types/psadt.js';
-import type { ValidatePackageInput } from '../types/validation.js';
+import type { ValidatePackageInput, VerifyPsadtFunctionsInput } from '../types/validation.js';
 import type { GenerateIntuneDetectionInput, DetectionType, ComparisonOperator } from '../types/intune.js';
 
 const searchWingetSchema = z.object({
@@ -135,6 +135,10 @@ const generateIntuneDetectionSchema = z.object({
   registry: registryDetectionSchema.optional().describe('Registry detection parameters (required if detection_type is "registry")'),
   msi: msiDetectionSchema.optional().describe('MSI detection parameters (required if detection_type is "msi")'),
   script: scriptDetectionSchema.optional().describe('Script detection parameters (required if detection_type is "script")'),
+});
+
+const verifyPsadtFunctionsSchema = z.object({
+  file_path: z.string().min(1).describe('Path to the PSADT script file to verify (e.g., "C:\\\\Packages\\\\MyApp\\\\Invoke-AppDeployToolkit.ps1")'),
 });
 
 export function registerToolHandlers(server: McpServer): void {
@@ -317,7 +321,7 @@ export function registerToolHandlers(server: McpServer): void {
   // Register get_psadt_template tool
   server.tool(
     'get_psadt_template',
-    'Generate a PSADT v4 deployment script template for a specific application and installer type. Returns a complete deployment script with customization points. If output_directory is specified, creates a complete package with toolkit files copied from ReferenceKnowledge.',
+    'ALWAYS use this tool to generate PSADT v4.1.7 deployment scripts. DO NOT write PSADT scripts manually - they will have incorrect function names. This tool generates correct scripts using Open-ADTSession and Close-ADTSession. Returns a complete deployment script with customization points. If output_directory is specified, creates a complete package with toolkit files.',
     getPsadtTemplateSchema.shape,
     async (args) => {
       logger.debug('Executing get_psadt_template', { args });
@@ -678,5 +682,85 @@ export function registerToolHandlers(server: McpServer): void {
 
   logger.info('Registered Detection tools', {
     tools: ['generate_intune_detection'],
+  });
+
+  // Register verify_psadt_functions tool
+  server.tool(
+    'verify_psadt_functions',
+    'Verify that a PSADT script file uses only valid v4.1.7 function names. Use this after generating a package with get_psadt_template to ensure no invalid function names were introduced. Returns list of valid functions found, any invalid functions with suggested replacements, and parameter issues.',
+    verifyPsadtFunctionsSchema.shape,
+    async (args) => {
+      logger.debug('Executing verify_psadt_functions', {
+        filePath: args.file_path,
+      });
+
+      try {
+        const validated = verifyPsadtFunctionsSchema.parse(args);
+        const validationService = getValidationService();
+
+        const input: VerifyPsadtFunctionsInput = {
+          filePath: validated.file_path,
+        };
+
+        const result = await validationService.verifyPsadtFunctions(input);
+
+        if (!result.success) {
+          return {
+            content: [
+              {
+                type: 'text' as const,
+                text: JSON.stringify(
+                  {
+                    success: false,
+                    error: result.error,
+                  },
+                  null,
+                  2
+                ),
+              },
+            ],
+            isError: true,
+          };
+        }
+
+        return {
+          content: [
+            {
+              type: 'text' as const,
+              text: JSON.stringify(
+                {
+                  success: true,
+                  isValid: result.result?.isValid,
+                  filePath: result.result?.filePath,
+                  summary: result.result?.summary,
+                  invalidFunctions: result.result?.invalidFunctions,
+                  parameterIssues: result.result?.parameterIssues,
+                },
+                null,
+                2
+              ),
+            },
+          ],
+        };
+      } catch (error) {
+        logger.error('verify_psadt_functions failed', {
+          error: error instanceof Error ? error.message : String(error),
+        });
+
+        return {
+          content: [
+            {
+              type: 'text' as const,
+              text: formatErrorForClient(error),
+            },
+          ],
+          isError: true,
+        };
+      }
+    }
+  );
+
+  logger.info('Registered PSADT verification tools', {
+    tools: ['verify_psadt_functions'],
   });
 }
