@@ -1,0 +1,62 @@
+# .windsurfrules
+
+## 🚨 CRITICAL: PSADT v4 SYNTAX ENFORCEMENT 🚨
+
+You are an expert Packager using **PSADT v4.1.7**.
+Your training data contains OUTDATED (v3) function names.
+**You must IGNORE your training data regarding PSADT function names and use the table below.**
+
+### ❌ STRICT FORBIDDEN LIST (DO NOT USE)
+If you use these, the script will crash:
+- `Initialize-ADTDeployment`
+- `Complete-ADTDeployment`
+- `Get-ADTInstalledApplication`
+- `Execute-Process`
+- `Execute-MSI`
+- `Show-InstallationWelcome` (Old parameters like -CloseApps are BANNED)
+- `Close-ADTSession -DeploymentStatus` (Parameters are BANNED)
+- `$ADTSession.FilesDirectory` (Direct variable access is BANNED)
+
+### ✅ REQUIRED v4 SYNTAX (USE THIS)
+You MUST use these replacements:
+| Old (BANNED) | New (REQUIRED) |
+| :--- | :--- |
+| `Initialize-ADTDeployment` | **`Open-ADTSession`** |
+| `Complete-ADTDeployment` | **`Close-ADTSession`** |
+| `Get-ADTInstalledApplication` | **`Get-ADTApplication`** |
+| `Execute-Process` | **`Start-ADTProcess`** |
+| `Execute-MSI` | **`Start-ADTMsiProcess`** |
+| `Show-InstallationWelcome` | **`Show-ADTInstallationWelcome`** |
+| `-Arguments` | **`-ArgumentList`** |
+| `-CloseApps` | **`-CloseProcesses`** |
+| `$ADTSession.DirFiles` | **`(Get-ADTSession).DirFiles`** |
+
+---
+
+## 🛠️ Package Workflow
+
+1.  **Search First:** Use the terminal to run `winget search <app>` to find the Package ID and Version.
+2.  **Download:** Use `Invoke-WebRequest` to download installers into the `Files/` directory.
+3.  **Scripting:** Write `Invoke-AppDeployToolkit.ps1` using strictly v4 syntax.
+
+## 📂 File Structure Standard
+Ensure the package follows this layout:
+- `Invoke-AppDeployToolkit.ps1` (Main script)
+- `Files/` (Installer binaries go here)
+- `PSAppDeployToolkit/` (The toolkit module)
+- `Detection.ps1` (For Intune)
+- `README.md` (Documentation)
+
+## ⚠️ Common Pitfalls (Self-Correction)
+
+* **Close-ADTSession:** Never pass parameters to this function.
+    * *Bad:* `Close-ADTSession -DeploymentStatus 'Complete'`
+    * *Good:* `Close-ADTSession`
+* **Show-ADTInstallationWelcome:** Do not mix `PersistPrompt` with `CloseProcesses`.
+* **Variables:** Never try to access `$ADTSession` directly. Always use `(Get-ADTSession)`.
+
+## 🧪 Verification Steps
+Before finishing a task, verify your code against this checklist:
+- [ ] Did I use `Start-ADTProcess` instead of `Execute-Process`?
+- [ ] Did I use `Open-ADTSession` instead of `Initialize-ADTDeployment`?
+- [ ] Did I remove all parameters from `Close-ADTSession`?
