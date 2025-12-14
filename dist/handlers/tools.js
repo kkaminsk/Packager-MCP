@@ -285,10 +285,11 @@ export function registerToolHandlers(server) {
                 const { existsSync, mkdirSync, writeFileSync, cpSync, readdirSync } = await import('node:fs');
                 const { join, dirname } = await import('node:path');
                 const { fileURLToPath } = await import('node:url');
-                // Get the path to ReferenceKnowledge relative to this file
+                // Get the path to toolkit files relative to this compiled file
+                // When running from dist/handlers/tools.js, go up to dist/ then into knowledge/v4github
                 const currentFilePath = fileURLToPath(import.meta.url);
-                const projectRoot = join(dirname(currentFilePath), '..', '..');
-                const toolkitSourcePath = join(projectRoot, 'ReferenceKnowledge', 'PSAppDeployToolkit_Template_v4');
+                const distDir = join(dirname(currentFilePath), '..');
+                const toolkitSourcePath = join(distDir, 'knowledge', 'v4github');
                 // Create output directory if it doesn't exist
                 if (!existsSync(validated.output_directory)) {
                     mkdirSync(validated.output_directory, { recursive: true });
