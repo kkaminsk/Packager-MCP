@@ -28,7 +28,10 @@
       "Bash(git checkout:*)",
       "Bash(echo:*)",
       "Bash(powershell:*)",
-      "Bash(xcopy:*)"
+      "Bash(xcopy:*)",
+      "Bash(timeout 10 node:*)",
+      "Bash(timeout 30 node:*)",
+      "Bash(timeout 60 node:*)"
     ],
     "deny": [],
     "ask": []
