@@ -1,30 +1,37 @@
-#region Import Module and Initialize
+#region Session Configuration
+$adtSession = @{
+    AppVendor = '{{applicationVendor}}'
+    AppName = '{{applicationName}}'
+    AppVersion = '{{applicationVersion}}'
+    AppArch = '{{#if architecture}}{{architecture}}{{else}}x64{{/if}}'
+    AppLang = 'EN'
+    AppRevision = '01'
+    AppSuccessExitCodes = @(0)
+    AppRebootExitCodes = @(1641, 3010)
+    AppProcessesToClose = @({{#if closeApps}}{{#each (split closeApps ",")}}@{ Name = '{{this}}'; Description = '{{this}}' }{{#unless @last}}, {{/unless}}{{/each}}{{else if processesToClose}}{{#each processesToClose}}@{ Name = '{{this.name}}'; Description = '{{this.description}}' }{{#unless @last}}, {{/unless}}{{/each}}{{/if}})
+    AppScriptVersion = '1.0.0'
+    AppScriptDate = '{{currentDate}}'
+    AppScriptAuthor = '{{#if author}}{{author}}{{else}}IT Admin{{/if}}'
+    RequireAdmin = $true
+    DeployAppScriptFriendlyName = $MyInvocation.MyCommand.Name
+    DeployAppScriptParameters = $PSBoundParameters
+    DeployAppScriptVersion = '4.1.7'
+}
+#endregion
+
+#region Initialization
+$ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
+$ProgressPreference = [System.Management.Automation.ActionPreference]::SilentlyContinue
+Set-StrictMode -Version 1
+
 try {
-    # Import PSADT module
-    Import-Module "$PSScriptRoot\PSAppDeployToolkit" -Force -ErrorAction Stop
+    Import-Module -FullyQualifiedName @{ ModuleName = "$PSScriptRoot\PSAppDeployToolkit\PSAppDeployToolkit.psd1"; Guid = '8c3c366b-8606-4576-9f2d-4051144f7ca2'; ModuleVersion = '4.1.7' } -Force
+    $iadtParams = Get-ADTBoundParametersAndDefaultValues -Invocation $MyInvocation
+    $adtSession = Remove-ADTHashtableNullOrEmptyValues -Hashtable $adtSession
+    $adtSession = Open-ADTSession @adtSession @iadtParams -PassThru
 }
 catch {
-    Write-Error "Failed to import PSAppDeployToolkit module: $($_.Exception.Message)"
-    exit 60001
-}
-
-# Initialize deployment session
-$adtParams = @{
-    InstallName         = '{{applicationName}}'
-    InstallVersion      = '{{applicationVersion}}'
-    Publisher           = '{{applicationVendor}}'
-    DeploymentType      = $DeploymentType
-    DeployMode          = $DeployMode
-    AllowRebootPassThru = $AllowRebootPassThru
-    TerminalServerMode  = $TerminalServerMode
-    DisableLogging      = $DisableLogging
-}
-
-try {
-    Initialize-ADTDeployment @adtParams
-}
-catch {
-    Write-Error "Failed to initialize deployment: $($_.Exception.Message)"
-    exit 60001
+    $Host.UI.WriteErrorLine((Out-String -InputObject $_ -Width ([System.Int32]::MaxValue)))
+    exit 60008
 }
 #endregion

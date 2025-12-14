@@ -1,7 +1,7 @@
 # Change: Add MCP Server Foundation
 
 ## Why
-The Intune Packaging Assistant requires a foundational MCP server that can communicate with Claude CLI and other MCP-compatible clients. This is the core infrastructure upon which all tools, resources, and prompts will be built.
+Packager-MCP requires a foundational MCP server that can communicate with Claude CLI and other MCP-compatible clients. This is the core infrastructure upon which all tools, resources, and prompts will be built.
 
 ## What Changes
 - Add MCP server entry point with stdio transport

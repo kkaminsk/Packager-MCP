@@ -7,9 +7,6 @@ import {
   parsePackageAppArgs,
   executePackageAppWorkflow,
   formatPackageAppResult,
-  parseConvertLegacyArgs,
-  executeConvertLegacyWorkflow,
-  formatConvertLegacyResult,
   parseTroubleshootArgs,
   executeTroubleshootWorkflow,
   formatTroubleshootResult,
@@ -27,11 +24,7 @@ const packageAppArgsSchema = z.object({
   'no-validate': z.string().optional().describe('Skip validation step (true/false)'),
   architecture: z.enum(['x64', 'x86', 'arm64']).optional().describe('Preferred architecture'),
   complexity: z.enum(['basic', 'standard', 'advanced']).optional().describe('Template complexity'),
-});
-
-const convertLegacyArgsSchema = z.object({
-  script: z.string().min(1).describe('V3 script content or file path'),
-  verbose: z.string().optional().describe('Include detailed notes (true/false)'),
+  'output-directory': z.string().optional().describe('Directory to create the complete PSADT package with toolkit files'),
 });
 
 const troubleshootArgsSchema = z.object({
@@ -93,52 +86,6 @@ export function registerPromptHandlers(server: McpServer): void {
             content: {
               type: 'text' as const,
               text: `Create an Intune package for: ${parsedArgs.applicationName}`,
-            },
-          },
-          {
-            role: 'assistant' as const,
-            content: {
-              type: 'text' as const,
-              text: content,
-            },
-          },
-        ],
-      };
-    }
-  );
-
-  // Register convert-legacy prompt
-  server.prompt(
-    'convert-legacy',
-    'Convert PSADT v3 script to v4 format with function and variable mapping',
-    convertLegacyArgsSchema.shape,
-    async (args) => {
-      handlerLogger.debug('Executing convert-legacy prompt', { args });
-
-      const rawArgs: Record<string, string> = {};
-      for (const [key, value] of Object.entries(args)) {
-        if (value !== undefined) {
-          rawArgs[key] = String(value);
-        }
-      }
-
-      const parsedArgs = parseConvertLegacyArgs(rawArgs);
-      const result = await executeConvertLegacyWorkflow(parsedArgs);
-      const formatted = formatConvertLegacyResult(result);
-
-      let content = formatted;
-
-      if (result.convertedScript) {
-        content += `\n\n### Converted Script (v4)\n\n\`\`\`powershell\n${result.convertedScript}\n\`\`\``;
-      }
-
-      return {
-        messages: [
-          {
-            role: 'user' as const,
-            content: {
-              type: 'text' as const,
-              text: 'Convert this PSADT v3 script to v4 format',
             },
           },
           {
@@ -245,5 +192,5 @@ export function registerPromptHandlers(server: McpServer): void {
     }
   );
 
-  handlerLogger.info('Prompt handlers registered', { count: 4 });
+  handlerLogger.info('Prompt handlers registered', { count: 3 });
 }

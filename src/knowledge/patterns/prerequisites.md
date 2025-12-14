@@ -198,7 +198,7 @@ if (-not (Test-DotNetFrameworkVersion -RequiredVersion "4.8")) {
     Show-ADTInstallationProgress -StatusMessage "Installing .NET Framework 4.8..."
 
     $dotnetInstaller = Join-Path $adtSession.DirFiles "ndp48-x86-x64-allos-enu.exe"
-    $result = Start-ADTProcess -FilePath $dotnetInstaller -Arguments '/q /norestart' -PassThru
+    $result = Start-ADTProcess -FilePath $dotnetInstaller -ArgumentList '/q /norestart' -PassThru
 
     if ($result.ExitCode -eq 3010) {
         Write-ADTLogEntry -Message ".NET 4.8 installed - restart required" -Severity 2
@@ -214,7 +214,7 @@ if (-not (Test-VCRedistInstalled -Architecture "x64")) {
     Show-ADTInstallationProgress -StatusMessage "Installing Visual C++ Runtime..."
 
     $vcRedist = Join-Path $adtSession.DirFiles "VC_redist.x64.exe"
-    Start-ADTProcess -FilePath $vcRedist -Arguments '/install /quiet /norestart'
+    Start-ADTProcess -FilePath $vcRedist -ArgumentList '/install /quiet /norestart'
 }
 #endregion
 ```
@@ -256,7 +256,7 @@ function Install-Prerequisites {
 
             $installerPath = Join-Path $prereqPath $prereq.Installer
             if (Test-Path $installerPath) {
-                Start-ADTProcess -FilePath $installerPath -Arguments $prereq.Arguments
+                Start-ADTProcess -FilePath $installerPath -ArgumentList $prereq.Arguments
             } else {
                 Write-ADTLogEntry -Message "Prerequisite installer not found: $installerPath" -Severity 2
             }
@@ -290,7 +290,7 @@ function Get-PrerequisiteOnline {
         Invoke-WebRequest -Uri $Url -OutFile $downloadPath -UseBasicParsing
 
         Write-ADTLogEntry -Message "Installing $Name"
-        Start-ADTProcess -FilePath $downloadPath -Arguments $Arguments
+        Start-ADTProcess -FilePath $downloadPath -ArgumentList $Arguments
 
         Remove-Item -Path $downloadPath -Force -ErrorAction SilentlyContinue
     }
@@ -305,7 +305,7 @@ if (-not (Test-VCRedistInstalled -Architecture "x64")) {
     Get-PrerequisiteOnline -Name "VC++ 2022 x64" `
         -Url "https://aka.ms/vs/17/release/vc_redist.x64.exe" `
         -OutFile "vc_redist.x64.exe" `
-        -Arguments "/install /quiet /norestart"
+        -ArgumentList "/install /quiet /norestart"
 }
 ```
 
@@ -352,7 +352,7 @@ function Install-PrerequisiteWithRestart {
         [string]$Arguments
     )
 
-    $result = Start-ADTProcess -FilePath $FilePath -Arguments $Arguments -PassThru
+    $result = Start-ADTProcess -FilePath $FilePath -ArgumentList $Arguments -PassThru
 
     switch ($result.ExitCode) {
         0       { Write-ADTLogEntry -Message "$Name installed successfully" }

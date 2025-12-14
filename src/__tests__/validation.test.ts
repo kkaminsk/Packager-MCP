@@ -1,13 +1,13 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { ValidationService, getValidationService, resetValidationService } from '../services/validation.js';
 
-// Sample valid PSADT script for testing
+// Sample valid PSADT v4.1.7 script for testing
 const VALID_PSADT_SCRIPT = `
 <#
 .SYNOPSIS
     Test Application Deployment Script
 .DESCRIPTION
-    Deploys Test App using PSADT v4
+    Deploys Test App using PSADT v4.1.7
 .NOTES
     Version: 1.0.0
     Author: Test Author
@@ -17,30 +17,36 @@ param(
     [string]$DeployMode = 'Interactive'
 )
 
-Import-Module -Name PSAppDeployToolkit
+$adtSession = @{
+    AppVendor = 'TestVendor'
+    AppName = 'TestApp'
+    AppVersion = '1.0.0'
+}
+
+Import-Module -FullyQualifiedName @{ ModuleName = 'PSAppDeployToolkit'; ModuleVersion = '4.1.7' }
 
 try {
-    Initialize-ADTDeployment
+    $adtSession = Open-ADTSession @adtSession -PassThru
 
-    if ($ADTSession.DeployMode -eq 'Silent') {
+    if ($adtSession.DeployMode -eq 'Silent') {
         # Silent mode
     }
 
-    Show-ADTInstallationWelcome -CloseApps 'testapp' -AllowDefer
+    Show-ADTInstallationWelcome -CloseProcesses @(@{ Name = 'testapp' }) -AllowDefer
 
     # Install the application
-    Start-ADTMsiProcess -FilePath "$env:ProgramFiles\\TestApp\\installer.msi" -Arguments '/qn /norestart ALLUSERS=1'
+    Start-ADTMsiProcess -FilePath "$env:ProgramFiles\\TestApp\\installer.msi" -AdditionalArgumentList 'ALLUSERS=1'
 
     # Verify installation
     if (Test-Path 'HKLM:\\SOFTWARE\\TestVendor\\TestApp') {
         Write-ADTLogEntry -Message 'Installation verified'
     }
 
-    Complete-ADTDeployment -ExitCode 0
+    Close-ADTSession
 }
 catch {
-    Write-ADTLogEntry -Message "Installation failed: $_" -Severity 'Error'
-    Complete-ADTDeployment -ExitCode 1
+    Write-ADTLogEntry -Message "Installation failed: $_" -Severity 3
+    Close-ADTSession -ExitCode 1
 }
 
 exit 0
@@ -65,7 +71,7 @@ Invoke-Expression "some command"
 Read-Host "Enter value"
 `;
 
-// Script with some issues (mixed)
+// Script with some issues (mixed) - uses old function names
 const PARTIAL_SCRIPT = `
 param(
     [string]$DeployMode = 'Interactive'
@@ -74,12 +80,12 @@ param(
 Import-Module -Name PSAppDeployToolkit
 
 try {
-    Initialize-ADTDeployment
+    Open-ADTSession
 
     # Using legacy function
     Execute-Process -Path "setup.exe" -Arguments "/S"
 
-    Complete-ADTDeployment
+    Close-ADTSession
 }
 catch {
 }
@@ -233,7 +239,7 @@ describe('ValidationService', () => {
       expect(importIssue).toBeDefined();
     });
 
-    it('should detect missing Initialize-ADTDeployment', async () => {
+    it('should detect missing Open-ADTSession', async () => {
       const result = await service.validatePackage({
         script: `param()
         Import-Module -Name PSAppDeployToolkit
@@ -242,20 +248,20 @@ describe('ValidationService', () => {
         categories: ['psadt'],
       });
 
-      const initIssue = result.result.issues.find(i => i.ruleId === 'initialize-called');
+      const initIssue = result.result.issues.find(i => i.ruleId === 'open-session-called');
       expect(initIssue).toBeDefined();
     });
 
-    it('should detect missing Complete-ADTDeployment', async () => {
+    it('should detect missing Close-ADTSession', async () => {
       const result = await service.validatePackage({
         script: `param()
         Import-Module -Name PSAppDeployToolkit
-        try { Initialize-ADTDeployment } catch { }`,
+        try { Open-ADTSession } catch { }`,
         level: 'basic',
         categories: ['psadt'],
       });
 
-      const completeIssue = result.result.issues.find(i => i.ruleId === 'complete-called');
+      const completeIssue = result.result.issues.find(i => i.ruleId === 'close-session-called');
       expect(completeIssue).toBeDefined();
     });
 
@@ -338,9 +344,9 @@ describe('ValidationService', () => {
         script: `param()
         Import-Module PSAppDeployToolkit
         try {
-          Initialize-ADTDeployment
+          Open-ADTSession
           Start-ADTProcess -FilePath "setup.exe"
-          Complete-ADTDeployment -ExitCode 0
+          Close-ADTSession
         } catch { throw }`,
         level: 'standard',
         environment: 'intune',
@@ -351,21 +357,22 @@ describe('ValidationService', () => {
       expect(detectionIssue).toBeDefined();
     });
 
-    it('should warn about missing exit code', async () => {
+    it('should validate script with Close-ADTSession has exit code handling', async () => {
       const result = await service.validatePackage({
         script: `param()
         Import-Module PSAppDeployToolkit
         try {
-          Initialize-ADTDeployment
-          Complete-ADTDeployment
+          Open-ADTSession
+          Close-ADTSession
         } catch { throw }`,
         level: 'standard',
         environment: 'intune',
         categories: ['intune'],
       });
 
+      // Close-ADTSession is valid exit code handling
       const exitIssue = result.result.issues.find(i => i.ruleId === 'return-exit-code');
-      expect(exitIssue).toBeDefined();
+      expect(exitIssue).toBeUndefined();
     });
   });
 
@@ -484,8 +491,8 @@ describe('ValidationService', () => {
         script: `param()
         Import-Module PSAppDeployToolkit
         try {
-          Initialize-ADTDeployment
-          Complete-ADTDeployment -ExitCode 0
+          Open-ADTSession
+          Close-ADTSession
         } catch { throw }`,
         level: 'strict',
         categories: ['best-practice'],

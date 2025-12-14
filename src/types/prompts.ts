@@ -41,6 +41,8 @@ export interface PackageAppArguments {
   complexity?: TemplateComplexity;
   /** Target deployment environment */
   environment?: TargetEnvironment;
+  /** Directory to create the complete PSADT package with toolkit files */
+  outputDirectory?: string;
 }
 
 /** Winget lookup step result */
@@ -105,88 +107,12 @@ export interface PackageAppResult extends WorkflowResult {
   package?: PackageStructure;
   /** Next steps for the user */
   nextSteps: string[];
-}
-
-// ============================================
-// /convert-legacy Prompt Types
-// ============================================
-
-/** Arguments for the /convert-legacy prompt */
-export interface ConvertLegacyArguments {
-  /** Path to the v3 script or the script content itself */
-  scriptPathOrContent: string;
-  /** Whether the input is a file path or script content */
-  isFilePath?: boolean;
-  /** Whether to include detailed migration notes */
-  verbose?: boolean;
-}
-
-/** Deprecated function mapping */
-export interface FunctionMapping {
-  /** Original v3 function name */
-  v3Function: string;
-  /** Corresponding v4 function name */
-  v4Function: string;
-  /** Line numbers where found */
-  lineNumbers: number[];
-  /** Any parameter changes */
-  parameterChanges?: string;
-  /** Notes about the migration */
-  notes?: string;
-}
-
-/** Variable migration */
-export interface VariableMapping {
-  /** Original v3 variable */
-  v3Variable: string;
-  /** Corresponding v4 equivalent */
-  v4Variable: string;
-  /** Line numbers where found */
-  lineNumbers: number[];
-}
-
-/** Manual review point */
-export interface ManualReviewPoint {
-  /** Line number in converted script */
-  lineNumber: number;
-  /** Category of review needed */
-  category: 'function' | 'variable' | 'structure' | 'custom-logic';
-  /** Description of what needs review */
-  description: string;
-  /** Original code snippet */
-  originalCode: string;
-  /** Suggested replacement */
-  suggestedCode?: string;
-}
-
-/** /convert-legacy workflow result */
-export interface ConvertLegacyResult extends WorkflowResult {
-  /** Original script analysis */
-  analysis: {
-    detectedVersion: 'v3' | 'v4' | 'unknown';
-    functionMappings: FunctionMapping[];
-    variableMappings: VariableMapping[];
-    structureIssues: string[];
+  /** Package creation info (when output_directory was specified) */
+  packageCreation?: {
+    outputDirectory: string;
+    scriptPath: string;
+    copiedFiles: string[];
   };
-  /** Converted script (v4 format) */
-  convertedScript?: string;
-  /** Points requiring manual review */
-  manualReviewPoints: ManualReviewPoint[];
-  /** Validation result of converted script */
-  validation?: {
-    isValid: boolean;
-    score: number;
-    issues: Array<{
-      severity: string;
-      message: string;
-    }>;
-  };
-  /** Migration checklist */
-  checklist: Array<{
-    item: string;
-    completed: boolean;
-    notes?: string;
-  }>;
 }
 
 // ============================================
@@ -359,4 +285,78 @@ export interface PromptResponse {
       text: string;
     };
   }>;
+}
+
+// Convert Legacy Workflow Types
+
+/** Arguments for the convert-legacy prompt workflow */
+export interface ConvertLegacyArguments {
+  scriptPathOrContent: string;
+  outputPath?: string;
+  preserveComments?: boolean;
+  isFilePath?: boolean;
+  verbose?: boolean;
+}
+
+/** Function mapping from v3 to v4 */
+export interface FunctionMapping {
+  v3Function: string;
+  v4Function: string;
+  parameterChanges?: string;
+  notes?: string;
+  lineNumbers: number[];
+}
+
+/** Variable mapping from v3 to v4 */
+export interface VariableMapping {
+  v3Variable: string;
+  v4Variable: string;
+  notes?: string;
+  lineNumbers: number[];
+}
+
+/** Points requiring manual review */
+export interface ManualReviewPoint {
+  lineNumber: number;
+  context?: string;
+  reason?: string;
+  suggestion?: string;
+  category?: string;
+  description?: string;
+  originalCode?: string;
+}
+
+/** Checklist item for migration */
+export interface ChecklistItem {
+  item: string;
+  completed: boolean;
+  notes?: string;
+}
+
+/** Validation result */
+export interface ConvertValidation {
+  isValid: boolean;
+  score: number;
+  issues: Array<{ severity: string; message: string }>;
+}
+
+/** Analysis result for script conversion */
+export interface ScriptAnalysis {
+  detectedVersion: 'v3' | 'v4' | 'unknown';
+  functionMappings: FunctionMapping[];
+  variableMappings: VariableMapping[];
+  manualReviewPoints?: ManualReviewPoint[];
+  structureIssues: string[];
+  originalLineCount?: number;
+  convertedLineCount?: number;
+}
+
+/** Result of the convert-legacy workflow */
+export interface ConvertLegacyResult extends WorkflowResult {
+  analysis: ScriptAnalysis;
+  convertedScript?: string;
+  warnings: string[];
+  manualReviewPoints: ManualReviewPoint[];
+  checklist: ChecklistItem[];
+  validation?: ConvertValidation;
 }

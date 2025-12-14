@@ -1,7 +1,7 @@
 // Prompt handlers for MCP server
 import { z } from 'zod';
 import { getLogger } from '../utils/logger.js';
-import { parsePackageAppArgs, executePackageAppWorkflow, formatPackageAppResult, parseConvertLegacyArgs, executeConvertLegacyWorkflow, formatConvertLegacyResult, parseTroubleshootArgs, executeTroubleshootWorkflow, formatTroubleshootResult, parseBulkLookupArgs, executeBulkLookupWorkflow, formatBulkLookupResult, } from '../workflows/index.js';
+import { parsePackageAppArgs, executePackageAppWorkflow, formatPackageAppResult, parseTroubleshootArgs, executeTroubleshootWorkflow, formatTroubleshootResult, parseBulkLookupArgs, executeBulkLookupWorkflow, formatBulkLookupResult, } from '../workflows/index.js';
 const logger = getLogger().child({ handler: 'prompts' });
 // Schema definitions for prompt arguments
 const packageAppArgsSchema = z.object({
@@ -10,10 +10,7 @@ const packageAppArgsSchema = z.object({
     'no-validate': z.string().optional().describe('Skip validation step (true/false)'),
     architecture: z.enum(['x64', 'x86', 'arm64']).optional().describe('Preferred architecture'),
     complexity: z.enum(['basic', 'standard', 'advanced']).optional().describe('Template complexity'),
-});
-const convertLegacyArgsSchema = z.object({
-    script: z.string().min(1).describe('V3 script content or file path'),
-    verbose: z.string().optional().describe('Include detailed notes (true/false)'),
+    'output-directory': z.string().optional().describe('Directory to create the complete PSADT package with toolkit files'),
 });
 const troubleshootArgsSchema = z.object({
     'log-file': z.string().optional().describe('Path to log file'),
@@ -61,41 +58,6 @@ export function registerPromptHandlers(server) {
                     content: {
                         type: 'text',
                         text: `Create an Intune package for: ${parsedArgs.applicationName}`,
-                    },
-                },
-                {
-                    role: 'assistant',
-                    content: {
-                        type: 'text',
-                        text: content,
-                    },
-                },
-            ],
-        };
-    });
-    // Register convert-legacy prompt
-    server.prompt('convert-legacy', 'Convert PSADT v3 script to v4 format with function and variable mapping', convertLegacyArgsSchema.shape, async (args) => {
-        handlerLogger.debug('Executing convert-legacy prompt', { args });
-        const rawArgs = {};
-        for (const [key, value] of Object.entries(args)) {
-            if (value !== undefined) {
-                rawArgs[key] = String(value);
-            }
-        }
-        const parsedArgs = parseConvertLegacyArgs(rawArgs);
-        const result = await executeConvertLegacyWorkflow(parsedArgs);
-        const formatted = formatConvertLegacyResult(result);
-        let content = formatted;
-        if (result.convertedScript) {
-            content += `\n\n### Converted Script (v4)\n\n\`\`\`powershell\n${result.convertedScript}\n\`\`\``;
-        }
-        return {
-            messages: [
-                {
-                    role: 'user',
-                    content: {
-                        type: 'text',
-                        text: 'Convert this PSADT v3 script to v4 format',
                     },
                 },
                 {
@@ -181,6 +143,6 @@ export function registerPromptHandlers(server) {
             ],
         };
     });
-    handlerLogger.info('Prompt handlers registered', { count: 4 });
+    handlerLogger.info('Prompt handlers registered', { count: 3 });
 }
 //# sourceMappingURL=prompts.js.map

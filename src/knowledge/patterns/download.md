@@ -2,9 +2,9 @@
 title: "Installer Download Patterns"
 id: "kb-patterns-download"
 psadt_target: "4.1.7"
-last_updated: "2025-12-08"
+last_updated: "2025-12-09"
 verified_by: "maintainer"
-source_ref: "MCP download_installer tool"
+source_ref: "search_winget tool, Invoke-WebRequest"
 tags: ["download", "patterns", "winget", "installer", "v4.1.7"]
 ---
 
@@ -12,43 +12,83 @@ tags: ["download", "patterns", "winget", "installer", "v4.1.7"]
 
 This guide covers patterns for downloading installers and integrating them with PSADT package creation.
 
-## Using the download_installer Tool
+## Downloading Installers with PowerShell
 
-The `download_installer` MCP tool retrieves installers from the Winget repository with SHA256 verification.
+The `search_winget` tool provides installer URLs and SHA256 hashes from the Winget repository. Use PowerShell's `Invoke-WebRequest` to download installers directly to your PSADT Files folder.
 
-### Basic Download
+### Basic Download Workflow
 
-Download the latest version of an application:
+1. **Search for Package and Get Installer URL**
+   ```json
+   // search_winget
+   { "query": "7zip", "exact_match": true }
+   ```
 
-```json
-{
-  "package_id": "Google.Chrome",
-  "output_directory": "C:\\Packages\\Chrome\\Files"
+   The response includes `InstallerUrl` and `InstallerSha256` for verification.
+
+2. **Download Using PowerShell**
+   ```powershell
+   # Download installer to Files folder
+   $InstallerUrl = "https://www.7-zip.org/a/7z2301-x64.exe"
+   $OutputPath = "C:\Packages\7zip\Files\7z2301-x64.exe"
+
+   Invoke-WebRequest -Uri $InstallerUrl -OutFile $OutputPath
+   ```
+
+3. **Verify Hash (Recommended)**
+   ```powershell
+   # Verify downloaded file matches Winget manifest
+   $ExpectedHash = "ABC123..."  # From search_winget response
+   $ActualHash = (Get-FileHash -Path $OutputPath -Algorithm SHA256).Hash
+
+   if ($ActualHash -ne $ExpectedHash) {
+       Write-Error "Hash mismatch! File may be corrupted."
+   }
+   ```
+
+### Complete PowerShell Download Function
+
+```powershell
+function Download-Installer {
+    param(
+        [Parameter(Mandatory)]
+        [string]$Url,
+
+        [Parameter(Mandatory)]
+        [string]$OutputPath,
+
+        [string]$ExpectedSha256
+    )
+
+    # Create output directory if needed
+    $OutputDir = Split-Path -Parent $OutputPath
+    if (-not (Test-Path $OutputDir)) {
+        New-Item -ItemType Directory -Path $OutputDir -Force | Out-Null
+    }
+
+    # Download file
+    Write-Host "Downloading from: $Url"
+    Invoke-WebRequest -Uri $Url -OutFile $OutputPath -UseBasicParsing
+
+    # Verify hash if provided
+    if ($ExpectedSha256) {
+        $ActualHash = (Get-FileHash -Path $OutputPath -Algorithm SHA256).Hash
+        if ($ActualHash -ne $ExpectedSha256.ToUpper()) {
+            Remove-Item $OutputPath -Force
+            throw "SHA256 hash mismatch. Expected: $ExpectedSha256, Got: $ActualHash"
+        }
+        Write-Host "Hash verified successfully"
+    }
+
+    Write-Host "Downloaded to: $OutputPath"
+    return $OutputPath
 }
-```
 
-### Version-Specific Download
-
-Download a specific version:
-
-```json
-{
-  "package_id": "Mozilla.Firefox",
-  "version": "121.0",
-  "output_directory": "C:\\Packages\\Firefox\\Files"
-}
-```
-
-### Architecture Selection
-
-Download for a specific architecture:
-
-```json
-{
-  "package_id": "Microsoft.VisualStudioCode",
-  "architecture": "x64",
-  "output_directory": "C:\\Packages\\VSCode\\Files"
-}
+# Usage
+Download-Installer `
+    -Url "https://www.7-zip.org/a/7z2301-x64.exe" `
+    -OutputPath "C:\Packages\7zip\Files\7z2301-x64.exe" `
+    -ExpectedSha256 "ABC123..."
 ```
 
 ## PSADT Integration Workflow
@@ -67,13 +107,10 @@ Download for a specific architecture:
    { "package_id": "7zip.7zip" }
    ```
 
-3. **Download Installer**
-   ```json
-   // download_installer
-   {
-     "package_id": "7zip.7zip",
-     "output_directory": "C:\\Packages\\7zip\\Files"
-   }
+3. **Download Installer** (PowerShell)
+   ```powershell
+   $InstallerUrl = "https://www.7-zip.org/a/7z2301-x64.exe"  # From search_winget
+   Invoke-WebRequest -Uri $InstallerUrl -OutFile "C:\Packages\7zip\Files\7z2301-x64.exe"
    ```
 
 4. **Generate PSADT Template**
@@ -89,46 +126,35 @@ Download for a specific architecture:
    }
    ```
 
-## Nested Installer Handling
+## Large File Downloads
 
-Some Winget packages contain ZIP files with nested installers. The `download_installer` tool automatically:
+For large installers (>100MB), consider these approaches:
 
-1. Downloads the ZIP archive
-2. Extracts to a temporary directory
-3. Locates the nested installer (MSI/EXE)
-4. Moves it to the output directory
-5. Cleans up temporary files
-
-### Example: Nested MSI in ZIP
-
-```json
-{
-  "package_id": "SomeApp.WithNestedInstaller",
-  "output_directory": "C:\\Packages\\SomeApp\\Files"
-}
+### Progress Display
+```powershell
+$ProgressPreference = 'Continue'  # Shows progress bar
+Invoke-WebRequest -Uri $InstallerUrl -OutFile $OutputPath
 ```
 
-The tool uses metadata from the Winget manifest:
-- `NestedInstallerType`: msi, exe, etc.
-- `NestedInstallerFiles.RelativeFilePath`: Path within the archive
+### Background Download
+```powershell
+Start-BitsTransfer -Source $InstallerUrl -Destination $OutputPath -Asynchronous
+```
+
+### Timeout Handling
+```powershell
+# Set longer timeout for large files
+$WebClient = New-Object System.Net.WebClient
+$WebClient.DownloadFile($InstallerUrl, $OutputPath)
+```
 
 ## Hash Verification
 
 ### How Verification Works
 
-1. SHA256 hash is computed during download (streaming)
-2. Hash is compared against `InstallerSha256` from Winget manifest
-3. If mismatch, file is deleted and error returned
-
-### Response Fields
-
-| Field | Description |
-|-------|-------------|
-| `sha256` | Computed hash of downloaded file |
-| `verified` | `true` if hash matched manifest |
-| `warning` | Present if manifest had no hash |
-| `installerUrl` | Direct download URL for manual download |
-| `largeFileWarning` | Present for files exceeding threshold |
+1. SHA256 hash is provided by `search_winget` in the `InstallerSha256` field
+2. Compute hash of downloaded file using `Get-FileHash`
+3. Compare hashes (case-insensitive)
 
 ### Handling Verification Failures
 
@@ -138,162 +164,32 @@ If hash verification fails:
 2. **Check Manifest**: Winget manifest may be outdated
 3. **Report Issue**: If persistent, report to winget-pkgs repository
 
-## Architecture Priority
+## Architecture Selection
 
-When no architecture specified, selection priority:
+When `search_winget` returns multiple installers, select based on architecture:
 
-1. x64 (most common in enterprise)
-2. x86 (fallback)
-3. neutral (architecture-independent)
-4. arm64 (ARM devices)
+| Architecture | Use Case |
+|-------------|----------|
+| x64 | 64-bit Windows (most common) |
+| x86 | 32-bit Windows or legacy apps |
+| arm64 | Windows on ARM devices |
+| neutral | Architecture-independent |
 
-Override with the `architecture` parameter when needed:
-- ARM devices: `"architecture": "arm64"`
-- 32-bit apps: `"architecture": "x86"`
-
-## Large File Handling
-
-The tool performs a pre-flight size check before downloading and warns about large files.
-
-### Large File Warning
-
-When a file exceeds 500MB (configurable), the response includes a `largeFileWarning`:
-
-```json
-{
-  "largeFileWarning": {
-    "sizeBytes": 734003200,
-    "sizeFormatted": "700.0 MB",
-    "directDownloadUrl": "https://example.com/large-installer.exe",
-    "message": "This is a large file (700.0 MB). If you experience timeouts or slow downloads, consider downloading manually from the URL provided."
-  }
-}
-```
-
-### Manual Download Option
-
-Every download response includes an `installerUrl` field with the direct download link. This allows you to:
-
-1. Download the file manually using a browser or download manager
-2. Resume interrupted downloads
-3. Use alternative download tools with better network handling
-
-### Timeout Handling
-
-If a download times out:
-
-1. The error response includes the `installerUrl` for manual download
-2. The suggestion recommends downloading manually for large files
-3. Consider increasing the timeout via configuration for very large installers
-
-### Configuration
-
-Configure large file handling in your config:
-
-```yaml
-download:
-  largeFileSizeThreshold: 524288000  # 500MB in bytes (set to 0 to disable warnings)
-  timeoutMs: 300000  # 5 minutes default
-```
-
-## Error Handling
-
-### Common Errors
-
-| Error | Cause | Resolution |
-|-------|-------|------------|
-| `Package not found` | Invalid package ID | Verify ID with `search_winget` |
-| `No suitable installer` | Architecture mismatch | Specify different architecture |
-| `Hash verification failed` | Corrupted download | Retry, or manifest outdated |
-| `Download timeout` | Large file/slow network | Download manually using `installerUrl` |
-| `Rate limit exceeded` | GitHub API limits | Configure GITHUB_TOKEN |
-
-### Rate Limits
-
-Without authentication: 60 requests/hour
-With GITHUB_TOKEN: 5000 requests/hour
-
-Set environment variable for higher limits:
+### Example: Multiple Architectures
 ```powershell
-$env:GITHUB_TOKEN = "ghp_your_token_here"
+# Response from search_winget includes installers array
+# Select the appropriate one for your target environment
+$Installer = $Installers | Where-Object { $_.Architecture -eq 'x64' }
+Invoke-WebRequest -Uri $Installer.InstallerUrl -OutFile $OutputPath
 ```
 
-## PSADT Toolkit Download
+## PSADT Toolkit Files
 
-The `download_psadt_toolkit` tool downloads the PSAppDeployToolkit from GitHub releases, creating a complete package structure.
+The MCP server includes PSADT v4.1.7 toolkit files in `ReferenceKnowledge/PSAppDeployToolkit_Template_v4/`. The `get_psadt_template` tool can automatically copy these files when you specify `output_directory`.
 
-### Basic Toolkit Download
+### Automatic Package Creation
 
-Download the latest version:
-
-```json
-{
-  "output_directory": "C:\\Packages\\MyApp"
-}
-```
-
-### Version-Specific Download
-
-Download a specific version for reproducible builds:
-
-```json
-{
-  "output_directory": "C:\\Packages\\MyApp",
-  "version": "4.0.4"
-}
-```
-
-### Include Extensions Module
-
-Download with the optional Extensions module:
-
-```json
-{
-  "output_directory": "C:\\Packages\\MyApp",
-  "include_extensions": true
-}
-```
-
-### Toolkit Output Structure
-
-After download, the output directory contains:
-
-```
-{output_directory}/
-├── PSAppDeployToolkit/
-│   ├── PSAppDeployToolkit.psd1
-│   ├── PSAppDeployToolkit.psm1
-│   └── ...
-├── PSAppDeployToolkit.Extensions/ (if requested)
-├── Config/
-├── Assets/
-├── Strings/
-├── Files/                    # Place installers here
-├── Invoke-AppDeployToolkit.exe
-└── Invoke-AppDeployToolkit.ps1
-```
-
-### Caching Behavior
-
-- Downloaded releases are cached for 24 hours (configurable)
-- Cache key is based on version tag
-- Subsequent downloads of the same version use cached files
-- Response indicates source: `"downloadedFrom": "cache"` or `"github"`
-
-### Configuration
-
-Configure toolkit download in your config file:
-
-```yaml
-psadt:
-  cacheDirectory: "C:\\PackagerCache\\psadt"  # Default: OS temp directory
-  cacheTtlHours: 24                            # Default: 24 hours
-  defaultVersion: "latest"                     # Default: "latest"
-```
-
-### Combined Template and Toolkit Download
-
-Use `get_psadt_template` with `download_toolkit: true` to generate a script and download the toolkit in one operation:
+Use the `get_psadt_template` tool with `output_directory` to create a complete package:
 
 ```json
 {
@@ -301,15 +197,44 @@ Use `get_psadt_template` with `download_toolkit: true` to generate a script and 
   "application_vendor": "Igor Pavlov",
   "application_version": "23.01",
   "installer_type": "exe",
-  "download_toolkit": true,
+  "installer_file_name": "7z2301-x64.exe",
+  "silent_args": "/S",
   "output_directory": "C:\\Packages\\7zip"
 }
 ```
 
-This creates:
-- Complete toolkit structure
-- Customized `Invoke-AppDeployToolkit.ps1` with your application details
-- Empty `Files/` directory ready for the installer
+This automatically creates:
+
+```
+C:\Packages\7zip\
+├── PSAppDeployToolkit/
+│   ├── PSAppDeployToolkit.psd1    # Module manifest (v4.1.7)
+│   ├── PSAppDeployToolkit.psm1    # Module implementation
+│   └── ...
+├── Config/
+│   └── config.psd1
+├── Assets/
+│   ├── AppIcon.png
+│   └── Banner.Classic.png
+├── Files/                         # Place installers here
+├── Invoke-AppDeployToolkit.exe    # Launcher executable
+└── Invoke-AppDeployToolkit.ps1    # Generated deployment script
+```
+
+### Complete Packaging Workflow
+
+1. Use `search_winget` to find the application and get installer URL
+2. Download the installer using PowerShell's `Invoke-WebRequest`
+3. Use `get_psadt_template` with `output_directory` to create the package
+4. Copy your downloaded installer to the `Files/` directory
+5. Package for Intune deployment
+
+### Benefits
+
+- **No network dependency**: Toolkit bundled with MCP server
+- **Version consistency**: Pinned to v4.1.7 for reproducible builds
+- **Instant access**: No download delays or GitHub rate limits
+- **Verified source**: From official PSAppDeployToolkit release
 
 ## Best Practices
 
@@ -332,11 +257,9 @@ Vendor_AppName_Version/
 
 - Use original filename when possible
 - For version tracking: `AppName_Version_Arch.ext`
-- Override with `output_filename` for consistency
 
 ### Security Considerations
 
-1. **Always Verify Hashes**: Ensure `verified: true` in response
-2. **Review Warnings**: Unverified downloads require manual validation
-3. **Use HTTPS**: All Winget URLs use HTTPS
-4. **Check Publisher**: Verify package publisher before deployment
+1. **Always Verify Hashes**: Use the SHA256 from `search_winget`
+2. **Use HTTPS**: All Winget URLs use HTTPS
+3. **Check Publisher**: Verify package publisher before deployment

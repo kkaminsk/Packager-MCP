@@ -1,1 +1,1 @@
-{"version":3,"file":"prompts.d.ts","sourceRoot":"","sources":["../../src/handlers/prompts.ts"],"names":[],"mappings":"AAEA,OAAO,KAAK,EAAE,SAAS,EAAE,MAAM,yCAAyC,CAAC;AAiDzE;;GAEG;AACH,wBAAgB,sBAAsB,CAAC,MAAM,EAAE,SAAS,GAAG,IAAI,CAkM9D"}
+{"version":3,"file":"prompts.d.ts","sourceRoot":"","sources":["../../src/handlers/prompts.ts"],"names":[],"mappings":"AAEA,OAAO,KAAK,EAAE,SAAS,EAAE,MAAM,yCAAyC,CAAC;AA0CzE;;GAEG;AACH,wBAAgB,sBAAsB,CAAC,MAAM,EAAE,SAAS,GAAG,IAAI,CAoJ9D"}

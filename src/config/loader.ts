@@ -69,10 +69,6 @@ export class ConfigLoader {
         token: validated.github.token,
         rateLimitRetries: validated.github.rateLimitRetries,
       },
-      download: {
-        largeFileSizeThreshold: validated.download.largeFileSizeThreshold,
-        timeoutMs: validated.download.timeoutMs,
-      },
     };
   }
 }

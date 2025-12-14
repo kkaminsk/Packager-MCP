@@ -137,4 +137,82 @@ export interface ValidatePackageOutput {
     /** Validation results */
     result: ValidationResult;
 }
+/**
+ * Input for the verify_psadt_functions tool
+ */
+export interface VerifyPsadtFunctionsInput {
+    /** Path to the PSADT script file to verify */
+    filePath: string;
+}
+/**
+ * An invalid function found in a script
+ */
+export interface InvalidFunctionEntry {
+    /** The incorrect function name found */
+    functionName: string;
+    /** Line number where the function was found (1-indexed) */
+    lineNumber: number;
+    /** The line content containing the function */
+    lineContent: string;
+    /** Suggested replacement function (if known) */
+    suggestedReplacement?: string;
+    /** Reason why this function is incorrect */
+    reason?: string;
+}
+/**
+ * A parameter issue found in a script
+ */
+export interface ParameterIssueEntry {
+    /** The function name where the issue was found */
+    functionName: string;
+    /** The incorrect parameter name used */
+    incorrectParam: string;
+    /** The correct parameter name to use */
+    correctParam: string;
+    /** Line number where the issue was found (1-indexed) */
+    lineNumber: number;
+    /** The line content containing the issue */
+    lineContent: string;
+    /** Reason why this parameter is incorrect */
+    reason?: string;
+}
+/**
+ * Summary of PSADT function verification
+ */
+export interface VerificationSummary {
+    /** Total ADT function calls found in the script */
+    totalAdtFunctionsFound: number;
+    /** List of unique valid function names used */
+    validFunctions: string[];
+    /** Count of invalid function calls found */
+    invalidFunctionsCount: number;
+    /** Count of parameter issues found */
+    parameterIssuesCount: number;
+}
+/**
+ * Result of PSADT function verification
+ */
+export interface VerifyPsadtFunctionsResult {
+    /** Whether all functions are valid (no invalid functions or parameter issues) */
+    isValid: boolean;
+    /** File path that was verified */
+    filePath: string;
+    /** Verification summary */
+    summary: VerificationSummary;
+    /** Invalid functions found (empty if all valid) */
+    invalidFunctions: InvalidFunctionEntry[];
+    /** Parameter issues found (empty if none) */
+    parameterIssues: ParameterIssueEntry[];
+}
+/**
+ * Output from the verify_psadt_functions tool
+ */
+export interface VerifyPsadtFunctionsOutput {
+    /** Success indicator (false if file not found or error reading) */
+    success: boolean;
+    /** Error message if success is false */
+    error?: string;
+    /** Verification results (present if success is true) */
+    result?: VerifyPsadtFunctionsResult;
+}
 //# sourceMappingURL=validation.d.ts.map

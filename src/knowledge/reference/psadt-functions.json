@@ -1,0 +1,282 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PSADT v4.1.7 Valid Functions Reference",
+  "description": "Authoritative list of 135 valid PSADT v4.1.7 function names for script validation",
+  "version": "4.1.7",
+  "moduleGuid": "8c3c366b-8606-4576-9f2d-4051144f7ca2",
+  "lastUpdated": "2025-12-12",
+  "validFunctions": [
+    "Add-ADTEdgeExtension",
+    "Add-ADTModuleCallback",
+    "Block-ADTAppExecution",
+    "Clear-ADTModuleCallback",
+    "Close-ADTInstallationProgress",
+    "Close-ADTSession",
+    "Complete-ADTFunction",
+    "Convert-ADTRegistryPath",
+    "Convert-ADTValueType",
+    "Convert-ADTValuesFromRemainingArguments",
+    "ConvertTo-ADTNTAccountOrSID",
+    "Copy-ADTContentToCache",
+    "Copy-ADTFile",
+    "Copy-ADTFileToUserProfiles",
+    "Disable-ADTTerminalServerInstallMode",
+    "Dismount-ADTWimFile",
+    "Enable-ADTTerminalServerInstallMode",
+    "Export-ADTEnvironmentTableToSessionState",
+    "Get-ADTApplication",
+    "Get-ADTBoundParametersAndDefaultValues",
+    "Get-ADTCommandTable",
+    "Get-ADTConfig",
+    "Get-ADTDeferHistory",
+    "Get-ADTEnvironment",
+    "Get-ADTEnvironmentTable",
+    "Get-ADTEnvironmentVariable",
+    "Get-ADTExecutableInfo",
+    "Get-ADTFileVersion",
+    "Get-ADTFreeDiskSpace",
+    "Get-ADTIniSection",
+    "Get-ADTIniValue",
+    "Get-ADTLoggedOnUser",
+    "Get-ADTModuleCallback",
+    "Get-ADTMsiExitCodeMessage",
+    "Get-ADTMsiTableProperty",
+    "Get-ADTObjectProperty",
+    "Get-ADTOperatingSystemInfo",
+    "Get-ADTPEFileArchitecture",
+    "Get-ADTPendingReboot",
+    "Get-ADTPowerShellProcessPath",
+    "Get-ADTPresentationSettingsEnabledUsers",
+    "Get-ADTRegistryKey",
+    "Get-ADTRunningProcesses",
+    "Get-ADTSession",
+    "Get-ADTShortcut",
+    "Get-ADTStringTable",
+    "Get-ADTUniversalDate",
+    "Get-ADTUserNotificationState",
+    "Get-ADTUserProfiles",
+    "Get-ADTWindowTitle",
+    "Initialize-ADTFunction",
+    "Initialize-ADTModule",
+    "Install-ADTDeployment",
+    "Install-ADTMSUpdates",
+    "Install-ADTSCCMSoftwareUpdates",
+    "Invoke-ADTAllUsersRegistryAction",
+    "Invoke-ADTCommandWithRetries",
+    "Invoke-ADTFunctionErrorHandler",
+    "Invoke-ADTObjectMethod",
+    "Invoke-ADTRegSvr32",
+    "Invoke-ADTSCCMTask",
+    "Mount-ADTWimFile",
+    "New-ADTErrorRecord",
+    "New-ADTFolder",
+    "New-ADTMsiTransform",
+    "New-ADTShortcut",
+    "New-ADTTemplate",
+    "New-ADTValidateScriptErrorRecord",
+    "New-ADTZipFile",
+    "Open-ADTSession",
+    "Out-ADTPowerShellEncodedCommand",
+    "Register-ADTDll",
+    "Remove-ADTContentFromCache",
+    "Remove-ADTEdgeExtension",
+    "Remove-ADTEnvironmentVariable",
+    "Remove-ADTFile",
+    "Remove-ADTFileFromUserProfiles",
+    "Remove-ADTFolder",
+    "Remove-ADTHashtableNullOrEmptyValues",
+    "Remove-ADTIniSection",
+    "Remove-ADTIniValue",
+    "Remove-ADTInvalidFileNameChars",
+    "Remove-ADTModuleCallback",
+    "Remove-ADTRegistryKey",
+    "Repair-ADTDeployment",
+    "Reset-ADTDeferHistory",
+    "Resolve-ADTErrorRecord",
+    "Send-ADTKeys",
+    "Set-ADTActiveSetup",
+    "Set-ADTDeferHistory",
+    "Set-ADTEnvironmentVariable",
+    "Set-ADTIniSection",
+    "Set-ADTIniValue",
+    "Set-ADTItemPermission",
+    "Set-ADTMsiProperty",
+    "Set-ADTPowerShellCulture",
+    "Set-ADTRegistryKey",
+    "Set-ADTServiceStartMode",
+    "Set-ADTShortcut",
+    "Show-ADTBalloonTip",
+    "Show-ADTDialogBox",
+    "Show-ADTHelpConsole",
+    "Show-ADTInstallationProgress",
+    "Show-ADTInstallationPrompt",
+    "Show-ADTInstallationRestartPrompt",
+    "Show-ADTInstallationWelcome",
+    "Start-ADTMsiProcess",
+    "Start-ADTMsiProcessAsUser",
+    "Start-ADTMspProcess",
+    "Start-ADTMspProcessAsUser",
+    "Start-ADTProcess",
+    "Start-ADTProcessAsUser",
+    "Start-ADTServiceAndDependencies",
+    "Stop-ADTServiceAndDependencies",
+    "Test-ADTBattery",
+    "Test-ADTCallerIsAdmin",
+    "Test-ADTEspActive",
+    "Test-ADTMicrophoneInUse",
+    "Test-ADTModuleInitialized",
+    "Test-ADTMSUpdates",
+    "Test-ADTMutexAvailability",
+    "Test-ADTNetworkConnection",
+    "Test-ADTOobeCompleted",
+    "Test-ADTPowerPoint",
+    "Test-ADTRegistryValue",
+    "Test-ADTServiceExists",
+    "Test-ADTSessionActive",
+    "Test-ADTUserIsBusy",
+    "Unblock-ADTAppExecution",
+    "Uninstall-ADTApplication",
+    "Uninstall-ADTDeployment",
+    "Unregister-ADTDll",
+    "Update-ADTDesktop",
+    "Update-ADTEnvironmentPsProvider",
+    "Update-ADTGroupPolicy",
+    "Write-ADTLogEntry"
+  ],
+  "incorrectFunctionMappings": {
+    "Initialize-ADTDeployment": {
+      "correctFunction": "Open-ADTSession",
+      "reason": "Function does not exist in PSADT v4. AI models hallucinate this function name."
+    },
+    "Complete-ADTDeployment": {
+      "correctFunction": "Close-ADTSession",
+      "reason": "Function does not exist in PSADT v4. AI models hallucinate this function name."
+    },
+    "Get-ADTInstalledApplication": {
+      "correctFunction": "Get-ADTApplication",
+      "reason": "Function does not exist in PSADT v4. Correct function is Get-ADTApplication."
+    },
+    "Show-InstallationWelcome": {
+      "correctFunction": "Show-ADTInstallationWelcome",
+      "reason": "PSADT v3 legacy function. PSADT v4 requires ADT prefix."
+    },
+    "Show-InstallationProgress": {
+      "correctFunction": "Show-ADTInstallationProgress",
+      "reason": "PSADT v3 legacy function. PSADT v4 requires ADT prefix."
+    },
+    "Show-InstallationPrompt": {
+      "correctFunction": "Show-ADTInstallationPrompt",
+      "reason": "PSADT v3 legacy function. PSADT v4 requires ADT prefix."
+    },
+    "Show-InstallationRestartPrompt": {
+      "correctFunction": "Show-ADTInstallationRestartPrompt",
+      "reason": "PSADT v3 legacy function. PSADT v4 requires ADT prefix."
+    },
+    "Close-InstallationProgress": {
+      "correctFunction": "Close-ADTInstallationProgress",
+      "reason": "PSADT v3 legacy function. PSADT v4 requires ADT prefix."
+    },
+    "Execute-Process": {
+      "correctFunction": "Start-ADTProcess",
+      "reason": "PSADT v3 legacy function. PSADT v4 uses Start-ADTProcess."
+    },
+    "Execute-MSI": {
+      "correctFunction": "Start-ADTMsiProcess",
+      "reason": "PSADT v3 legacy function. PSADT v4 uses Start-ADTMsiProcess."
+    },
+    "Execute-Msi": {
+      "correctFunction": "Start-ADTMsiProcess",
+      "reason": "PSADT v3 legacy function. PSADT v4 uses Start-ADTMsiProcess."
+    },
+    "Get-InstalledApplication": {
+      "correctFunction": "Get-ADTApplication",
+      "reason": "PSADT v3 legacy function. PSADT v4 uses Get-ADTApplication."
+    },
+    "Remove-MSIApplications": {
+      "correctFunction": "Uninstall-ADTApplication",
+      "reason": "PSADT v3 legacy function. PSADT v4 uses Uninstall-ADTApplication."
+    },
+    "Write-Log": {
+      "correctFunction": "Write-ADTLogEntry",
+      "reason": "PSADT v3 legacy function. PSADT v4 uses Write-ADTLogEntry."
+    },
+    "Copy-File": {
+      "correctFunction": "Copy-ADTFile",
+      "reason": "PSADT v3 legacy function. PSADT v4 requires ADT prefix."
+    },
+    "Remove-File": {
+      "correctFunction": "Remove-ADTFile",
+      "reason": "PSADT v3 legacy function. PSADT v4 requires ADT prefix."
+    },
+    "New-Folder": {
+      "correctFunction": "New-ADTFolder",
+      "reason": "PSADT v3 legacy function. PSADT v4 requires ADT prefix."
+    },
+    "Remove-Folder": {
+      "correctFunction": "Remove-ADTFolder",
+      "reason": "PSADT v3 legacy function. PSADT v4 requires ADT prefix."
+    },
+    "Set-RegistryKey": {
+      "correctFunction": "Set-ADTRegistryKey",
+      "reason": "PSADT v3 legacy function. PSADT v4 requires ADT prefix."
+    },
+    "Get-RegistryKey": {
+      "correctFunction": "Get-ADTRegistryKey",
+      "reason": "PSADT v3 legacy function. PSADT v4 requires ADT prefix."
+    },
+    "Remove-RegistryKey": {
+      "correctFunction": "Remove-ADTRegistryKey",
+      "reason": "PSADT v3 legacy function. PSADT v4 requires ADT prefix."
+    },
+    "New-Shortcut": {
+      "correctFunction": "New-ADTShortcut",
+      "reason": "PSADT v3 legacy function. PSADT v4 requires ADT prefix."
+    },
+    "Block-AppExecution": {
+      "correctFunction": "Block-ADTAppExecution",
+      "reason": "PSADT v3 legacy function. PSADT v4 requires ADT prefix."
+    },
+    "Unblock-AppExecution": {
+      "correctFunction": "Unblock-ADTAppExecution",
+      "reason": "PSADT v3 legacy function. PSADT v4 requires ADT prefix."
+    },
+    "Get-PendingReboot": {
+      "correctFunction": "Get-ADTPendingReboot",
+      "reason": "PSADT v3 legacy function. PSADT v4 requires ADT prefix."
+    },
+    "Get-LoggedOnUser": {
+      "correctFunction": "Get-ADTLoggedOnUser",
+      "reason": "PSADT v3 legacy function. PSADT v4 requires ADT prefix."
+    },
+    "Get-FreeDiskSpace": {
+      "correctFunction": "Get-ADTFreeDiskSpace",
+      "reason": "PSADT v3 legacy function. PSADT v4 requires ADT prefix."
+    },
+    "Set-ActiveSetup": {
+      "correctFunction": "Set-ADTActiveSetup",
+      "reason": "PSADT v3 legacy function. PSADT v4 requires ADT prefix."
+    }
+  },
+  "parameterCorrections": {
+    "Start-ADTProcess": {
+      "-Arguments": {
+        "correctParam": "-ArgumentList",
+        "reason": "Start-ADTProcess uses -ArgumentList parameter, not -Arguments. This parameter name does not exist."
+      },
+      "-Path": {
+        "correctParam": "-FilePath",
+        "reason": "Start-ADTProcess uses -FilePath parameter, not -Path."
+      }
+    },
+    "Start-ADTProcessAsUser": {
+      "-Arguments": {
+        "correctParam": "-ArgumentList",
+        "reason": "Start-ADTProcessAsUser uses -ArgumentList parameter, not -Arguments."
+      },
+      "-Path": {
+        "correctParam": "-FilePath",
+        "reason": "Start-ADTProcessAsUser uses -FilePath parameter, not -Path."
+      }
+    }
+  }
+}

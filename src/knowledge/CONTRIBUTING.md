@@ -1,6 +1,6 @@
 # Contributing to the Knowledge Base
 
-This guide explains how to contribute to and maintain the Intune Packaging Assistant knowledge base.
+This guide explains how to contribute to and maintain the Packager-MCP knowledge base.
 
 ## Knowledge Base Structure
 
@@ -97,7 +97,7 @@ Always use fenced code blocks with language specification:
 ````markdown
 ```powershell
 # Good: Language specified
-Start-ADTProcess -FilePath 'installer.exe' -Arguments '/S'
+Start-ADTProcess -FilePath 'installer.exe' -ArgumentList '/S'
 ```
 ````
 

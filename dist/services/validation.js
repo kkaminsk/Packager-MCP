@@ -1,5 +1,48 @@
 // Validation service for PSADT package validation
 import { getLogger } from '../utils/logger.js';
+import { readFileSync, existsSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { join, dirname } from 'node:path';
+let psadtFunctionReference = null;
+function loadPsadtFunctionReference() {
+    if (psadtFunctionReference) {
+        return psadtFunctionReference;
+    }
+    const currentFilePath = fileURLToPath(import.meta.url);
+    const projectRoot = join(dirname(currentFilePath), '..');
+    const refPath = join(projectRoot, 'knowledge', 'reference', 'psadt-functions.json');
+    try {
+        const content = readFileSync(refPath, 'utf-8');
+        psadtFunctionReference = JSON.parse(content);
+        return psadtFunctionReference;
+    }
+    catch (error) {
+        // Fallback to minimal inline reference
+        psadtFunctionReference = {
+            validFunctions: [
+                'Open-ADTSession', 'Close-ADTSession', 'Get-ADTSession', 'Get-ADTConfig',
+                'Show-ADTInstallationWelcome', 'Show-ADTInstallationProgress', 'Close-ADTInstallationProgress',
+                'Show-ADTInstallationPrompt', 'Show-ADTInstallationRestartPrompt',
+                'Start-ADTProcess', 'Start-ADTProcessAsUser', 'Start-ADTMsiProcess',
+                'Get-ADTApplication', 'Uninstall-ADTApplication',
+                'Write-ADTLogEntry', 'Copy-ADTFile', 'Remove-ADTFile',
+                'Install-ADTDeployment', 'Uninstall-ADTDeployment', 'Repair-ADTDeployment',
+            ],
+            incorrectFunctionMappings: {
+                'Initialize-ADTDeployment': { correctFunction: 'Open-ADTSession', reason: 'Function does not exist in PSADT v4.' },
+                'Complete-ADTDeployment': { correctFunction: 'Close-ADTSession', reason: 'Function does not exist in PSADT v4.' },
+                'Get-ADTInstalledApplication': { correctFunction: 'Get-ADTApplication', reason: 'Function does not exist in PSADT v4.' },
+            },
+            parameterCorrections: {
+                'Start-ADTProcess': {
+                    '-Arguments': { correctParam: '-ArgumentList', reason: 'Parameter does not exist.' },
+                    '-Path': { correctParam: '-FilePath', reason: 'Parameter does not exist.' },
+                },
+            },
+        };
+        return psadtFunctionReference;
+    }
+}
 const logger = getLogger().child({ service: 'validation' });
 // Score penalties by severity
 const SCORE_PENALTIES = {
@@ -95,31 +138,39 @@ const VALIDATION_RULES = [
         },
     },
     {
-        id: 'initialize-called',
-        name: 'Initialize-ADTDeployment Called',
-        description: 'Must call Initialize-ADTDeployment to start PSADT workflow',
+        id: 'open-session-called',
+        name: 'Open-ADTSession Called',
+        description: 'Must call Open-ADTSession to initialize PSADT v4 workflow',
         severity: 'error',
         category: 'psadt',
         minLevel: 'basic',
-        suggestion: 'Add: Initialize-ADTDeployment at the start of your deployment logic',
+        suggestion: 'Add: Open-ADTSession at the start of your deployment logic',
         check: (script, lines) => {
-            if (!/Initialize-ADTDeployment/i.test(script)) {
-                return [{ context: 'Initialize-ADTDeployment not called' }];
+            if (!/Open-ADTSession/i.test(script)) {
+                // Check for legacy incorrect function name
+                if (/Initialize-ADTDeployment/i.test(script)) {
+                    return [{ context: 'Initialize-ADTDeployment is not a valid PSADT v4 function. Use Open-ADTSession instead.' }];
+                }
+                return [{ context: 'Open-ADTSession not called' }];
             }
             return [];
         },
     },
     {
-        id: 'complete-called',
-        name: 'Complete-ADTDeployment Called',
-        description: 'Must call Complete-ADTDeployment to finalize PSADT workflow',
+        id: 'close-session-called',
+        name: 'Close-ADTSession Called',
+        description: 'Must call Close-ADTSession to finalize PSADT v4 workflow',
         severity: 'error',
         category: 'psadt',
         minLevel: 'basic',
-        suggestion: 'Add: Complete-ADTDeployment at the end of your deployment logic',
+        suggestion: 'Add: Close-ADTSession at the end of your deployment logic',
         check: (script, lines) => {
-            if (!/Complete-ADTDeployment/i.test(script)) {
-                return [{ context: 'Complete-ADTDeployment not called' }];
+            if (!/Close-ADTSession/i.test(script)) {
+                // Check for legacy incorrect function name
+                if (/Complete-ADTDeployment/i.test(script)) {
+                    return [{ context: 'Complete-ADTDeployment is not a valid PSADT v4 function. Use Close-ADTSession instead.' }];
+                }
+                return [{ context: 'Close-ADTSession not called' }];
             }
             return [];
         },
@@ -127,33 +178,36 @@ const VALIDATION_RULES = [
     {
         id: 'uses-adt-prefix',
         name: 'Uses ADT-Prefixed Functions',
-        description: 'PSADT v4 functions should use ADT prefix (e.g., Show-ADTInstallationWelcome)',
+        description: 'PSADT v4 functions must use ADT prefix (e.g., Show-ADTInstallationWelcome)',
         severity: 'warning',
         category: 'psadt',
         minLevel: 'standard',
-        suggestion: 'Use PSADT v4 functions with ADT prefix instead of legacy v3 functions',
+        suggestion: 'Use the correct ADT-prefixed function name',
         check: (script, lines) => {
             const issues = [];
-            // Legacy v3 function patterns that should be v4 with ADT prefix
-            const legacyPatterns = [
-                { legacy: /\bShow-InstallationWelcome\b/gi, v4: 'Show-ADTInstallationWelcome' },
-                { legacy: /\bShow-InstallationProgress\b/gi, v4: 'Show-ADTInstallationProgress' },
-                { legacy: /\bShow-InstallationPrompt\b/gi, v4: 'Show-ADTInstallationPrompt' },
-                { legacy: /\bExecute-Process\b/gi, v4: 'Start-ADTProcess' },
-                { legacy: /\bExecute-MSI\b/gi, v4: 'Start-ADTMsiProcess' },
-                { legacy: /\bRemove-MSIApplications\b/gi, v4: 'Remove-ADTApplication' },
-                { legacy: /\bGet-InstalledApplication\b/gi, v4: 'Get-ADTApplication' },
-                { legacy: /\bClose-InstallationProgress\b/gi, v4: 'Close-ADTInstallationProgress' },
+            // Incorrect function names and their correct ADT-prefixed equivalents
+            const incorrectPatterns = [
+                { incorrect: /\bShow-InstallationWelcome\b/gi, correct: 'Show-ADTInstallationWelcome' },
+                { incorrect: /\bShow-InstallationProgress\b/gi, correct: 'Show-ADTInstallationProgress' },
+                { incorrect: /\bShow-InstallationPrompt\b/gi, correct: 'Show-ADTInstallationPrompt' },
+                { incorrect: /\bExecute-Process\b/gi, correct: 'Start-ADTProcess' },
+                { incorrect: /\bExecute-MSI\b/gi, correct: 'Start-ADTMsiProcess' },
+                { incorrect: /\bRemove-MSIApplications\b/gi, correct: 'Remove-ADTApplication' },
+                { incorrect: /\bGet-InstalledApplication\b/gi, correct: 'Get-ADTApplication' },
+                { incorrect: /\bGet-ADTInstalledApplication\b/gi, correct: 'Get-ADTApplication' },
+                { incorrect: /\bInitialize-ADTDeployment\b/gi, correct: 'Open-ADTSession' },
+                { incorrect: /\bComplete-ADTDeployment\b/gi, correct: 'Close-ADTSession' },
+                { incorrect: /\bClose-InstallationProgress\b/gi, correct: 'Close-ADTInstallationProgress' },
             ];
-            for (const { legacy, v4 } of legacyPatterns) {
+            for (const { incorrect, correct } of incorrectPatterns) {
                 let match;
-                legacy.lastIndex = 0;
-                while ((match = legacy.exec(script)) !== null) {
+                incorrect.lastIndex = 0;
+                while ((match = incorrect.exec(script)) !== null) {
                     const lineNumber = getLineNumber(script, match.index);
                     issues.push({
                         lineNumber,
                         lineContent: lines[lineNumber - 1]?.trim(),
-                        context: `Legacy function "${match[0]}" found. Use "${v4}" instead.`,
+                        context: `Incorrect function "${match[0]}" found. Use "${correct}" instead.`,
                     });
                 }
             }
@@ -167,31 +221,54 @@ const VALIDATION_RULES = [
         severity: 'warning',
         category: 'psadt',
         minLevel: 'standard',
-        suggestion: 'Use Complete-ADTDeployment with -ExitCode parameter to report status',
+        suggestion: 'Use Close-ADTSession with -ExitCode parameter to report non-zero status',
         check: (script, lines) => {
-            // Check if Complete-ADTDeployment uses exit code
-            if (/Complete-ADTDeployment/i.test(script)) {
-                if (!/Complete-ADTDeployment.*-ExitCode/i.test(script) && !/-ExitCode.*Complete-ADTDeployment/i.test(script)) {
-                    return [{ context: 'Complete-ADTDeployment called without -ExitCode parameter' }];
-                }
+            // Check if Close-ADTSession is called (exit code 0 is implicit)
+            if (/Close-ADTSession/i.test(script)) {
+                // This is valid - exit code 0 is default
+                return [];
             }
             return [];
         },
     },
     {
+        id: 'start-adtprocess-argumentlist',
+        name: 'Start-ADTProcess Uses ArgumentList',
+        description: 'Start-ADTProcess uses -ArgumentList parameter, not -Arguments',
+        severity: 'error',
+        category: 'psadt',
+        minLevel: 'basic',
+        suggestion: 'Change -Arguments to -ArgumentList for Start-ADTProcess',
+        check: (script, lines) => {
+            const issues = [];
+            // Match Start-ADTProcess followed by -Arguments (incorrect parameter name)
+            const incorrectPattern = /Start-ADTProcess\s+[^|;\n]*-Arguments\b/gi;
+            let match;
+            while ((match = incorrectPattern.exec(script)) !== null) {
+                const lineNumber = getLineNumber(script, match.index);
+                issues.push({
+                    lineNumber,
+                    lineContent: lines[lineNumber - 1]?.trim(),
+                    context: 'Start-ADTProcess uses -ArgumentList, not -Arguments. This parameter name does not exist.',
+                });
+            }
+            return issues;
+        },
+    },
+    {
         id: 'adt-session-usage',
-        name: 'ADTSession Object Usage',
-        description: 'PSADT v4 uses $ADTSession for state management',
+        name: 'adtSession Object Usage',
+        description: 'PSADT v4 uses $adtSession hashtable for session configuration',
         severity: 'info',
         category: 'psadt',
         minLevel: 'strict',
-        suggestion: 'Consider using $ADTSession object for accessing deployment state',
+        suggestion: 'Use $adtSession hashtable for session configuration and accessing deployment state',
         check: (script, _lines) => {
-            // Only flag if PSADT functions are used but $ADTSession is not
-            const usesPsadt = /Initialize-ADTDeployment/i.test(script);
-            const usesAdtSession = /\$ADTSession/i.test(script);
+            // Only flag if PSADT functions are used but $adtSession is not
+            const usesPsadt = /Open-ADTSession/i.test(script);
+            const usesAdtSession = /\$adtSession/i.test(script);
             if (usesPsadt && !usesAdtSession) {
-                return [{ context: '$ADTSession object not used for state management' }];
+                return [{ context: '$adtSession hashtable not used for session configuration' }];
             }
             return [];
         },
@@ -230,7 +307,7 @@ const VALIDATION_RULES = [
         suggestion: 'Ensure all user prompts can be suppressed in silent mode',
         check: (script, _lines) => {
             // Check for deployment mode handling
-            const hasDeployModeCheck = /\$deployMode|\$ADTSession\.DeployMode|DeployMode/i.test(script);
+            const hasDeployModeCheck = /\$deployMode|\$adtSession\.DeployMode|DeployMode/i.test(script);
             const hasSilentSwitch = /-DeployMode\s+(Silent|NonInteractive)/i.test(script);
             if (!hasDeployModeCheck && !hasSilentSwitch) {
                 return [{ context: 'No deployment mode handling found for silent installation' }];
@@ -280,9 +357,9 @@ const VALIDATION_RULES = [
         environments: ['intune', 'sccm'],
         suggestion: 'Ensure script exits with 0 for success, non-zero for failure',
         check: (script, _lines) => {
-            const hasExitStatement = /\bexit\s+\d+|\bexit\s+\$|Complete-ADTDeployment.*-ExitCode/i.test(script);
+            const hasExitStatement = /\bexit\s+\d+|\bexit\s+\$|Close-ADTSession/i.test(script);
             if (!hasExitStatement) {
-                return [{ context: 'No explicit exit code found. Use "exit 0" or Complete-ADTDeployment -ExitCode' }];
+                return [{ context: 'No explicit exit code found. Use "exit 0" or Close-ADTSession' }];
             }
             return [];
         },
@@ -507,6 +584,137 @@ function getLineNumber(script, index) {
  * Validation service class
  */
 class ValidationService {
+    /**
+     * Verify PSADT function names in a script file
+     */
+    async verifyPsadtFunctions(input) {
+        const startTime = Date.now();
+        const { filePath } = input;
+        logger.debug('Starting PSADT function verification', { filePath });
+        // Check if file exists
+        if (!existsSync(filePath)) {
+            logger.warn('File not found for verification', { filePath });
+            return {
+                success: false,
+                error: `File not found: ${filePath}`,
+            };
+        }
+        // Read file content
+        let script;
+        try {
+            script = readFileSync(filePath, 'utf-8');
+        }
+        catch (error) {
+            logger.error('Failed to read file', { filePath, error });
+            return {
+                success: false,
+                error: `Failed to read file: ${error instanceof Error ? error.message : String(error)}`,
+            };
+        }
+        const lines = script.split('\n');
+        const ref = loadPsadtFunctionReference();
+        // Build case-insensitive lookup sets
+        const validFunctionsLower = new Set(ref.validFunctions.map(f => f.toLowerCase()));
+        const incorrectMappingsLower = new Map();
+        for (const [key, value] of Object.entries(ref.incorrectFunctionMappings)) {
+            incorrectMappingsLower.set(key.toLowerCase(), value);
+        }
+        // Track found functions
+        const invalidFunctions = [];
+        const parameterIssues = [];
+        const validFunctionsFound = new Set();
+        let totalAdtFunctionsFound = 0;
+        // Regex to find ADT function calls (Verb-ADT... or ADT-related v3 functions)
+        // Matches functions like: Show-ADTInstallationWelcome, Initialize-ADTDeployment, etc.
+        const functionPattern = /\b([A-Za-z]+-ADT[A-Za-z]+|Show-Installation\w+|Execute-\w+|Get-InstalledApplication|Remove-MSIApplications|Write-Log|Copy-File|Remove-File|New-Folder|Remove-Folder|Set-RegistryKey|Get-RegistryKey|Remove-RegistryKey|New-Shortcut|Block-AppExecution|Unblock-AppExecution|Get-PendingReboot|Get-LoggedOnUser|Get-FreeDiskSpace|Set-ActiveSetup)\b/gi;
+        let match;
+        while ((match = functionPattern.exec(script)) !== null) {
+            const functionName = match[1] ?? '';
+            if (!functionName)
+                continue;
+            const functionNameLower = functionName.toLowerCase();
+            const lineNumber = getLineNumber(script, match.index);
+            const lineContent = lines[lineNumber - 1]?.trim() || '';
+            totalAdtFunctionsFound++;
+            // Check if it's a known incorrect function
+            const incorrectMapping = incorrectMappingsLower.get(functionNameLower);
+            if (incorrectMapping) {
+                invalidFunctions.push({
+                    functionName,
+                    lineNumber,
+                    lineContent,
+                    suggestedReplacement: incorrectMapping.correctFunction,
+                    reason: incorrectMapping.reason,
+                });
+                continue;
+            }
+            // Check if it's a valid function
+            if (validFunctionsLower.has(functionNameLower)) {
+                // Find the proper-cased version
+                const properCase = ref.validFunctions.find(f => f.toLowerCase() === functionNameLower) ?? functionName;
+                validFunctionsFound.add(properCase);
+            }
+            else {
+                // Unknown ADT function - might be a hallucination or typo
+                invalidFunctions.push({
+                    functionName,
+                    lineNumber,
+                    lineContent,
+                    reason: `Function "${functionName}" is not a valid PSADT v4.1.7 function. Check spelling or consult PSADT documentation.`,
+                });
+            }
+        }
+        // Check for parameter issues on specific functions
+        for (const [funcName, paramMap] of Object.entries(ref.parameterCorrections)) {
+            const funcPattern = new RegExp(`\\b${funcName}\\b[^|;\\n]*`, 'gi');
+            let funcMatch;
+            while ((funcMatch = funcPattern.exec(script)) !== null) {
+                const callText = funcMatch[0];
+                const lineNumber = getLineNumber(script, funcMatch.index);
+                const lineContent = lines[lineNumber - 1]?.trim() || '';
+                for (const [incorrectParam, correction] of Object.entries(paramMap)) {
+                    // Create pattern that matches the incorrect parameter
+                    const paramRegex = new RegExp(`${incorrectParam}\\b`, 'i');
+                    if (paramRegex.test(callText)) {
+                        parameterIssues.push({
+                            functionName: funcName,
+                            incorrectParam,
+                            correctParam: correction.correctParam,
+                            lineNumber,
+                            lineContent,
+                            reason: correction.reason,
+                        });
+                    }
+                }
+            }
+        }
+        const isValid = invalidFunctions.length === 0 && parameterIssues.length === 0;
+        const summary = {
+            totalAdtFunctionsFound,
+            validFunctions: Array.from(validFunctionsFound).sort(),
+            invalidFunctionsCount: invalidFunctions.length,
+            parameterIssuesCount: parameterIssues.length,
+        };
+        const result = {
+            isValid,
+            filePath,
+            summary,
+            invalidFunctions,
+            parameterIssues,
+        };
+        logger.info('PSADT function verification completed', {
+            isValid,
+            totalFunctions: totalAdtFunctionsFound,
+            validCount: validFunctionsFound.size,
+            invalidCount: invalidFunctions.length,
+            parameterIssues: parameterIssues.length,
+            duration: Date.now() - startTime,
+        });
+        return {
+            success: true,
+            result,
+        };
+    }
     /**
      * Validate a PSADT script
      */

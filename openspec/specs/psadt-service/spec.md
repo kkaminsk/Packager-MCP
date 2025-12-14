@@ -52,6 +52,11 @@ The system SHALL provide a `get_psadt_template` MCP tool that generates PSADT v4
 - **WHEN** the user specifies `install_scope: "machine"` or `install_scope: "user"`
 - **THEN** the generated script SHALL configure installation context accordingly
 
+#### Scenario: Template references static toolkit location
+- **WHEN** any template is generated
+- **THEN** the response SHALL include guidance to copy toolkit files from `dist/knowledge/v4github/`
+- **AND** the response SHALL NOT include any `download_toolkit` or `toolkit_download` fields
+
 ### Requirement: Template Output Structure
 The system SHALL return template output with structured metadata in addition to the script content.
 
@@ -72,27 +77,27 @@ The system SHALL return template output with structured metadata in addition to 
 - **THEN** the response SHALL include usage notes specific to the generated template
 
 ### Requirement: PSADT Documentation Resources
-The system SHALL expose PSADT v4 documentation as MCP resources.
+The system SHALL expose PSADT v4.1.7 documentation as MCP resources.
 
 #### Scenario: Access overview documentation
 - **WHEN** a client requests resource `psadt://docs/overview`
-- **THEN** the system SHALL return PSADT v4 architecture and concepts documentation
+- **THEN** the system SHALL return PSADT v4.1.7 architecture and concepts documentation
 
 #### Scenario: Access function reference
 - **WHEN** a client requests resource `psadt://docs/functions`
-- **THEN** the system SHALL return complete function reference for ADT-prefixed functions
+- **THEN** the system SHALL return complete function reference for 135 ADT-prefixed functions
 
 #### Scenario: Access variables reference
 - **WHEN** a client requests resource `psadt://docs/variables`
-- **THEN** the system SHALL return documentation for built-in variables like `$ADTSession`
+- **THEN** the system SHALL return documentation for `$adtSession` object properties
 
 #### Scenario: Access migration guide
 - **WHEN** a client requests resource `psadt://docs/migration`
-- **THEN** the system SHALL return v3 to v4 migration guidance
+- **THEN** the system SHALL return v3 to v4 migration guidance including correct function mappings
 
 #### Scenario: Access best practices
 - **WHEN** a client requests resource `psadt://docs/best-practices`
-- **THEN** the system SHALL return recommended patterns and anti-patterns
+- **THEN** the system SHALL return recommended patterns and anti-patterns for v4.1.7
 
 ### Requirement: Installer Knowledge Base Resources
 The system SHALL expose installer-type-specific guides as MCP resources.
@@ -132,94 +137,51 @@ The system SHALL expose reference data as MCP resources.
 - **THEN** the system SHALL return common installer exit codes and their meanings
 
 ### Requirement: PSADT v4 Compliance
-All generated templates SHALL comply with PSADT v4 module-based architecture.
+All generated templates and knowledge documentation SHALL comply with PSADT v4.1.7 module-based architecture.
 
 #### Scenario: Use module import pattern
 - **WHEN** any template is generated
-- **THEN** the script SHALL use `Import-Module PSAppDeployToolkit` pattern
+- **THEN** the script SHALL use `Import-Module -FullyQualifiedName @{ ModuleName = 'PSAppDeployToolkit'; Guid = '8c3c366b-8606-4576-9f2d-4051144f7ca2'; ModuleVersion = '4.1.7' }` pattern
 
 #### Scenario: Use ADT-prefixed functions
 - **WHEN** any template is generated
-- **THEN** all PSADT functions SHALL use the `ADT` prefix (e.g., `Show-ADTInstallationWelcome`)
+- **THEN** all PSADT functions SHALL use the `ADT` prefix (e.g., `Show-ADTInstallationWelcome`, `Get-ADTApplication`)
 
-#### Scenario: Use ADTSession object
+#### Scenario: Use adtSession object
 - **WHEN** a template requires state management
-- **THEN** the script SHALL use `$ADTSession` for accessing session state
+- **THEN** the script SHALL use `$adtSession` (lowercase) hashtable for session configuration
+- **AND** the script SHALL access directory properties via `$adtSession.DirFiles` and `$adtSession.DirSupportFiles`
 
-#### Scenario: Use structured initialization
+#### Scenario: Use structured session management
 - **WHEN** any template is generated
-- **THEN** the script SHALL call `Initialize-ADTDeployment` at the start
-- **AND** the script SHALL call `Complete-ADTDeployment` at the end
+- **THEN** the script SHALL call `Open-ADTSession` to initialize the deployment session
+- **AND** the script SHALL call `Close-ADTSession` to finalize the deployment
+- **AND** the script SHALL use deployment functions (`Install-ADTDeployment`, `Uninstall-ADTDeployment`, `Repair-ADTDeployment`)
 
-### Requirement: Download PSADT Toolkit
-The system SHALL provide a `download_psadt_toolkit` MCP tool that downloads the PSAppDeployToolkit from its official GitHub repository.
+#### Scenario: Use correct parameter names
+- **WHEN** template uses `Start-ADTProcess`
+- **THEN** the script SHALL use `-ArgumentList` parameter (not `-Arguments`)
+- **AND** the script SHALL use `-FilePath` parameter (not `-Path`)
 
-#### Scenario: Download latest toolkit version
-- **WHEN** the user invokes `download_psadt_toolkit` with an `output_directory`
-- **THEN** the system SHALL fetch the latest release from `PSAppDeployToolkit/PSAppDeployToolkit` GitHub repository
-- **AND** the system SHALL download and extract the release ZIP
-- **AND** the extracted files SHALL be placed in the specified output directory
-- **AND** the response SHALL include the version downloaded and file paths
+#### Scenario: Knowledge documentation uses correct parameter names
+- **WHEN** knowledge documentation includes `Start-ADTProcess` examples
+- **THEN** all examples SHALL use `-ArgumentList` parameter (not `-Arguments`)
+- **AND** all examples SHALL use `-FilePath` parameter (not `-Path`)
 
-#### Scenario: Download specific toolkit version
-- **WHEN** the user invokes `download_psadt_toolkit` with `version: "4.0.4"`
-- **THEN** the system SHALL fetch the release matching that version tag
-- **AND** the system SHALL return an error if the version does not exist
+### Requirement: Static PSADT Toolkit Knowledge Base
+The system SHALL include a static copy of PSADT v4 toolkit files in the `dist/knowledge/v4github/` directory for reliable offline access.
 
-#### Scenario: Download with Extensions module
-- **WHEN** the user invokes `download_psadt_toolkit` with `include_extensions: true`
-- **THEN** the system SHALL include the `PSAppDeployToolkit.Extensions` module in the output
-
-#### Scenario: Toolkit already cached
-- **WHEN** a release was previously downloaded within the cache TTL
-- **THEN** the system SHALL copy from cache instead of re-downloading
-- **AND** the response SHALL indicate the source was cache
-
-#### Scenario: GitHub rate limit reached
-- **WHEN** the GitHub API returns a 429 rate limit response
-- **THEN** the system SHALL return an error message explaining the rate limit
-- **AND** the message SHALL suggest configuring a `GITHUB_TOKEN` environment variable
-
-#### Scenario: Download failure
-- **WHEN** the ZIP download fails due to network error or timeout
-- **THEN** the system SHALL return an error with the direct download URL
-- **AND** the user can manually download and extract the toolkit
-
-### Requirement: Toolkit Download Output Structure
-The system SHALL extract toolkit files into a standard directory structure suitable for PSADT package creation.
-
-#### Scenario: Standard extraction structure
-- **WHEN** toolkit download completes successfully
-- **THEN** the output directory SHALL contain:
-  - `PSAppDeployToolkit/` directory with module files
-  - `Config/` directory with default configuration
+#### Scenario: Static toolkit files available
+- **WHEN** the MCP server is installed
+- **THEN** the `dist/knowledge/v4github/` directory SHALL contain:
+  - `PSAppDeployToolkit/` directory with module files (PSAppDeployToolkit.psd1, PSAppDeployToolkit.psm1)
+  - `Config/` directory with default configuration (config.psd1)
   - `Assets/` directory with icons and images
-  - `Strings/` directory with localization files
-  - `Files/` empty directory for installer placement
-  - `Invoke-AppDeployToolkit.exe` executable wrapper
-  - `Invoke-AppDeployToolkit.ps1` main script template
+  - `Files/` directory for user installer placement
+  - Frontend scripts in `PSAppDeployToolkit/Frontend/v4/` (Invoke-AppDeployToolkit.exe, Invoke-AppDeployToolkit.ps1)
 
-#### Scenario: Return download metadata
-- **WHEN** toolkit download completes
-- **THEN** the response SHALL include:
-  - `version`: The downloaded version
-  - `outputDirectory`: Where files were extracted
-  - `files`: Array of extracted file paths
-  - `downloadedFrom`: "cache" or "github"
-  - `releaseUrl`: URL to the GitHub release page
-
-### Requirement: Integrated Template and Toolkit Download
-The system SHALL support downloading the toolkit as part of template generation for streamlined package creation.
-
-#### Scenario: Template with toolkit download
-- **WHEN** the user invokes `get_psadt_template` with `download_toolkit: true` and `output_directory`
-- **THEN** the system SHALL generate the PSADT script
-- **AND** the system SHALL download the toolkit to the output directory
-- **AND** the generated script SHALL be saved as `Invoke-AppDeployToolkit.ps1` in the output directory
-- **AND** the response SHALL include both the script content and toolkit download status
-
-#### Scenario: Template without toolkit download
-- **WHEN** the user invokes `get_psadt_template` without `download_toolkit` or with `download_toolkit: false`
-- **THEN** the system SHALL generate only the script content
-- **AND** the behavior SHALL remain unchanged from current implementation
+#### Scenario: Toolkit version pinned
+- **WHEN** the static toolkit files are accessed
+- **THEN** the version SHALL be PSADT v4.1.7 with 135 exported functions
+- **AND** the module GUID SHALL be `8c3c366b-8606-4576-9f2d-4051144f7ca2`
 

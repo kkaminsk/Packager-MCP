@@ -1,4 +1,4 @@
-# Intune Packaging Assistant MCP Server
+# Packager-MCP
 
 An MCP (Model Context Protocol) server that transforms Claude CLI and compatible AI tools into expert Windows application packaging assistants for Microsoft Intune.
 
@@ -16,18 +16,18 @@ This server gives your AI assistant (like Claude) superpowers for creating Windo
 
 ## What is MCP?
 
-**MCP (Model Context Protocol)** is a standard that lets AI assistants use external tools. Think of it like giving your AI assistant access to specialized functions it can call.
+**MCP (Model Context Protocol)** is a standard that enables AI assistants to integrate with external tools. Think of it like giving your AI assistant access to specialised functions it can call.
 
 When you connect this server to Claude CLI (or another MCP-compatible client), Claude gains access to:
 - **Tools** - Functions it can call (search Winget, generate scripts, validate packages)
-- **Resources** - Documentation it can read (PSADT guides, installer references)
+- **Resources** - Documentation that can be read (PSADT guides, installer references)
 - **Prompts** - Pre-built workflows it can execute (package an app, troubleshoot issues)
 
 ---
 
 ## Version Notes
 
-**V0.5 Packager-MCP** is currently in alpha. Feel free to test, but be aware that there is some fine-tuning still happening.
+**Packager-MCP v1.0** - Production ready. The server provides complete Windows application packaging assistance with PSADT v4.1.7 support.
 
 ---
 
@@ -36,21 +36,15 @@ When you connect this server to Claude CLI (or another MCP-compatible client), C
 ### Prerequisites
 
 - **Node.js 20** or higher
-- **VSCode**
-- **Copilot CLI** or another MCP-compatible client
-- **Git**
+- **MCP-compatible AI client** (Claude CLI, Windsurf, Claude Desktop, etc.)
+- **GitHub Token** (recommended) - [Create one here](https://github.com/settings/tokens?type=beta)
 
 ### Installation
 
 ```bash
-# Install Git
+# Install prerequisites (if not already installed)
 winget install git.git
-
-#Install VisualStudio Code
-winget install Microsoft.VisualStudioCode
-
-#Install Node.js 21
-winget install OpenJS.NodeJS.21
+winget install OpenJS.NodeJS.LTS
 
 # Clone the repository
 git clone https://github.com/kkaminsk/Packager-MCP.git
@@ -63,46 +57,55 @@ npm install
 npm run build
 ```
 
-### Add MCP to VS Code
+### Add MCP to Your Client
 
-```bash
-# Add the server to Windsurf JSON
+**For Windsurf/VS Code (mcp_config.json):**
+
+```json
 {
   "mcpServers": {
     "packager-mcp": {
       "command": "node",
-      "args": [
-        "/path/to/Packager-MCP/dist/server.js"
-      ],
-      "disabled": false,
-      "autoApprove": []
+      "args": ["C:/path/to/Packager-MCP/dist/server.js"],
+      "env": {
+        "GITHUB_TOKEN": "ghp_your_token_here"
+      }
     }
   }
 }
+```
 
-#Claude CLI #1
-/mcp add
+**For Claude CLI:**
 
-Name: packager-mcp
-Command: node
-Arguments: /path/to/Packager-MCP/dist/server.js
+```bash
+claude mcp add packager-mcp node /path/to/Packager-MCP/dist/server.js
+```
+
+**For Claude Desktop (claude_desktop_config.json):**
+
+```json
+{
+  "mcpServers": {
+    "packager-mcp": {
+      "command": "node",
+      "args": ["C:/path/to/Packager-MCP/dist/server.js"],
+      "env": {
+        "GITHUB_TOKEN": "ghp_your_token_here"
+      }
+    }
+  }
+}
 ```
 
 ### Verify It's Working
 
-```bash
-# List your MCP servers
-# Make sure VSCode is logged into Github
-Launch Windsurf and open the cascade view and look for @packager-mcp
-
-# You should see packager-mcp in the list
-```
+After adding the server to your MCP client, you should see `packager-mcp` in the list of available servers. The server provides 5 tools, 11 resources, and 4 prompts.
 
 ---
 
 ## What Can It Do?
 
-### 7 Powerful Tools
+### Five Powerful Tools
 
 | Tool | What It Does | Example Use |
 |------|--------------|-------------|
@@ -111,18 +114,18 @@ Launch Windsurf and open the cascade view and look for @packager-mcp
 | `get_psadt_template` | Generate PSADT v4 deployment scripts | "Create a PSADT script for 7-Zip" |
 | `validate_package` | Check scripts for errors and best practices | "Validate my deployment script" |
 | `generate_intune_detection` | Create Intune detection rules | "Generate a file detection rule for Notepad++" |
-| `download_installer` | Download installers with hash verification | "Download the Chrome installer" |
-| `download_psadt_toolkit` | Get the PSADT toolkit from GitHub | "Download PSADT v4.0.4" |
 
-### 11 Knowledge Resources
+**Note:** Use `search_winget` to get installer URLs, then download with PowerShell's `Invoke-WebRequest`. The PSADT toolkit is bundled in `dist/knowledge/v4github/` - copy these files to your package directory.
+
+### Knowledge Resources
 
 Claude can read these built-in guides to help you better:
 
 **PSADT Documentation:**
+
 - `psadt://docs/overview` - Architecture and concepts
 - `psadt://docs/functions` - All 135 ADT-prefixed functions
 - `psadt://docs/variables` - Built-in variables and $ADTSession
-- `psadt://docs/migration` - Upgrading v3 scripts to v4
 - `psadt://docs/best-practices` - Recommended patterns
 
 **Installer Guides:**
@@ -135,12 +138,13 @@ Claude can read these built-in guides to help you better:
 - `kb://patterns/prerequisites` - Handling dependencies
 - `ref://exit-codes` - Common exit codes explained
 
-### 4 Guided Workflows (Prompts)
+Note: Silent install arguments are accessed via the `get_silent_install_args` tool rather than as a resource.
+
+### Three Guided Workflows (Prompts)
 
 | Prompt | Description |
 |--------|-------------|
 | `package-app` | Complete workflow: search → template → detection → validate |
-| `convert-legacy` | Migrate PSADT v3 scripts to v4 format |
 | `troubleshoot` | Diagnose package failures from error codes and logs |
 | `bulk-lookup` | Get info for multiple apps at once |
 
@@ -263,22 +267,33 @@ Packager-MCP/
 ├── src/
 │   ├── server.ts           # MCP server entry point
 │   ├── handlers/
-│   │   ├── tools.ts        # Tool implementations (7 tools)
+│   │   ├── tools.ts        # Tool implementations (5 tools)
 │   │   ├── resources.ts    # Resource handlers (11 resources)
 │   │   └── prompts.ts      # Prompt workflows (4 prompts)
+│   │   └── index.ts        # Handler registration
 │   ├── services/
 │   │   ├── winget.ts       # Winget API integration
 │   │   ├── psadt.ts        # PSADT template generation
-│   │   ├── psadt-download.ts # PSADT toolkit download
-│   │   ├── download.ts     # Installer download with SHA256
 │   │   ├── validation.ts   # Package validation engine
-│   │   └── detection.ts    # Intune detection rules
+│   │   ├── detection.ts    # Intune detection rules
+│   │   └── index.ts        # Service exports
+│   ├── workflows/          # Prompt workflow implementations
+│   │   ├── package-app.ts  # /package-app workflow
+│   │   ├── troubleshoot.ts # /troubleshoot workflow
+│   │   ├── bulk-lookup.ts  # /bulk-lookup workflow
+│   │   └── index.ts        # Workflow exports
 │   ├── knowledge/          # Embedded documentation
-│   │   ├── psadt/          # PSADT v4 docs
-│   │   ├── installers/     # Installer type guides
-│   │   ├── patterns/       # Packaging patterns
-│   │   └── reference/      # Silent args, exit codes
-│   └── types/              # TypeScript definitions
+│   │   ├── psadt/          # PSADT v4 docs (overview, functions, variables, best-practices)
+│   │   ├── installers/     # Installer type guides (msi, exe, msix)
+│   │   ├── patterns/       # Packaging patterns (detection, prerequisites, download)
+│   │   ├── reference/      # Silent args (JSON), exit codes
+│   │   └── v4github/       # Static PSADT v4.1.7 toolkit files
+│   ├── templates/          # Handlebars templates for PSADT scripts
+│   ├── cache/              # LRU cache implementation
+│   ├── config/             # Configuration loader and schema
+│   ├── utils/              # Logger and error utilities
+│   ├── types/              # TypeScript type definitions
+│   └── __tests__/          # Unit tests
 ├── dist/                   # Compiled JavaScript (after build)
 ├── packager-mcp.example.yaml
 └── package.json
@@ -305,15 +320,12 @@ The server handles different installer types automatically:
 
 This server generates **PSADT v4** (PowerShell App Deployment Toolkit version 4) scripts. Key things to know:
 
-### What Changed from v3
+### Key Concepts
 
-| v3 | v4 |
-|----|-----|
-| `Show-InstallationWelcome` | `Show-ADTInstallationWelcome` |
-| `Execute-Process` | `Start-ADTProcess` |
-| `Execute-MSI` | `Start-ADTMsiProcess` |
-| `$envProgramFiles` | `$envProgramFiles` (unchanged) |
-| Script-based | Module-based architecture |
+- Module-based architecture (Import-Module PSAppDeployToolkit)
+- `ADT` prefix on all 135 functions (e.g., `Show-ADTInstallationWelcome`, `Start-ADTProcess`)
+- `$adtSession` object for state management via `Open-ADTSession`
+- Structured error handling with `Close-ADTSession`
 
 ### Script Structure
 
@@ -402,7 +414,7 @@ npm run validate:knowledge
 
 ```
 ┌─────────────────┐      ┌──────────────────┐     ┌─────────────────┐
-│   Claude CLI    │────▶│  Packager-MCP    │────▶│  GitHub API     │
+│   Windsurf      │────▶│  Packager-MCP    │────▶│  GitHub API     │
 │   (MCP Client)  │◀────│  (MCP Server)    │◀────│  (Winget Repo)  │
 └─────────────────┘      └──────────────────┘     └─────────────────┘
                                │
@@ -429,16 +441,19 @@ npm run validate:knowledge
 A: No! The scripts work standalone. Intune-specific features (detection rules) are optional.
 
 **Q: Does it support PSADT v3?**
-A: It generates v4 scripts, but includes a conversion tool for v3 → v4 migration.
+A: No, this server focuses exclusively on PSADT v4. For v3 scripts, please refer to the official PSADT documentation for migration guidance.
 
-**Q: Can I use this with Claude Desktop instead of CLI?**
+**Q: Can I use this with other tools?**
 A: Yes, any MCP-compatible client works. Add the server to your MCP config.
 
 **Q: How accurate are the silent install arguments?**
 A: Arguments come from Microsoft's Winget repository with confidence levels (verified, high, medium, low).
 
 **Q: Can I download the actual installers?**
-A: Yes! The `download_installer` tool downloads from Winget with SHA256 verification. Files too large will have a download URL.
+A: Use `search_winget` to get installer URLs and SHA256 hashes, then download with PowerShell's `Invoke-WebRequest`.
+
+**Q: Where do I get the PSADT toolkit files?**
+A: The PSADT v4.1.7 toolkit is bundled in `dist/knowledge/v4github/`. Copy these files to your package directory to create a complete deployment package.
 
 ---
 
@@ -463,4 +478,4 @@ MIT
 - [PSADT Documentation](https://psappdeploytoolkit.com)
 - [Winget Repository](https://github.com/microsoft/winget-pkgs)
 - [MCP Specification](https://modelcontextprotocol.io)
-- [Claude CLI](https://claude.ai/cli)
+- [Windsurf]([Windsurf - The best AI for Coding](https://windsurf.com/))

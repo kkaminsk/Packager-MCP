@@ -68,7 +68,7 @@ function Test-Prerequisites {
     }
 
     # Check admin rights
-    if (-not $ADTSession.IsAdmin) {
+    if (-not $adtSession.IsAdmin) {
         Write-ADTLogEntry -Message "Installation requires administrator rights" -Severity 3
         $prerequisites.AdminRights = $false
     }
@@ -83,7 +83,7 @@ function Test-Prerequisites {
 
     # CUSTOMIZE: Add dependency checks here
     # Example:
-    # $vcRedist = Get-ADTInstalledApplication -Name '*Visual C++*2019*'
+    # $vcRedist = Get-ADTApplication -Name '*Visual C++*2019*'
     # if (-not $vcRedist) {
     #     Write-ADTLogEntry -Message "Visual C++ 2019 Redistributable not found" -Severity 3
     #     $prerequisites.Dependencies = $false
@@ -104,7 +104,7 @@ function Remove-PreviousVersion {
     .SYNOPSIS
         Removes any previous version of the application
     #>
-    $existingApps = Get-ADTInstalledApplication -Name $AppName
+    $existingApps = Get-ADTApplication -Name $AppName
 
     foreach ($app in $existingApps) {
         if ($app.ProductCode -and $app.ProductCode -ne $ProductCode) {
@@ -130,7 +130,7 @@ function Set-ApplicationConfiguration {
     # Examples:
 
     # Copy configuration file
-    # $configSource = Join-Path -Path $ADTSession.FilesDirectory -ChildPath 'config.xml'
+    # $configSource = Join-Path -Path $adtSession.DirFiles -ChildPath 'config.xml'
     # $configDest = "$env:ProgramData\$AppVendor\$AppName\config.xml"
     # if (Test-Path $configSource) {
     #     New-ADTFolder -Path (Split-Path $configDest)
@@ -181,7 +181,7 @@ try {
     Write-ADTLogEntry -Message "=============================================="
     Write-ADTLogEntry -Message "Starting $DeploymentType of $AppName $AppVersion"
     Write-ADTLogEntry -Message "Deploy Mode: $DeployMode"
-    Write-ADTLogEntry -Message "Running as: $(if ($ADTSession.IsSystemAccount) {'SYSTEM'} else {$env:USERNAME})"
+    Write-ADTLogEntry -Message "Running as: $(if ($adtSession.IsSystemAccount) {'SYSTEM'} else {$env:USERNAME})"
     Write-ADTLogEntry -Message "=============================================="
 
     switch ($DeploymentType) {
@@ -220,11 +220,11 @@ try {
 
             $msiParams = @{
                 Action     = 'Install'
-                Path       = Join-Path -Path $ADTSession.FilesDirectory -ChildPath $InstallerFile
+                Path       = Join-Path -Path $adtSession.DirFiles -ChildPath $InstallerFile
                 Parameters = $InstallParameters
             }
             {{#if transformFile}}
-            $msiParams.Transform = Join-Path -Path $ADTSession.FilesDirectory -ChildPath $TransformFile
+            $msiParams.Transform = Join-Path -Path $adtSession.DirFiles -ChildPath $TransformFile
             {{/if}}
 
             $result = Start-ADTMsiProcess @msiParams
@@ -237,7 +237,7 @@ try {
 
             # Verify installation
             Start-Sleep -Seconds 2  # Brief pause for registry to update
-            $installed = Get-ADTInstalledApplication -Name $AppName
+            $installed = Get-ADTApplication -Name $AppName
             if (-not $installed) {
                 throw "Installation verification failed - application not found"
             }
@@ -249,15 +249,15 @@ try {
             {{#if rebootBehavior}}
             # Handle reboot
             {{#ifEquals rebootBehavior "prompt"}}
-            if ($result.ExitCode -eq 3010 -or $ADTSession.RebootRequired) {
+            if ($result.ExitCode -eq 3010 -or $adtSession.RebootRequired) {
                 Write-ADTLogEntry -Message "Restart required - prompting user"
                 Show-ADTInstallationRestartPrompt -CountdownSeconds 600 -NoCountdown $false
             }
             {{/ifEquals}}
             {{#ifEquals rebootBehavior "force"}}
-            if ($result.ExitCode -eq 3010 -or $ADTSession.RebootRequired) {
+            if ($result.ExitCode -eq 3010 -or $adtSession.RebootRequired) {
                 Write-ADTLogEntry -Message "Restart required - returning 3010"
-                Complete-ADTDeployment -DeploymentStatus 'RestartRequired'
+                Close-ADTSession -ExitCode 3010
                 return
             }
             {{/ifEquals}}
@@ -295,7 +295,7 @@ try {
 
             # Fallback to finding by name
             if (-not $uninstalled) {
-                $apps = Get-ADTInstalledApplication -Name $AppName
+                $apps = Get-ADTApplication -Name $AppName
                 foreach ($app in $apps) {
                     if ($app.ProductCode) {
                         Write-ADTLogEntry -Message "Uninstalling: $($app.DisplayName) [$($app.ProductCode)]"
@@ -332,7 +332,7 @@ try {
             Show-ADTInstallationProgress -StatusMessage "Repairing $AppName..."
 
             # Find installed product
-            $app = Get-ADTInstalledApplication -Name $AppName | Select-Object -First 1
+            $app = Get-ADTApplication -Name $AppName | Select-Object -First 1
 
             if ($app -and $app.ProductCode) {
                 Write-ADTLogEntry -Message "Repairing: $($app.DisplayName) [$($app.ProductCode)]"
@@ -361,6 +361,6 @@ try {
     Write-ADTLogEntry -Message "$DeploymentType of $AppName completed successfully"
     Write-ADTLogEntry -Message "=============================================="
 
-    Complete-ADTDeployment -DeploymentStatus 'Complete'
+    Close-ADTSession
 }
 {{> error-handling}}

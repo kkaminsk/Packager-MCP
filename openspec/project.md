@@ -2,7 +2,7 @@
 
 ## Purpose
 
-**Intune Packaging Assistant MCP Server** - An MCP (Model Context Protocol) server that transforms Claude CLI and compatible AI tools into expert Windows application packaging assistants.
+**Packager-MCP** - An MCP (Model Context Protocol) server that transforms Claude CLI and compatible AI tools into expert Windows application packaging assistants.
 
 ### Goals
 1. Automate Winget package lookups for installer metadata, URLs, and silent install parameters
@@ -102,20 +102,23 @@ src/
 | MSIX/AppX | `Add-AppxPackage` | N/A | Modern format, self-contained |
 | ZIP | Extract + run | N/A | Manual or xcopy deployment |
 
-### PSADT v4 (PowerShell Application Deployment Toolkit)
+### PSADT v4.1.7 (PowerShell Application Deployment Toolkit)
 
-Key differences from v3:
-- Module-based: `Import-Module PSAppDeployToolkit`
-- Function prefix: All functions now use `ADT` prefix (e.g., `Show-ADTInstallationWelcome`)
-- Session object: `$ADTSession` for state management
-- Structured initialization: `Initialize-ADTDeployment` / `Complete-ADTDeployment`
+Key concepts:
+- Module-based: `Import-Module -FullyQualifiedName @{ ModuleName = 'PSAppDeployToolkit'; ModuleVersion = '4.1.7' }`
+- Function prefix: All 135 functions use `ADT` prefix (e.g., `Show-ADTInstallationWelcome`)
+- Session hashtable: `$adtSession` (lowercase) for session configuration
+- Structured initialization: `Open-ADTSession` / `Close-ADTSession`
+- Deployment functions: `Install-ADTDeployment`, `Uninstall-ADTDeployment`, `Repair-ADTDeployment`
 
 Key functions:
-- `Initialize-ADTDeployment` - Start deployment session
+- `Open-ADTSession` - Initialize deployment session
+- `Close-ADTSession` - Finalize deployment and set exit code
 - `Show-ADTInstallationWelcome` - User prompts, app closing
-- `Start-ADTProcess` - Execute installers with logging
+- `Start-ADTProcess` - Execute installers (use `-ArgumentList` parameter)
 - `Start-ADTMsiProcess` - MSI-specific installation
-- `Complete-ADTDeployment` - Finalize and set exit code
+- `Get-ADTApplication` - Get installed application info
+- `Write-ADTLogEntry` - Logging
 
 ### Microsoft Intune
 
@@ -158,7 +161,7 @@ Key functions:
 ### PSADT Project
 - **Website**: https://psappdeploytoolkit.com
 - **GitHub**: https://github.com/PSAppDeployToolkit/PSAppDeployToolkit
-- **Version**: Target PSADT v4.x
+- **Version**: Target PSADT v4.1.7
 
 ### MCP Protocol
 - **Spec**: https://modelcontextprotocol.io

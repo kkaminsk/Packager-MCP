@@ -14,7 +14,7 @@ const FUNCTION_MAPPINGS = [
     { v3Pattern: /\bShow-InstallationPrompt\b/gi, v3Name: 'Show-InstallationPrompt', v4Name: 'Show-ADTInstallationPrompt' },
     { v3Pattern: /\bShow-InstallationRestartPrompt\b/gi, v3Name: 'Show-InstallationRestartPrompt', v4Name: 'Show-ADTInstallationRestartPrompt' },
     { v3Pattern: /\bShow-BalloonTip\b/gi, v3Name: 'Show-BalloonTip', v4Name: 'Show-ADTBalloonTip' },
-    { v3Pattern: /\bExit-Script\b/gi, v3Name: 'Exit-Script', v4Name: 'Complete-ADTDeployment', notes: 'Exit handling is now structured through Complete-ADTDeployment' },
+    { v3Pattern: /\bExit-Script\b/gi, v3Name: 'Exit-Script', v4Name: 'Close-ADTSession', notes: 'Session cleanup is now handled through Close-ADTSession' },
     // File operations
     { v3Pattern: /\bCopy-File\b/gi, v3Name: 'Copy-File', v4Name: 'Copy-ADTFile' },
     { v3Pattern: /\bRemove-File\b/gi, v3Name: 'Remove-File', v4Name: 'Remove-ADTFile' },
@@ -29,8 +29,8 @@ const FUNCTION_MAPPINGS = [
     { v3Pattern: /\bNew-Shortcut\b/gi, v3Name: 'New-Shortcut', v4Name: 'New-ADTShortcut' },
     { v3Pattern: /\bRemove-Shortcut\b/gi, v3Name: 'Remove-Shortcut', v4Name: 'Remove-ADTShortcut' },
     // Application management
-    { v3Pattern: /\bGet-InstalledApplication\b/gi, v3Name: 'Get-InstalledApplication', v4Name: 'Get-ADTInstalledApplication' },
-    { v3Pattern: /\bRemove-MSIApplications\b/gi, v3Name: 'Remove-MSIApplications', v4Name: 'Remove-ADTInstalledApplication' },
+    { v3Pattern: /\bGet-InstalledApplication\b/gi, v3Name: 'Get-InstalledApplication', v4Name: 'Get-ADTApplication' },
+    { v3Pattern: /\bRemove-MSIApplications\b/gi, v3Name: 'Remove-MSIApplications', v4Name: 'Remove-ADTApplication' },
     { v3Pattern: /\bGet-RunningProcesses\b/gi, v3Name: 'Get-RunningProcesses', v4Name: 'Get-ADTRunningProcesses' },
     { v3Pattern: /\bBlock-AppExecution\b/gi, v3Name: 'Block-AppExecution', v4Name: 'Block-ADTAppExecution' },
     { v3Pattern: /\bUnblock-AppExecution\b/gi, v3Name: 'Unblock-AppExecution', v4Name: 'Unblock-ADTAppExecution' },
@@ -46,15 +46,15 @@ const FUNCTION_MAPPINGS = [
 ];
 // V3 to V4 variable mappings
 const VARIABLE_MAPPINGS = [
-    { v3Pattern: /\$appVendor\b/gi, v3Name: '$appVendor', v4Name: '$ADTSession.Publisher' },
-    { v3Pattern: /\$appName\b/gi, v3Name: '$appName', v4Name: '$ADTSession.InstallName' },
-    { v3Pattern: /\$appVersion\b/gi, v3Name: '$appVersion', v4Name: '$ADTSession.InstallVersion' },
-    { v3Pattern: /\$deploymentType\b/gi, v3Name: '$deploymentType', v4Name: '$ADTSession.DeploymentType' },
-    { v3Pattern: /\$deployMode\b/gi, v3Name: '$deployMode', v4Name: '$ADTSession.DeployMode' },
-    { v3Pattern: /\$dirFiles\b/gi, v3Name: '$dirFiles', v4Name: '$ADTSession.FilesDirectory' },
-    { v3Pattern: /\$dirSupportFiles\b/gi, v3Name: '$dirSupportFiles', v4Name: '$ADTSession.SupportFilesDirectory' },
-    { v3Pattern: /\$scriptDirectory\b/gi, v3Name: '$scriptDirectory', v4Name: '$ADTSession.ScriptDirectory' },
-    { v3Pattern: /\$logName\b/gi, v3Name: '$logName', v4Name: '$ADTSession.LogName' },
+    { v3Pattern: /\$appVendor\b/gi, v3Name: '$appVendor', v4Name: '$adtSession.AppVendor' },
+    { v3Pattern: /\$appName\b/gi, v3Name: '$appName', v4Name: '$adtSession.AppName' },
+    { v3Pattern: /\$appVersion\b/gi, v3Name: '$appVersion', v4Name: '$adtSession.AppVersion' },
+    { v3Pattern: /\$deploymentType\b/gi, v3Name: '$deploymentType', v4Name: '$adtSession.DeploymentType' },
+    { v3Pattern: /\$deployMode\b/gi, v3Name: '$deployMode', v4Name: '$adtSession.DeployMode' },
+    { v3Pattern: /\$dirFiles\b/gi, v3Name: '$dirFiles', v4Name: '$adtSession.DirFiles' },
+    { v3Pattern: /\$dirSupportFiles\b/gi, v3Name: '$dirSupportFiles', v4Name: '$adtSession.DirSupportFiles' },
+    { v3Pattern: /\$scriptDirectory\b/gi, v3Name: '$scriptDirectory', v4Name: '$adtSession.ScriptDirectory' },
+    { v3Pattern: /\$logName\b/gi, v3Name: '$logName', v4Name: '$adtSession.LogName' },
 ];
 /**
  * Parse raw arguments into structured arguments
@@ -73,9 +73,9 @@ function detectVersion(script) {
     // V4 indicators
     const v4Indicators = [
         /Import-Module.*PSAppDeployToolkit/i,
-        /Initialize-ADTDeployment/i,
-        /Complete-ADTDeployment/i,
-        /\$ADTSession\./i,
+        /Open-ADTSession/i,
+        /Close-ADTSession/i,
+        /\$adtSession\./i,
         /-ADT[A-Z]/i, // ADT-prefixed functions
     ];
     // V3 indicators
@@ -165,12 +165,12 @@ function findStructureIssues(script) {
         issues.push('Missing Import-Module PSAppDeployToolkit statement');
     }
     // Check for missing initialization
-    if (!/Initialize-ADTDeployment/i.test(script)) {
-        issues.push('Missing Initialize-ADTDeployment call');
+    if (!/Open-ADTSession/i.test(script)) {
+        issues.push('Missing Open-ADTSession call');
     }
     // Check for proper completion
-    if (!/Complete-ADTDeployment/i.test(script)) {
-        issues.push('Missing Complete-ADTDeployment call');
+    if (!/Close-ADTSession/i.test(script)) {
+        issues.push('Missing Close-ADTSession call');
     }
     // Check for param block
     if (!/^\s*param\s*\(/mi.test(script)) {
@@ -200,8 +200,8 @@ function convertScript(script, functionMappings, variableMappings) {
     }
     // Add v4 structure if missing
     const hasModuleImport = /Import-Module.*PSAppDeployToolkit/i.test(converted);
-    const hasInitialize = /Initialize-ADTDeployment/i.test(converted);
-    const hasComplete = /Complete-ADTDeployment/i.test(converted);
+    const hasInitialize = /Open-ADTSession/i.test(converted);
+    const hasComplete = /Close-ADTSession/i.test(converted);
     const hasParamBlock = /^\s*param\s*\(/mi.test(converted);
     // If script is missing key v4 elements, add a header comment
     if (!hasModuleImport || !hasInitialize || !hasComplete || !hasParamBlock) {
@@ -210,8 +210,9 @@ function convertScript(script, functionMappings, variableMappings) {
     }
     // Replace -Path with -FilePath for Start-ADTProcess
     converted = converted.replace(/Start-ADTProcess\s+-Path\b/gi, 'Start-ADTProcess -FilePath');
-    // Replace -Parameters with -Arguments
-    converted = converted.replace(/(-FilePath\s+[^\s]+)\s+-Parameters\b/gi, '$1 -Arguments');
+    // Replace -Parameters with -ArgumentList
+    converted = converted.replace(/(-FilePath\s+[^\s]+)\s+-Parameters\b/gi, '$1 -ArgumentList');
+    converted = converted.replace(/(-FilePath\s+[^\s]+)\s+-Arguments\b/gi, '$1 -ArgumentList');
     return converted;
 }
 /**
@@ -229,7 +230,7 @@ function generateV4Header() {
     Review all MANUAL_REVIEW markers for items requiring attention.
 
 .NOTES
-    Converted by Intune Packaging Assistant MCP Server
+    Converted by Packager-MCP
 #>
 
 [CmdletBinding()]
@@ -243,42 +244,73 @@ param (
     [switch]$DisableLogging
 )
 
-# Import PSADT module
-Import-Module "$PSScriptRoot\\PSAppDeployToolkit" -Force
-
-# MANUAL_REVIEW: Update these values from your original script
-Initialize-ADTDeployment @{
-    InstallName = 'Application Name'
-    InstallVersion = '1.0.0'
-    Publisher = 'Publisher'
-    DeploymentType = $DeploymentType
-    DeployMode = $DeployMode
-    AllowRebootPassThru = $AllowRebootPassThru
-    TerminalServerMode = $TerminalServerMode
-    DisableLogging = $DisableLogging
+# MANUAL_REVIEW: Update these session configuration values from your original script
+$adtSession = @{
+    AppVendor = 'Publisher'
+    AppName = 'Application Name'
+    AppVersion = '1.0.0'
+    AppArch = 'x64'
+    AppLang = 'EN'
+    AppRevision = '01'
+    AppSuccessExitCodes = @(0)
+    AppRebootExitCodes = @(1641, 3010)
+    AppScriptVersion = '1.0.0'
+    AppScriptDate = (Get-Date -Format 'yyyy-MM-dd')
+    AppScriptAuthor = 'IT Admin'
+    RequireAdmin = $true
+    DeployAppScriptFriendlyName = $MyInvocation.MyCommand.Name
+    DeployAppScriptParameters = $PSBoundParameters
+    DeployAppScriptVersion = '4.1.7'
 }
 
+# Import PSADT module and initialize session
+$ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
+$ProgressPreference = [System.Management.Automation.ActionPreference]::SilentlyContinue
+Set-StrictMode -Version 1
+
 try {
-    switch ($DeploymentType) {
-        'Install' {`;
+    Import-Module -FullyQualifiedName @{ ModuleName = "$PSScriptRoot\\PSAppDeployToolkit\\PSAppDeployToolkit.psd1"; Guid = '8c3c366b-8606-4576-9f2d-4051144f7ca2'; ModuleVersion = '4.1.7' } -Force
+    $iadtParams = Get-ADTBoundParametersAndDefaultValues -Invocation $MyInvocation
+    $adtSession = Remove-ADTHashtableNullOrEmptyValues -Hashtable $adtSession
+    $adtSession = Open-ADTSession @adtSession @iadtParams -PassThru
+}
+catch {
+    $Host.UI.WriteErrorLine((Out-String -InputObject $_ -Width ([System.Int32]::MaxValue)))
+    exit 60008
+}
+
+# Deployment functions
+function Install-ADTDeployment {
+    [CmdletBinding()]
+    param()`;
 }
 /**
  * Generate v4 script footer template
  */
 function generateV4Footer() {
-    return `        }
-        'Uninstall' {
-            # MANUAL_REVIEW: Add uninstall logic
-        }
-        'Repair' {
-            # MANUAL_REVIEW: Add repair logic (optional)
-        }
-    }
+    return `}
 
-    Complete-ADTDeployment -DeploymentStatus 'Complete'
+function Uninstall-ADTDeployment {
+    [CmdletBinding()]
+    param()
+    # MANUAL_REVIEW: Add uninstall logic
+}
+
+function Repair-ADTDeployment {
+    [CmdletBinding()]
+    param()
+    # MANUAL_REVIEW: Add repair logic (optional)
+    Install-ADTDeployment
+}
+
+# Invoke deployment
+try {
+    & "$($adtSession.DeploymentType)-ADTDeployment"
+    Close-ADTSession
 }
 catch {
-    Complete-ADTDeployment -DeploymentStatus 'Failed' -ErrorMessage $_.Exception.Message
+    Write-ADTLogEntry -Message "Unhandled error: $(Resolve-ADTErrorRecord -ErrorRecord $_)" -Severity 3
+    Close-ADTSession -ExitCode 60001
 }`;
 }
 /**
@@ -307,7 +339,7 @@ function identifyManualReviewPoints(originalScript, convertedScript, functionMap
     // Flag functions with parameter changes
     for (const mapping of functionMappings) {
         if (mapping.parameterChanges) {
-            mapping.lineNumbers.forEach(lineNum => {
+            mapping.lineNumbers.forEach((lineNum) => {
                 const originalLine = originalScript.split('\n')[lineNum - 1];
                 if (originalLine) {
                     points.push({
@@ -327,7 +359,7 @@ function identifyManualReviewPoints(originalScript, convertedScript, functionMap
             points.push({
                 lineNumber: index + 1,
                 category: 'variable',
-                description: 'Variable declaration should be moved to Initialize-ADTDeployment parameters',
+                description: 'Variable declaration should be moved to the $adtSession hashtable passed to Open-ADTSession',
                 originalCode: line.trim(),
             });
         }
@@ -351,12 +383,12 @@ function generateChecklist(functionMappings, variableMappings, structureIssues) 
         completed: structureIssues.every(i => !i.includes('Import-Module')),
     });
     checklist.push({
-        item: 'Add Initialize-ADTDeployment call',
-        completed: structureIssues.every(i => !i.includes('Initialize-ADTDeployment')),
+        item: 'Add Open-ADTSession call',
+        completed: structureIssues.every(i => !i.includes('Open-ADTSession')),
     });
     checklist.push({
-        item: 'Add Complete-ADTDeployment call',
-        completed: structureIssues.every(i => !i.includes('Complete-ADTDeployment')),
+        item: 'Add Close-ADTSession call',
+        completed: structureIssues.every(i => !i.includes('Close-ADTSession')),
     });
     checklist.push({
         item: 'Add try/catch error handling',
@@ -373,7 +405,7 @@ function generateChecklist(functionMappings, variableMappings, structureIssues) 
     // Variable migrations
     if (variableMappings.length > 0) {
         checklist.push({
-            item: `Update ${variableMappings.length} variable reference(s) to use $ADTSession`,
+            item: `Update ${variableMappings.length} variable reference(s) to use $adtSession`,
             completed: true, // Automated
             notes: variableMappings.map(m => `${m.v3Variable} → ${m.v4Variable}`).join(', '),
         });
@@ -413,6 +445,7 @@ export async function executeConvertLegacyWorkflow(args) {
         },
         manualReviewPoints: [],
         checklist: [],
+        warnings: [],
     };
     // Get script content
     const script = args.scriptPathOrContent;
@@ -496,7 +529,7 @@ export function formatConvertLegacyResult(result) {
     // Function mappings
     if (result.analysis.functionMappings.length > 0) {
         lines.push('### Function Migrations');
-        result.analysis.functionMappings.forEach(m => {
+        result.analysis.functionMappings.forEach((m) => {
             lines.push(`- \`${m.v3Function}\` → \`${m.v4Function}\` (lines: ${m.lineNumbers.join(', ')})`);
             if (m.parameterChanges) {
                 lines.push(`  - Parameter changes: ${m.parameterChanges}`);
@@ -507,7 +540,7 @@ export function formatConvertLegacyResult(result) {
     // Variable mappings
     if (result.analysis.variableMappings.length > 0) {
         lines.push('### Variable Migrations');
-        result.analysis.variableMappings.forEach(m => {
+        result.analysis.variableMappings.forEach((m) => {
             lines.push(`- \`${m.v3Variable}\` → \`${m.v4Variable}\` (lines: ${m.lineNumbers.join(', ')})`);
         });
         lines.push('');
@@ -515,7 +548,7 @@ export function formatConvertLegacyResult(result) {
     // Manual review points
     if (result.manualReviewPoints.length > 0) {
         lines.push('### Manual Review Required');
-        result.manualReviewPoints.slice(0, 10).forEach(p => {
+        result.manualReviewPoints.slice(0, 10).forEach((p) => {
             lines.push(`- **Line ${p.lineNumber}** [${p.category}]: ${p.description}`);
         });
         if (result.manualReviewPoints.length > 10) {
@@ -531,7 +564,7 @@ export function formatConvertLegacyResult(result) {
         if (result.validation.issues.length > 0) {
             lines.push('');
             lines.push('**Top Issues:**');
-            result.validation.issues.slice(0, 5).forEach(i => {
+            result.validation.issues.slice(0, 5).forEach((i) => {
                 lines.push(`- [${i.severity.toUpperCase()}] ${i.message}`);
             });
         }
@@ -540,7 +573,7 @@ export function formatConvertLegacyResult(result) {
     // Checklist
     if (result.checklist.length > 0) {
         lines.push('### Migration Checklist');
-        result.checklist.forEach(item => {
+        result.checklist.forEach((item) => {
             const check = item.completed ? '✓' : '○';
             lines.push(`- [${check}] ${item.item}`);
             if (item.notes) {
@@ -552,7 +585,7 @@ export function formatConvertLegacyResult(result) {
     // Warnings
     if (result.warnings && result.warnings.length > 0) {
         lines.push('### Warnings');
-        result.warnings.forEach(w => lines.push(`- ${w}`));
+        result.warnings.forEach((w) => lines.push(`- ${w}`));
         lines.push('');
     }
     lines.push('*The converted script is included below for your review.*');
