@@ -421,7 +421,7 @@ npm run validate:knowledge
 
 ```
 ┌─────────────────┐      ┌──────────────────┐     ┌─────────────────┐
-│   Windsurf      │────▶│  Packager-MCP    │────▶│  GitHub API     │
+│   Claude CLI    │────▶│  Packager-MCP    │────▶│  GitHub API     │
 │   (MCP Client)  │◀────│  (MCP Server)    │◀────│  (Winget Repo)  │
 └─────────────────┘      └──────────────────┘     └─────────────────┘
                                │
