@@ -2,6 +2,10 @@
 
 An MCP (Model Context Protocol) server that transforms Claude CLI and compatible AI tools into expert Windows application packaging assistants for Microsoft Intune.
 
+![](./Architecture_Graphics/packager-mcp-architecture.png)
+
+
+
 ---
 
 ## What is This?
