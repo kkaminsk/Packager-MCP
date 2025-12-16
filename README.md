@@ -27,13 +27,13 @@ When you connect this server to Claude CLI (or another MCP-compatible client), C
 
 ## Version Notes
 
-**Packager-MCP v1.0** - Production ready. The server provides complete Windows application packaging assistance with PSADT v4.1.7 support.
+**Packager-MCP v0.8** - Beta. The server provides complete Windows application packaging assistance with PSADT v4.1.7 support.
 
 ---
 
 ## Detailed Guide
 
-Look for the PackagerMCP_Claude.docx in this repository.
+Look for the [PackagerMCP_Claude.docx](https://github.com/kkaminsk/Packager-MCP/blob/main/PackagerMCP_Claude.docx) in this repository.
 
 ## Quick Start
 
@@ -485,4 +485,4 @@ MIT
 - [PSADT Documentation](https://psappdeploytoolkit.com)
 - [Winget Repository](https://github.com/microsoft/winget-pkgs)
 - [MCP Specification](https://modelcontextprotocol.io)
-- [Windsurf]([Windsurf - The best AI for Coding](https://windsurf.com/))
+- [Claude](https://claude.ai)
