@@ -1,14 +1,6 @@
-Use @Packager-MCP
-I want a package with the latest WinRAR version. Exclude beta versions.
-2. Use get_psadt_template with .\TEST_WinRAR_Package36 to generate the template files
-3. Use verify_psadt_functions to validate the generated script
-4. If issues are found, report them so they can be corrected
-5. Download the installer to the Files folder using Invoke-WebRequest
-6.Make an extensive Readme.md for the package.
-
-Use @Packager-MCP
-I want a package with the latest WinRAR version. Exclude beta versions.
-2. Use get_psadt_template with .\TEST_WinRAR_Package36 to generate the template files
+Use Packager-MCP
+1 I want a package with the latest WinRAR version. Exclude beta versions.
+2. Use get_psadt_template with .\TEST_WinRAR_Package to generate the template files
 3. If issues are found, report them so they can be corrected
 4. Download the installer to the Files folder using Invoke-WebRequest
-5.Make an extensive Readme.md for the package.
+5. Make an extensive Readme.md for the package.

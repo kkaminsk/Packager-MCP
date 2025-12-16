@@ -13,6 +13,9 @@ import {
   parseBulkLookupArgs,
   executeBulkLookupWorkflow,
   formatBulkLookupResult,
+  parseConvertLegacyArgs,
+  executeConvertLegacyWorkflow,
+  formatConvertLegacyResult,
 } from '../workflows/index.js';
 
 const logger = getLogger().child({ handler: 'prompts' });
@@ -40,6 +43,11 @@ const bulkLookupArgsSchema = z.object({
   output: z.enum(['csv', 'json', 'markdown']).optional().describe('Output format'),
   'include-versions': z.string().optional().describe('Include version history (true/false)'),
   'include-installers': z.string().optional().describe('Include installer details (true/false)'),
+});
+
+const convertLegacyArgsSchema = z.object({
+  script: z.string().min(1).describe('PSADT v3 script content to convert'),
+  verbose: z.string().optional().describe('Include detailed migration notes (true/false)'),
 });
 
 /**
@@ -192,5 +200,52 @@ export function registerPromptHandlers(server: McpServer): void {
     }
   );
 
-  handlerLogger.info('Prompt handlers registered', { count: 3 });
+  // Register convert-legacy prompt
+  server.prompt(
+    'convert-legacy',
+    'Convert a PSADT v3 script to v4 format with function mappings, variable updates, and migration guidance',
+    convertLegacyArgsSchema.shape,
+    async (args) => {
+      handlerLogger.debug('Executing convert-legacy prompt', { args });
+
+      const rawArgs: Record<string, string> = {};
+      for (const [key, value] of Object.entries(args)) {
+        if (value !== undefined) {
+          rawArgs[key] = String(value);
+        }
+      }
+
+      const parsedArgs = parseConvertLegacyArgs(rawArgs);
+      const result = await executeConvertLegacyWorkflow(parsedArgs);
+      const formatted = formatConvertLegacyResult(result);
+
+      // Build response content
+      let content = formatted;
+
+      if (result.convertedScript) {
+        content += `\n\n### Converted Script\n\n\`\`\`powershell\n${result.convertedScript}\n\`\`\``;
+      }
+
+      return {
+        messages: [
+          {
+            role: 'user' as const,
+            content: {
+              type: 'text' as const,
+              text: 'Convert this PSADT v3 script to v4 format',
+            },
+          },
+          {
+            role: 'assistant' as const,
+            content: {
+              type: 'text' as const,
+              text: content,
+            },
+          },
+        ],
+      };
+    }
+  );
+
+  handlerLogger.info('Prompt handlers registered', { count: 4 });
 }

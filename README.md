@@ -31,12 +31,16 @@ When you connect this server to Claude CLI (or another MCP-compatible client), C
 
 ---
 
+## Detailed Guide
+
+Look for the PackagerMCP_Claude.docx in this repository.
+
 ## Quick Start
 
 ### Prerequisites
 
 - **Node.js 20** or higher
-- **MCP-compatible AI client** (Claude CLI, Windsurf, Claude Desktop, etc.)
+- **MCP-compatible AI client** (Claude CLI recommended, see detailed guide)
 - **GitHub Token** (recommended) - [Create one here](https://github.com/settings/tokens?type=beta)
 
 ### Installation
@@ -78,7 +82,7 @@ npm run build
 **For Claude CLI:**
 
 ```bash
-claude mcp add packager-mcp node /path/to/Packager-MCP/dist/server.js
+claude mcp add packager-mcp node C:/Temp/Github/Packager-MCP/dist/server.js -e GITHUB_TOKEN=github_pat_changeme
 ```
 
 **For Claude Desktop (claude_desktop_config.json):**
@@ -99,13 +103,13 @@ claude mcp add packager-mcp node /path/to/Packager-MCP/dist/server.js
 
 ### Verify It's Working
 
-After adding the server to your MCP client, you should see `packager-mcp` in the list of available servers. The server provides 5 tools, 11 resources, and 4 prompts.
+After adding the server to your MCP client, you should see `packager-mcp` in the list of available servers. The server provides 6 tools, 11 resources, and 4 prompts. Feel free to ask the agent if the MCP is working and test it.
 
 ---
 
 ## What Can It Do?
 
-### Five Powerful Tools
+### Six Powerful Tools
 
 | Tool | What It Does | Example Use |
 |------|--------------|-------------|
@@ -114,6 +118,7 @@ After adding the server to your MCP client, you should see `packager-mcp` in the
 | `get_psadt_template` | Generate PSADT v4 deployment scripts | "Create a PSADT script for 7-Zip" |
 | `validate_package` | Check scripts for errors and best practices | "Validate my deployment script" |
 | `generate_intune_detection` | Create Intune detection rules | "Generate a file detection rule for Notepad++" |
+| `verify_psadt_functions` | Verify PSADT scripts use valid v4.1.7 functions | "Verify my script has correct function names" |
 
 **Note:** Use `search_winget` to get installer URLs, then download with PowerShell's `Invoke-WebRequest`. The PSADT toolkit is bundled in `dist/knowledge/v4github/` - copy these files to your package directory.
 
@@ -126,6 +131,7 @@ Claude can read these built-in guides to help you better:
 - `psadt://docs/overview` - Architecture and concepts
 - `psadt://docs/functions` - All 135 ADT-prefixed functions
 - `psadt://docs/variables` - Built-in variables and $ADTSession
+- `psadt://docs/migration` - Guide for migrating from v3 to v4
 - `psadt://docs/best-practices` - Recommended patterns
 
 **Installer Guides:**
@@ -140,13 +146,14 @@ Claude can read these built-in guides to help you better:
 
 Note: Silent install arguments are accessed via the `get_silent_install_args` tool rather than as a resource.
 
-### Three Guided Workflows (Prompts)
+### Four Guided Workflows (Prompts)
 
 | Prompt | Description |
 |--------|-------------|
 | `package-app` | Complete workflow: search → template → detection → validate |
 | `troubleshoot` | Diagnose package failures from error codes and logs |
 | `bulk-lookup` | Get info for multiple apps at once |
+| `convert-legacy` | Convert PSADT v3 scripts to v4 format with migration guidance |
 
 ---
 
