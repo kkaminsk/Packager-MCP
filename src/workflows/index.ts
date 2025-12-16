@@ -17,3 +17,9 @@ export {
   executeBulkLookupWorkflow,
   formatBulkLookupResult,
 } from './bulk-lookup.js';
+
+export {
+  parseConvertLegacyArgs,
+  executeConvertLegacyWorkflow,
+  formatConvertLegacyResult,
+} from './convert-legacy.js';
