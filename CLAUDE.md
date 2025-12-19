@@ -136,6 +136,38 @@ Note: Silent install arguments are stored in `src/knowledge/reference/silent-arg
 - Integration tests for MCP protocol compliance
 - Test with multiple MCP clients (Claude CLI, Claude Desktop)
 
+## Docker Deployment
+
+The server supports containerized deployment via Docker. See `DOCKER.md` for full details.
+
+### Quick Start
+
+```bash
+# Build and run
+docker build -t packager-mcp .
+docker run -p 10101:10101 -e GITHUB_TOKEN=your_token packager-mcp
+
+# Or use Docker Compose
+export GITHUB_TOKEN=your_token
+docker compose up
+```
+
+### Environment Variables
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `GITHUB_TOKEN` | Yes | GitHub PAT for Winget API access |
+| `LOG_LEVEL` | No | `debug`, `info`, `warn`, `error` (default: `info`) |
+| `LOG_FORMAT` | No | `json` or `text` (default: `json`) |
+
+### Multi-Architecture Support
+
+Build for both `linux/amd64` and `linux/arm64`:
+
+```bash
+docker buildx build --platform linux/amd64,linux/arm64 -t packager-mcp --push .
+```
+
 ## Performance Targets
 
 | Metric | Target |
