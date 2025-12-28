@@ -29,7 +29,7 @@
 
 ## Project Conventions
 
-### Code Style
+### TypeScript Code Style
 
 - **TypeScript**: Strict mode enabled, explicit types required
 - **Naming**:
@@ -39,6 +39,110 @@
 - **Files**: `kebab-case.ts` for file names
 - **Async**: Prefer `async/await` over raw Promises
 - **Exports**: Named exports preferred; types exported from `types/` directory
+
+### PowerShell Code Style
+
+PowerShell scripts follow patterns from the reference function library:
+
+- **Naming**: `Verb-PackagerMcpNoun` pattern (e.g., `Connect-PackagerMcpGraph`)
+- **Files**: Each function in separate `.ps1` file with companion `.md` documentation
+- **Help**: All functions include comment-based help (Synopsis, Description, Parameters, Examples)
+- **CmdletBinding**: Always use `[CmdletBinding()]` to enable common parameters
+
+**Function Template**:
+```powershell
+function Verb-PackagerMcpNoun {
+  <#
+    .SYNOPSIS
+    Brief description.
+    .DESCRIPTION
+    Detailed description.
+    .PARAMETER ParamName
+    Parameter description.
+    .OUTPUTS
+    Return type and description.
+    .EXAMPLE
+    Verb-PackagerMcpNoun -ParamName 'value'
+    Example description.
+  #>
+  [CmdletBinding()]
+  param(
+    [Parameter(Mandatory)]
+    [string]$ParamName
+  )
+
+  # Implementation
+}
+```
+
+**Logging Pattern**:
+```powershell
+function Write-PackagerMcpLog {
+  param(
+    [Parameter(Mandatory)][string]$Message,
+    [ValidateSet('INFO','WARN','ERROR','DEBUG')][string]$Level='INFO'
+  )
+  $line = "[{0}] {1}: {2}" -f (Get-Date).ToString('yyyy-MM-dd HH:mm:ss'), $Level, $Message
+  Add-Content -LiteralPath $script:logPath -Value $line
+  switch ($Level) {
+    'ERROR' { Write-Error $Message }
+    'WARN'  { Write-Warning $Message }
+    default { Write-Verbose $Message }
+  }
+}
+```
+
+**Graph API Retry Pattern**:
+```powershell
+function Invoke-GraphWithRetry {
+  param(
+    [scriptblock]$Script,
+    [int]$MaxRetries = 4,
+    [string]$OperationName,
+    [int[]]$NonFatalStatusCodes,
+    $NonFatalReturn
+  )
+  $i = 0
+  while ($true) {
+    try {
+      return & $Script
+    } catch {
+      $code = [int]$_.Exception.Response.StatusCode
+      $retry = $code -in 429,502,503,504
+      $i++
+      $wait = [Math]::Min(2 * [Math]::Pow(2, $i), 60)
+
+      # Respect Retry-After header
+      try {
+        $headers = $_.Exception.Response.Headers
+        if ($headers -and $headers['Retry-After']) { $wait = [int]$headers['Retry-After'] }
+      } catch {}
+
+      if ($i -le $MaxRetries -and $retry) {
+        Write-PackagerMcpLog "Retry $i/$MaxRetries in $wait sec: $($_.Exception.Message)" 'WARN'
+        Start-Sleep -Seconds $wait
+        continue
+      }
+      throw
+    }
+  }
+}
+```
+
+**User Confirmation Pattern**:
+```powershell
+function Confirm-PackagerMcpAction {
+  param(
+    [Parameter(Mandatory)][string]$Message,
+    [switch]$Force
+  )
+  if ($Force) { return }
+  $response = Read-Host "$Message (Y/n)"
+  if ($response -eq 'n' -or $response -eq 'N') {
+    throw 'Operation cancelled by user.'
+  }
+}
+```
 
 ### Architecture Patterns
 

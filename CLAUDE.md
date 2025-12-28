@@ -54,6 +54,15 @@ src/
 ├── utils/                 # Logger and error utilities
 └── types/                 # TypeScript type definitions
 
+scripts/
+├── Setup-PackagerMcpIntune.ps1  # Azure AD setup automation
+├── README.md                     # Setup script documentation
+└── functions/                    # PowerShell function library
+    ├── Write-PackagerMcpLog.ps1
+    ├── Invoke-GraphWithRetry.ps1
+    ├── Connect-PackagerMcpGraph.ps1
+    └── ... (12 total functions)
+
 ReferenceKnowledge/        # Source reference materials (not distributed)
 ├── V4Assets/              # PSADT v4.1.7 source files
 ├── functionsdoc.md        # Complete function reference
@@ -169,7 +178,33 @@ docker compose up
 
 ### Azure Authentication (for Intune Publishing)
 
-The `publish_to_intune` tool requires certificate-based service principal authentication:
+The `publish_to_intune` tool requires certificate-based service principal authentication. There are two ways to configure this:
+
+#### Option 1: Automated Setup Script (Recommended)
+
+Run the setup script to automatically configure Azure AD and create all required files:
+
+```powershell
+# From the project root
+.\scripts\Setup-PackagerMcpIntune.ps1
+```
+
+This script will:
+1. Create an Azure AD application registration
+2. Configure required Graph API permissions
+3. Grant admin consent
+4. Generate a self-signed certificate
+5. Save configuration to `intune_mcp_config.yaml`
+
+After setup, set the environment variables:
+```powershell
+$env:INTUNE_MCP_CONFIG = "C:\path\to\intune_mcp_config.yaml"
+$env:INTUNE_CERT_PASSWORD = "your-certificate-password"
+```
+
+See `scripts/README.md` for detailed usage.
+
+#### Option 2: Manual Setup with Environment Variables
 
 | Variable | Required | Description |
 |----------|----------|-------------|
@@ -178,7 +213,7 @@ The `publish_to_intune` tool requires certificate-based service principal authen
 | `AZURE_CLIENT_CERTIFICATE_PATH` | Yes | Path to PFX or PEM certificate file |
 | `AZURE_CLIENT_CERTIFICATE_PASSWORD` | No | Certificate password (for PFX files) |
 
-**Setup Steps:**
+**Manual Setup Steps:**
 1. Register an application in Azure Entra ID
 2. Generate a self-signed certificate:
    ```powershell
@@ -189,6 +224,13 @@ The `publish_to_intune` tool requires certificate-based service principal authen
 4. Grant `DeviceManagementApps.ReadWrite.All` API permission (Application type)
 5. Grant admin consent for the permission
 6. Set the environment variables above
+
+#### Configuration Priority
+
+The MCP server loads configuration in this order (first found wins):
+1. Environment variables (`AZURE_TENANT_ID`, `AZURE_CLIENT_ID`, etc.)
+2. YAML config file specified by `INTUNE_MCP_CONFIG` environment variable
+3. Default config file locations (`./intune_mcp_config.yaml`, `~/.packager-mcp/config.yaml`)
 
 ### Multi-Architecture Support
 

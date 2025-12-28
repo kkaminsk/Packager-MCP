@@ -107,13 +107,13 @@ claude mcp add packager-mcp node C:/Temp/Github/Packager-MCP/dist/server.js -e G
 
 ### Verify It's Working
 
-After adding the server to your MCP client, you should see `packager-mcp` in the list of available servers. The server provides 6 tools, 11 resources, and 4 prompts. Feel free to ask the agent if the MCP is working and test it.
+After adding the server to your MCP client, you should see `packager-mcp` in the list of available servers. The server provides 7 tools, 11 resources, and 5 prompts. Feel free to ask the agent if the MCP is working and test it.
 
 ---
 
 ## What Can It Do?
 
-### Six Powerful Tools
+### Seven Powerful Tools
 
 | Tool | What It Does | Example Use |
 |------|--------------|-------------|
@@ -123,8 +123,9 @@ After adding the server to your MCP client, you should see `packager-mcp` in the
 | `validate_package` | Check scripts for errors and best practices | "Validate my deployment script" |
 | `generate_intune_detection` | Create Intune detection rules | "Generate a file detection rule for Notepad++" |
 | `verify_psadt_functions` | Verify PSADT scripts use valid v4.1.7 functions | "Verify my script has correct function names" |
+| `publish_to_intune` | Upload .intunewin packages to Intune | "Publish my package to Intune" |
 
-**Note:** Use `search_winget` to get installer URLs, then download with PowerShell's `Invoke-WebRequest`. The PSADT toolkit is bundled in `dist/knowledge/v4github/` - copy these files to your package directory.
+**Note:** Use `search_winget` to get installer URLs, then download with PowerShell's `Invoke-WebRequest`. The PSADT toolkit is bundled in `dist/knowledge/v4github/` - copy these files to your package directory. The `publish_to_intune` tool requires Azure AD setup - see [Intune Publishing Setup](#intune-publishing-setup-optional).
 
 ### Knowledge Resources
 
@@ -150,7 +151,7 @@ Claude can read these built-in guides to help you better:
 
 Note: Silent install arguments are accessed via the `get_silent_install_args` tool rather than as a resource.
 
-### Four Guided Workflows (Prompts)
+### Five Guided Workflows (Prompts)
 
 | Prompt | Description |
 |--------|-------------|
@@ -158,6 +159,7 @@ Note: Silent install arguments are accessed via the `get_silent_install_args` to
 | `troubleshoot` | Diagnose package failures from error codes and logs |
 | `bulk-lookup` | Get info for multiple apps at once |
 | `convert-legacy` | Convert PSADT v3 scripts to v4 format with migration guidance |
+| `publish-to-intune` | Guided workflow to publish Win32 apps to Intune |
 
 ---
 
@@ -269,6 +271,36 @@ github:
 
 To create a token: GitHub → Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token (no special permissions needed for public repos).
 
+### Intune Publishing Setup (Optional)
+
+To use the `publish_to_intune` tool, you need to configure Azure AD authentication. The easiest way is to run the automated setup script:
+
+```powershell
+# From the project root (requires PowerShell 7+)
+.\scripts\Setup-PackagerMcpIntune.ps1
+```
+
+This script will:
+1. Create an Azure AD application registration
+2. Configure required Graph API permissions (DeviceManagementApps.ReadWrite.All)
+3. Grant admin consent
+4. Generate a self-signed certificate
+5. Save configuration to `intune_mcp_config.yaml`
+
+After setup, set the environment variables:
+
+```powershell
+$env:INTUNE_MCP_CONFIG = "C:\path\to\intune_mcp_config.yaml"
+$env:INTUNE_CERT_PASSWORD = "your-certificate-password"
+```
+
+**Requirements:**
+- PowerShell 7.0 or later
+- Microsoft.Graph PowerShell module (installed automatically)
+- Global Administrator or Application Administrator role
+
+See `scripts/README.md` for detailed usage and manual setup options.
+
 ---
 
 ## Project Structure
@@ -305,6 +337,10 @@ Packager-MCP/
 │   ├── utils/              # Logger and error utilities
 │   ├── types/              # TypeScript type definitions
 │   └── __tests__/          # Unit tests
+├── scripts/
+│   ├── Setup-PackagerMcpIntune.ps1  # Azure AD setup automation
+│   ├── README.md                     # Setup script documentation
+│   └── functions/                    # PowerShell function library (12 functions)
 ├── dist/                   # Compiled JavaScript (after build)
 ├── packager-mcp.example.yaml
 └── package.json

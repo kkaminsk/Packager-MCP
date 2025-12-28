@@ -4,6 +4,11 @@ import { ClientCertificateCredential } from '@azure/identity';
 import { getLogger } from '../utils/logger.js';
 import type { AzureAuthConfig, AuthResult } from '../types/azure-auth.js';
 import { AZURE_AUTH_ENV_VARS, INTUNE_GRAPH_SCOPES } from '../types/azure-auth.js';
+import {
+  loadIntuneConfig,
+  getCertificatePassword,
+  validateConfig,
+} from '../config/intune-config.js';
 
 const logger = getLogger().child({ service: 'graph-auth' });
 
@@ -17,7 +22,7 @@ class GraphAuthService {
   private cachedToken: { token: string; expiresOn: Date } | null = null;
 
   /**
-   * Load authentication configuration from environment variables
+   * Load authentication configuration from environment variables (legacy method)
    */
   loadConfigFromEnv(): { config: AzureAuthConfig | null; missing: string[] } {
     const missing: string[] = [];
@@ -47,39 +52,78 @@ class GraphAuthService {
   }
 
   /**
+   * Load authentication configuration from YAML file or environment variables
+   * Priority: Environment variables > YAML config file > Default locations
+   */
+  loadConfig(): { config: AzureAuthConfig | null; missing: string[]; source: string } {
+    // Try loading from YAML config first (which checks env vars internally with proper priority)
+    const configResult = loadIntuneConfig();
+
+    if (configResult) {
+      const certPassword = getCertificatePassword();
+      logger.debug(`Loaded configuration from ${configResult.source}`, {
+        source: configResult.source,
+        configPath: configResult.configPath,
+      });
+
+      return {
+        config: {
+          tenantId: configResult.config.azure.tenantId,
+          clientId: configResult.config.azure.clientId,
+          certificatePath: configResult.config.azure.certificatePath,
+          certificatePassword: certPassword || undefined,
+        },
+        missing: [],
+        source: configResult.source,
+      };
+    }
+
+    // Fallback to legacy env-only loading for backward compatibility
+    const envResult = this.loadConfigFromEnv();
+    return {
+      ...envResult,
+      source: 'environment',
+    };
+  }
+
+  /**
    * Initialize the authentication credential
    */
   async initialize(config?: AzureAuthConfig): Promise<AuthResult> {
     logger.debug('Initializing Graph authentication');
 
-    // Use provided config or load from environment
+    // Use provided config or load from YAML/environment
     if (config) {
       this.config = config;
     } else {
-      const envResult = this.loadConfigFromEnv();
-      if (envResult.missing.length > 0) {
-        const error = `Missing required environment variables: ${envResult.missing.join(', ')}`;
-        logger.error('Authentication initialization failed', { missing: envResult.missing });
+      const configResult = this.loadConfig();
+      if (configResult.missing.length > 0) {
+        const error = `Missing required configuration: ${configResult.missing.join(', ')}`;
+        logger.error('Authentication initialization failed', { missing: configResult.missing });
         return {
           success: false,
           error,
           suggestions: [
-            'Set the following environment variables:',
+            'Option 1: Run the setup script to configure authentication:',
+            '  powershell -File scripts/Setup-PackagerMcpIntune.ps1',
+            '',
+            'Option 2: Set environment variables:',
             `  ${AZURE_AUTH_ENV_VARS.TENANT_ID}=<your-tenant-id>`,
             `  ${AZURE_AUTH_ENV_VARS.CLIENT_ID}=<your-app-client-id>`,
             `  ${AZURE_AUTH_ENV_VARS.CERTIFICATE_PATH}=<path-to-certificate.pfx>`,
-            `  ${AZURE_AUTH_ENV_VARS.CERTIFICATE_PASSWORD}=<certificate-password> (optional)`,
+            `  ${AZURE_AUTH_ENV_VARS.CERTIFICATE_PASSWORD}=<certificate-password>`,
             '',
-            'To create a service principal with certificate authentication:',
-            '1. Register an app in Azure Entra ID',
-            '2. Generate a self-signed certificate or use an existing one',
-            '3. Upload the certificate public key to the app registration',
-            '4. Grant the app "DeviceManagementApps.ReadWrite.All" API permission',
-            '5. Grant admin consent for the permission',
+            'Option 3: Create intune_mcp_config.yaml with:',
+            '  azure:',
+            '    tenantId: "<your-tenant-id>"',
+            '    clientId: "<your-client-id>"',
+            '    certificatePath: "<path-to-certificate.pfx>"',
+            '  Then set INTUNE_CERT_PASSWORD environment variable',
           ],
         };
       }
-      this.config = envResult.config;
+      this.config = configResult.config;
+      logger.info(`Configuration loaded from ${configResult.source}`);
     }
 
     try {
@@ -210,8 +254,8 @@ class GraphAuthService {
    * Check if authentication is configured
    */
   isConfigured(): boolean {
-    const envResult = this.loadConfigFromEnv();
-    return envResult.missing.length === 0;
+    const configResult = this.loadConfig();
+    return configResult.missing.length === 0;
   }
 
   /**
@@ -221,15 +265,17 @@ class GraphAuthService {
     configured: boolean;
     missing: string[];
     configured_vars: string[];
+    source: string;
   } {
-    const envResult = this.loadConfigFromEnv();
+    const configResult = this.loadConfig();
     const allVars = Object.values(AZURE_AUTH_ENV_VARS);
-    const configuredVars = allVars.filter((v) => !envResult.missing.includes(v));
+    const configuredVars = allVars.filter((v) => !configResult.missing.includes(v));
 
     return {
-      configured: envResult.missing.length === 0,
-      missing: envResult.missing,
+      configured: configResult.missing.length === 0,
+      missing: configResult.missing,
       configured_vars: configuredVars,
+      source: configResult.source,
     };
   }
 
