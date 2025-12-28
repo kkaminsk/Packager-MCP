@@ -4,8 +4,8 @@
 
 | Field | Value |
 |-------|-------|
-| Version | 1.0.0 |
-| Status | Draft |
+| Version | 0.8.0 |
+| Status | Beta |
 | Last Updated | December 2024 |
 | Author | [Your Name] |
 
@@ -256,6 +256,47 @@ Tools are functions that Claude can invoke to perform actions or retrieve dynami
 
 ---
 
+#### 3.1.6 `verify_psadt_functions`
+
+**Purpose**: Verify that a PSADT script file uses only valid v4.1.7 function names. This tool catches AI-generated incorrect function names like `Initialize-ADTDeployment` (which should be `Open-ADTSession`).
+
+**Input Parameters**:
+```json
+{
+  "file_path": "string — Path to the PSADT script file to verify"
+}
+```
+
+**Output**:
+```json
+{
+  "isValid": "boolean",
+  "validFunctions": ["array of valid function names found"],
+  "invalidFunctions": [
+    {
+      "found": "string — Invalid function name",
+      "suggestion": "string — Correct function to use",
+      "line": "integer — Line number"
+    }
+  ],
+  "parameterIssues": [
+    {
+      "function": "string",
+      "issue": "string",
+      "suggestion": "string"
+    }
+  ]
+}
+```
+
+**Behavior**:
+- Scans the script for all ADT-prefixed function calls
+- Validates each against the official PSADT v4.1.7 function list (135 functions)
+- Identifies common AI hallucinations like `Initialize-ADTDeployment`
+- Returns suggested replacements for invalid functions
+
+---
+
 ### 3.2 MCP Resources
 
 Resources are static or semi-static content that Claude can access for context.
@@ -275,20 +316,18 @@ Resources are static or semi-static content that Claude can access for context.
 | Resource URI | Description |
 |--------------|-------------|
 | `kb://installers/msi` | MSI packaging guide and common parameters |
-| `kb://installers/exe` | EXE installer types and handling |
+| `kb://installers/exe` | EXE installer types and handling (NSIS, Inno Setup, InstallShield, etc.) |
 | `kb://installers/msix` | MSIX/AppX packaging for Intune |
 | `kb://patterns/detection` | Detection rule patterns and examples |
 | `kb://patterns/prerequisites` | Handling .NET, VC++, and other prereqs |
-| `kb://patterns/user-context` | User vs. system context installations |
-| `kb://troubleshooting/common-issues` | Frequent problems and solutions |
 
 #### 3.2.3 Reference Data
 
 | Resource URI | Description |
 |--------------|-------------|
-| `ref://silent-args` | Known silent install arguments database |
 | `ref://exit-codes` | Common installer exit codes and meanings |
-| `ref://intune-requirements` | Intune Win32 app requirements |
+
+**Note**: Silent install arguments are accessed via the `get_silent_install_args` tool rather than as a resource, enabling dynamic lookups from the Winget repository with confidence scoring.
 
 ---
 
@@ -632,26 +671,29 @@ logging:
 
 ## 9. Roadmap
 
-### Phase 1: MVP (v1.0)
+### Phase 1: MVP (v1.0) — COMPLETE
 
-- [ ] Core Winget lookup functionality
-- [ ] Basic PSADT v4 templates (MSI, EXE)
-- [ ] Simple validation rules
-- [ ] `/package-app` prompt workflow
-- [ ] Local installation support
-- [ ] Documentation
+- [x] Core Winget lookup functionality
+- [x] Basic PSADT v4 templates (MSI, EXE)
+- [x] Simple validation rules
+- [x] `/package-app` prompt workflow
+- [x] Local installation support
+- [x] Documentation
 
-### Phase 2: Enhanced Features (v1.5)
+### Phase 2: Enhanced Features (v1.5) — IN PROGRESS
 
-- [ ] Advanced installer type support (MSIX, ZIP, script)
-- [ ] Comprehensive validation engine
-- [ ] `/convert-legacy` prompt for v3→v4 migration
-- [ ] Caching layer with Redis support
+- [x] Advanced installer type support (MSIX, ZIP, script)
+- [x] Comprehensive validation engine
+- [x] `/convert-legacy` prompt for v3→v4 migration
+- [x] PSADT function verification tool (`verify_psadt_functions`)
+- [x] Caching layer (in-memory LRU)
+- [ ] Redis support for remote caching
 - [ ] License key system
 
 ### Phase 3: Enterprise (v2.0)
 
-- [ ] Remote MCP server deployment
+- [x] Docker container deployment
+- [ ] Remote MCP server deployment (Streamable HTTP transport)
 - [ ] OAuth/SSO integration
 - [ ] Custom knowledge base support
 - [ ] Audit logging

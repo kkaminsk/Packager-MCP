@@ -1,6 +1,23 @@
+Example 1: Package WinRAR
 Use Packager-MCP
+Read the @claude.md for context
 1 I want a package with the latest WinRAR version. Exclude beta versions.
 2. Use get_psadt_template with .\TEST_WinRAR_Package to generate the template files
 3. If issues are found, report them so they can be corrected
 4. Download the installer to the Files folder using Invoke-WebRequest
-5. Make an extensive Readme.md for the package.
+5. Test the installation by running Invoke-AppDeploymentToolkit.ps1 from an elevated command prompt. STOP if this fails.
+6. Make a Detection.ps1 and verify that it works.
+7. Download the intune content prep ustility and make an .intunewin file of the package named <application>-v<version>.intunewin
+8. Make an extensive Readme.md for the package.
+
+Example 2: Claude will find a redirect URL and fix it.
+Use Packager-MCP
+Read the @claude.md for context
+1 I want a package with the latest VLC Player version. Exclude beta versions.
+2. Use get_psadt_template with .\TEST_VLCPlayer_Package to generate the template files
+3. If issues are found, report them so they can be corrected
+4. Download the installer to the Files folder using Invoke-WebRequest
+5. Test the installation by running Invoke-AppDeploymentToolkit.ps1 from an elevated command prompt. STOP if this fails.
+6. Make a Detection.ps1 and verify that it works.
+7. Download the intune content prep ustility and make an .intunewin file of the package named <application>-v<version>.intunewin
+8. Make an extensive Readme.md for the package.
