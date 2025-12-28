@@ -6,6 +6,7 @@ import { getWingetService } from '../services/winget.js';
 import { getPsadtService } from '../services/psadt.js';
 import { getValidationService } from '../services/validation.js';
 import { getDetectionService } from '../services/detection.js';
+import { getIntunePublisherService } from '../services/intune-publisher.js';
 import type {
   SearchWingetInput,
   GetSilentInstallArgsInput,
@@ -14,7 +15,8 @@ import type {
 } from '../types/winget.js';
 import type { GetPsadtTemplateInput } from '../types/psadt.js';
 import type { ValidatePackageInput, VerifyPsadtFunctionsInput } from '../types/validation.js';
-import type { GenerateIntuneDetectionInput, DetectionType, ComparisonOperator } from '../types/intune.js';
+import type { GenerateIntuneDetectionInput, DetectionType, ComparisonOperator, IntuneDetectionRule } from '../types/intune.js';
+import type { PublishToIntuneInput } from '../types/intune-publisher.js';
 
 const searchWingetSchema = z.object({
   query: z.string().min(1).describe('Search query - package name or ID'),
@@ -139,6 +141,23 @@ const generateIntuneDetectionSchema = z.object({
 
 const verifyPsadtFunctionsSchema = z.object({
   file_path: z.string().min(1).describe('Path to the PSADT script file to verify (e.g., "C:\\\\Packages\\\\MyApp\\\\Invoke-AppDeployToolkit.ps1")'),
+});
+
+const intuneDetectionRuleSchema = z.object({
+  '@odata.type': z.string().describe('Intune detection rule OData type'),
+}).passthrough();
+
+const publishToIntuneSchema = z.object({
+  intunewin_path: z.string().min(1).describe('Path to the .intunewin package file'),
+  app_name: z.string().max(256).optional().describe('Application display name (auto-populated from PSADT if not provided)'),
+  app_version: z.string().max(50).optional().describe('Application version (auto-populated from PSADT if not provided)'),
+  app_vendor: z.string().optional().describe('Application vendor/publisher (auto-populated from PSADT if not provided)'),
+  description: z.string().max(10000).optional().describe('Application description (fetched via web search if not provided)'),
+  logo_path: z.string().optional().describe('Path to app logo image (PNG or JPEG, 256x256 preferred)'),
+  skip_logo: z.boolean().optional().describe('Skip logo fetching (default: false)'),
+  detection_rule: intuneDetectionRuleSchema.optional().describe('Detection rule configuration (from generate_intune_detection output)'),
+  install_command: z.string().optional().describe('Custom install command (defaults to PSADT command)'),
+  uninstall_command: z.string().optional().describe('Custom uninstall command (defaults to PSADT command)'),
 });
 
 export function registerToolHandlers(server: McpServer): void {
@@ -763,5 +782,100 @@ export function registerToolHandlers(server: McpServer): void {
 
   logger.info('Registered PSADT verification tools', {
     tools: ['verify_psadt_functions'],
+  });
+
+  // Register publish_to_intune tool
+  server.tool(
+    'publish_to_intune',
+    'Publish a Win32 application to Microsoft Intune via Graph API. Uploads .intunewin packages and creates Win32 LOB app definitions. Requires certificate-based service principal authentication configured via environment variables.',
+    publishToIntuneSchema.shape,
+    async (args) => {
+      logger.debug('Executing publish_to_intune', {
+        intunewinPath: args.intunewin_path,
+        appName: args.app_name,
+      });
+
+      try {
+        const validated = publishToIntuneSchema.parse(args);
+        const publisherService = getIntunePublisherService();
+
+        // Check if authentication is configured
+        if (!publisherService.isConfigured()) {
+          return {
+            content: [
+              {
+                type: 'text' as const,
+                text: JSON.stringify(
+                  {
+                    success: false,
+                    error: 'Intune publishing is not configured',
+                    message: 'Certificate-based authentication environment variables are not set',
+                    required_variables: [
+                      'AZURE_TENANT_ID - Your Entra ID tenant GUID',
+                      'AZURE_CLIENT_ID - Service principal application ID',
+                      'AZURE_CLIENT_CERTIFICATE_PATH - Path to PFX/PEM certificate',
+                      'AZURE_CLIENT_CERTIFICATE_PASSWORD - Certificate password (optional)',
+                    ],
+                    setup_guide: [
+                      '1. Register an app in Azure Entra ID',
+                      '2. Generate or upload a certificate to the app registration',
+                      '3. Grant "DeviceManagementApps.ReadWrite.All" API permission',
+                      '4. Grant admin consent for the permission',
+                      '5. Set the environment variables listed above',
+                    ],
+                  },
+                  null,
+                  2
+                ),
+              },
+            ],
+            isError: true,
+          };
+        }
+
+        const input: PublishToIntuneInput = {
+          intunewinPath: validated.intunewin_path,
+          appName: validated.app_name,
+          appVersion: validated.app_version,
+          appVendor: validated.app_vendor,
+          description: validated.description,
+          logoPath: validated.logo_path,
+          skipLogo: validated.skip_logo,
+          detectionRule: validated.detection_rule as IntuneDetectionRule | undefined,
+          installCommand: validated.install_command,
+          uninstallCommand: validated.uninstall_command,
+        };
+
+        const result = await publisherService.publishApp(input);
+
+        return {
+          content: [
+            {
+              type: 'text' as const,
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+          isError: !result.success,
+        };
+      } catch (error) {
+        logger.error('publish_to_intune failed', {
+          error: error instanceof Error ? error.message : String(error),
+        });
+
+        return {
+          content: [
+            {
+              type: 'text' as const,
+              text: formatErrorForClient(error),
+            },
+          ],
+          isError: true,
+        };
+      }
+    }
+  );
+
+  logger.info('Registered Intune publishing tools', {
+    tools: ['publish_to_intune'],
   });
 }

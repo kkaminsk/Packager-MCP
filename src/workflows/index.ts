@@ -23,3 +23,9 @@ export {
   executeConvertLegacyWorkflow,
   formatConvertLegacyResult,
 } from './convert-legacy.js';
+
+export {
+  parsePublishToIntuneArgs,
+  executePublishToIntuneWorkflow,
+  formatPublishToIntuneResult,
+} from './publish-to-intune.js';

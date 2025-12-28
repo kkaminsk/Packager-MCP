@@ -34,11 +34,14 @@ src/
 │   ├── winget.ts          # Winget API integration
 │   ├── psadt.ts           # PSADT template generation
 │   ├── validation.ts      # Package validation
-│   └── detection.ts       # Intune detection rule generation
+│   ├── detection.ts       # Intune detection rule generation
+│   ├── graph-auth.ts      # Azure Graph API authentication
+│   └── intune-publisher.ts # Intune Win32 app publishing
 ├── workflows/             # Prompt workflow implementations
 │   ├── package-app.ts     # /package-app workflow
 │   ├── troubleshoot.ts    # /troubleshoot workflow
-│   └── bulk-lookup.ts     # /bulk-lookup workflow
+│   ├── bulk-lookup.ts     # /bulk-lookup workflow
+│   └── publish-to-intune.ts # /publish-to-intune workflow
 ├── knowledge/             # Embedded documentation
 │   ├── psadt/             # PSADT v4 docs (overview, functions, variables, best-practices)
 │   ├── installers/        # Installer type guides (msi, exe, msix)
@@ -68,10 +71,13 @@ ReferenceKnowledge/        # Source reference materials (not distributed)
 | `get_silent_install_args` | Retrieve/derive silent install parameters |
 | `generate_intune_detection` | Create Intune detection rules (file/registry/MSI/script) |
 | `verify_psadt_functions` | Verify PSADT script uses valid v4.1.7 function names |
+| `publish_to_intune` | Upload .intunewin packages to Intune via Microsoft Graph API |
 
 Note: Use `search_winget` to get installer URLs and SHA256 hashes, then download installers using PowerShell's `Invoke-WebRequest`. When using `get_psadt_template` with `output_directory`, the tool automatically copies PSADT toolkit files from `dist/knowledge/v4github/` and creates a complete deployment package.
 
 **Important:** After creating a package with `get_psadt_template`, use `verify_psadt_functions` to validate that no incorrect function names were introduced. This catches AI hallucinations like `Initialize-ADTDeployment` (should be `Open-ADTSession`).
+
+**Intune Publishing:** The `publish_to_intune` tool requires certificate-based service principal authentication. See the "Azure Authentication" section below for setup instructions.
 
 ## MCP Resources
 
@@ -91,6 +97,7 @@ Note: Silent install arguments are stored in `src/knowledge/reference/silent-arg
 | `/package-app` | Guided workflow to create complete Intune package |
 | `/troubleshoot` | Diagnose failing packages |
 | `/bulk-lookup` | Retrieve info for multiple apps |
+| `/publish-to-intune` | Guided workflow to publish Win32 apps to Intune |
 
 ## Code Conventions
 
@@ -159,6 +166,29 @@ docker compose up
 | `GITHUB_TOKEN` | Yes | GitHub PAT for Winget API access |
 | `LOG_LEVEL` | No | `debug`, `info`, `warn`, `error` (default: `info`) |
 | `LOG_FORMAT` | No | `json` or `text` (default: `json`) |
+
+### Azure Authentication (for Intune Publishing)
+
+The `publish_to_intune` tool requires certificate-based service principal authentication:
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `AZURE_TENANT_ID` | Yes | Entra ID tenant GUID |
+| `AZURE_CLIENT_ID` | Yes | Service principal application ID |
+| `AZURE_CLIENT_CERTIFICATE_PATH` | Yes | Path to PFX or PEM certificate file |
+| `AZURE_CLIENT_CERTIFICATE_PASSWORD` | No | Certificate password (for PFX files) |
+
+**Setup Steps:**
+1. Register an application in Azure Entra ID
+2. Generate a self-signed certificate:
+   ```powershell
+   $cert = New-SelfSignedCertificate -Subject "CN=Packager-MCP" -CertStoreLocation "cert:\CurrentUser\My" -KeyExportPolicy Exportable -KeySpec Signature -KeyLength 2048 -KeyAlgorithm RSA -HashAlgorithm SHA256
+   Export-PfxCertificate -Cert $cert -FilePath "packager-mcp.pfx" -Password (ConvertTo-SecureString -String "YourPassword" -AsPlainText -Force)
+   ```
+3. Upload the certificate public key (.cer) to the app registration in Azure
+4. Grant `DeviceManagementApps.ReadWrite.All` API permission (Application type)
+5. Grant admin consent for the permission
+6. Set the environment variables above
 
 ### Multi-Architecture Support
 
