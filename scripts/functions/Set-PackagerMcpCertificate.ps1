@@ -88,6 +88,33 @@ function Set-PackagerMcpCertificate {
     throw "Failed to export certificate to PFX: $($_.Exception.Message)"
   }
 
+  # Export to PEM format (required by @azure/identity v4.x)
+  $pemPath = $fullPath -replace '\.pfx$', '.pem'
+  try {
+    # Get RSA private key using extension method (works across .NET versions)
+    $rsa = [System.Security.Cryptography.X509Certificates.RSACertificateExtensions]::GetRSAPrivateKey($cert)
+    if (-not $rsa) {
+      throw "Failed to extract RSA private key from certificate"
+    }
+
+    # Export private key in PEM format
+    $privateKeyPem = $rsa.ExportRSAPrivateKeyPem()
+
+    # Export certificate in PEM format
+    $certBase64 = [Convert]::ToBase64String($cert.RawData, 'InsertLineBreaks')
+    $certPem = "-----BEGIN CERTIFICATE-----`n$certBase64`n-----END CERTIFICATE-----"
+
+    # Combine private key and certificate into single PEM file
+    $pemContent = "$privateKeyPem`n$certPem"
+    Set-Content -LiteralPath $pemPath -Value $pemContent -Encoding ASCII -Force
+
+    Write-Host " - Exported PEM to: $pemPath" -ForegroundColor Cyan
+    Write-PackagerMcpLog "Exported PEM certificate to: $pemPath" 'INFO'
+  }
+  catch {
+    throw "Failed to export certificate to PEM: $($_.Exception.Message)"
+  }
+
   # Get the public key for upload to Azure AD
   $keyCredential = @{
     Type             = 'AsymmetricX509Cert'
@@ -132,6 +159,7 @@ function Set-PackagerMcpCertificate {
   return @{
     Thumbprint = $cert.Thumbprint
     Path       = $fullPath
+    PemPath    = $pemPath
     Subject    = $certSubject
     NotAfter   = $cert.NotAfter
   }

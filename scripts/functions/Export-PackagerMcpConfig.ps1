@@ -14,7 +14,7 @@ function Export-PackagerMcpConfig {
     The application (client) ID.
 
     .PARAMETER CertificatePath
-    Path to the PFX certificate file.
+    Path to the PEM certificate file (used by @azure/identity).
 
     .PARAMETER CertificateThumbprint
     The certificate thumbprint.
@@ -69,7 +69,7 @@ azure:
   # Authentication method: certificate
   authMethod: "certificate"
 
-  # Path to the PFX certificate file (relative or absolute)
+  # Path to the PEM certificate file (required by @azure/identity v4.x)
   certificatePath: "$($fullCertPath -replace '\\', '/')"
 
   # Certificate thumbprint (for validation)

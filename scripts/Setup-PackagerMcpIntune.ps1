@@ -215,7 +215,7 @@ try {
   $configFullPath = Export-PackagerMcpConfig `
     -TenantId $TenantId `
     -ClientId $app.AppId `
-    -CertificatePath $certInfo.Path `
+    -CertificatePath $certInfo.PemPath `
     -CertificateThumbprint $certInfo.Thumbprint `
     -OutputPath $ConfigPath
 
@@ -237,8 +237,21 @@ try {
 
     if (-not $testResult) {
       Write-Host ''
-      Write-Host '⚠ Connection test failed. This may be due to Azure AD propagation delay.' -ForegroundColor Yellow
-      Write-Host '  Wait a few minutes and run the test again, or check the Azure Portal for issues.' -ForegroundColor Yellow
+      Write-Host '⚠ Connection test failed. This error may not be fatal.' -ForegroundColor Yellow
+      Write-Host ''
+      Write-Host '  This is commonly caused by Azure AD propagation delay (can take 1-5 minutes).' -ForegroundColor Yellow
+      Write-Host '  Please manually verify the application registration in the Entra Portal:' -ForegroundColor Yellow
+      Write-Host ''
+      Write-Host "  https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/~/CallAnAPI/appId/$($app.AppId)/isMSAApp~/false" -ForegroundColor Cyan
+      Write-Host ''
+      Write-Host '  Check that:' -ForegroundColor Yellow
+      Write-Host '   - DeviceManagementApps.ReadWrite.All permission is listed' -ForegroundColor White
+      Write-Host '   - Admin consent has been granted (green checkmark)' -ForegroundColor White
+      Write-Host '   - If not granted, click "Grant admin consent for [tenant]"' -ForegroundColor White
+      Write-Host ''
+      Write-Host '  After verifying, wait a few minutes and test manually:' -ForegroundColor Yellow
+      Write-Host "  Connect-MgGraph -ClientId '$($app.AppId)' -TenantId '$TenantId' -CertificateThumbprint '$($certInfo.Thumbprint)'" -ForegroundColor Gray
+      Write-Host '  Get-MgDeviceAppManagementMobileApp -Top 1' -ForegroundColor Gray
     }
   }
   else {
@@ -255,17 +268,18 @@ try {
   Write-Host 'Configuration Summary:' -ForegroundColor Cyan
   Write-Host " - Tenant ID:       $TenantId" -ForegroundColor White
   Write-Host " - Client ID:       $($app.AppId)" -ForegroundColor White
-  Write-Host " - Certificate:     $($certInfo.Path)" -ForegroundColor White
+  Write-Host " - Certificate PFX: $($certInfo.Path)" -ForegroundColor White
+  Write-Host " - Certificate PEM: $($certInfo.PemPath)" -ForegroundColor White
   Write-Host " - Thumbprint:      $($certInfo.Thumbprint)" -ForegroundColor White
   Write-Host " - Config file:     $configFullPath" -ForegroundColor White
   Write-Host ''
   Write-Host 'Next Steps:' -ForegroundColor Yellow
-  Write-Host ' 1. Securely store the certificate password' -ForegroundColor White
+  Write-Host ' 1. Securely store the PFX certificate password (for backup purposes)' -ForegroundColor White
   Write-Host ' 2. Set INTUNE_MCP_CONFIG environment variable to the config file path' -ForegroundColor White
   Write-Host '    $env:INTUNE_MCP_CONFIG = "' -NoNewline -ForegroundColor White
   Write-Host $configFullPath -NoNewline -ForegroundColor Cyan
   Write-Host '"' -ForegroundColor White
-  Write-Host ' 3. Set INTUNE_CERT_PASSWORD environment variable with the certificate password' -ForegroundColor White
+  Write-Host ' 3. The PEM certificate does not require a password environment variable' -ForegroundColor White
   Write-Host ''
 
   Write-PackagerMcpLog '========== Setup Completed Successfully ==========' 'INFO'
