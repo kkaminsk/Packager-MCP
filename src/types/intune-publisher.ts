@@ -62,6 +62,16 @@ export interface PublishToIntuneOutput {
 }
 
 /**
+ * Win32LobApp rule format (detection or requirement rules)
+ * Converted from IntuneDetectionRule format for Graph API
+ */
+export interface Win32LobAppRule {
+  '@odata.type': string;
+  ruleType: 'detection' | 'requirement';
+  [key: string]: unknown;
+}
+
+/**
  * Microsoft Graph Win32LobApp resource type
  * https://learn.microsoft.com/en-us/graph/api/resources/intune-apps-win32lobapp
  */
@@ -71,6 +81,7 @@ export interface GraphWin32LobApp {
   description: string;
   publisher: string;
   displayVersion?: string;
+  fileName: string;
   installCommandLine: string;
   uninstallCommandLine: string;
   applicableArchitectures: 'x64' | 'x86' | 'arm' | 'neutral' | 'x64,x86';
@@ -86,7 +97,7 @@ export interface GraphWin32LobApp {
     requiresReboot: boolean;
     packageType: 'perMachine' | 'perUser' | 'dualPurpose';
   };
-  rules?: IntuneDetectionRule[];
+  rules?: Win32LobAppRule[];
   installExperience: {
     runAsAccount: 'system' | 'user';
     deviceRestartBehavior: 'basedOnReturnCode' | 'allow' | 'suppress' | 'force';

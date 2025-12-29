@@ -35,6 +35,8 @@
   "dependencies": {
     "@azure/identity": "^4.13.0",
     "@modelcontextprotocol/sdk": "^1.24.3",
+    "@types/adm-zip": "^0.5.7",
+    "adm-zip": "^0.5.16",
     "handlebars": "^4.7.8",
     "yaml": "^2.8.2",
     "zod": "^4.1.13"

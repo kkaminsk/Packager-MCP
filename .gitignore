@@ -10,3 +10,6 @@ config.yml
 nul
 /TEST_WinRAR_Package4
 /Test
+.claude/settings.local.json
+.claude/settings.local.json
+/testing

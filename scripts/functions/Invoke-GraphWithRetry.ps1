@@ -52,7 +52,7 @@ function Invoke-GraphWithRetry {
 
   while ($true) {
     $attempt++
-    Write-PackagerMcpLog "Graph call attempt $attempt`: $OperationName" 'DEBUG'
+    Write-PackagerMcpLog "Graph call attempt $($attempt): $OperationName" 'DEBUG'
 
     try {
       $result = & $Script

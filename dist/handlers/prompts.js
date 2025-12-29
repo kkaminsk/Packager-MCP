@@ -1,7 +1,7 @@
 // Prompt handlers for MCP server
 import { z } from 'zod';
 import { getLogger } from '../utils/logger.js';
-import { parsePackageAppArgs, executePackageAppWorkflow, formatPackageAppResult, parseTroubleshootArgs, executeTroubleshootWorkflow, formatTroubleshootResult, parseBulkLookupArgs, executeBulkLookupWorkflow, formatBulkLookupResult, parseConvertLegacyArgs, executeConvertLegacyWorkflow, formatConvertLegacyResult, } from '../workflows/index.js';
+import { parsePackageAppArgs, executePackageAppWorkflow, formatPackageAppResult, parseTroubleshootArgs, executeTroubleshootWorkflow, formatTroubleshootResult, parseBulkLookupArgs, executeBulkLookupWorkflow, formatBulkLookupResult, parseConvertLegacyArgs, executeConvertLegacyWorkflow, formatConvertLegacyResult, parsePublishToIntuneArgs, executePublishToIntuneWorkflow, formatPublishToIntuneResult, } from '../workflows/index.js';
 const logger = getLogger().child({ handler: 'prompts' });
 // Schema definitions for prompt arguments
 const packageAppArgsSchema = z.object({
@@ -28,6 +28,16 @@ const bulkLookupArgsSchema = z.object({
 const convertLegacyArgsSchema = z.object({
     script: z.string().min(1).describe('PSADT v3 script content to convert'),
     verbose: z.string().optional().describe('Include detailed migration notes (true/false)'),
+});
+const publishToIntuneArgsSchema = z.object({
+    'intunewin-path': z.string().min(1).describe('Path to the .intunewin package file'),
+    'app-name': z.string().optional().describe('Application display name'),
+    'app-version': z.string().optional().describe('Application version'),
+    'app-vendor': z.string().optional().describe('Application vendor/publisher'),
+    description: z.string().optional().describe('Application description'),
+    'logo-path': z.string().optional().describe('Path to app logo image (PNG or JPEG)'),
+    'skip-logo': z.string().optional().describe('Skip logo upload (true/false)'),
+    'detection-rule': z.string().optional().describe('Detection rule JSON from generate_intune_detection'),
 });
 /**
  * Register all prompt handlers with the MCP server
@@ -183,6 +193,37 @@ export function registerPromptHandlers(server) {
             ],
         };
     });
-    handlerLogger.info('Prompt handlers registered', { count: 4 });
+    // Register publish-to-intune prompt
+    server.prompt('publish-to-intune', 'Guided workflow to publish a Win32 application to Microsoft Intune. Validates prerequisites, authenticates to Graph API, and uploads the package.', publishToIntuneArgsSchema.shape, async (args) => {
+        handlerLogger.debug('Executing publish-to-intune prompt', { args });
+        const rawArgs = {};
+        for (const [key, value] of Object.entries(args)) {
+            if (value !== undefined) {
+                rawArgs[key] = String(value);
+            }
+        }
+        const parsedArgs = parsePublishToIntuneArgs(rawArgs);
+        const result = await executePublishToIntuneWorkflow(parsedArgs);
+        const formatted = formatPublishToIntuneResult(result);
+        return {
+            messages: [
+                {
+                    role: 'user',
+                    content: {
+                        type: 'text',
+                        text: `Publish to Intune: ${parsedArgs.intunewinPath}`,
+                    },
+                },
+                {
+                    role: 'assistant',
+                    content: {
+                        type: 'text',
+                        text: formatted,
+                    },
+                },
+            ],
+        };
+    });
+    handlerLogger.info('Prompt handlers registered', { count: 5 });
 }
 //# sourceMappingURL=prompts.js.map

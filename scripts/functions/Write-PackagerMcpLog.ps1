@@ -32,7 +32,7 @@ function Write-PackagerMcpLog {
   )
 
   $timestamp = (Get-Date).ToString('yyyy-MM-dd HH:mm:ss')
-  $line = "[$timestamp] $Level: $Message"
+  $line = "[$timestamp] ${Level}: $Message"
 
   # Write to log file if path is set
   if ($script:logPath) {

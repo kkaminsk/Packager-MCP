@@ -1,39 +1,16 @@
 {
   "permissions": {
-    "allow": [
-      "Bash(mkdir:*)",
-      "Bash(openspec validate:*)",
-      "Bash(openspec list:*)",
-      "Bash(npm init:*)",
-      "Bash(npm install:*)",
-      "Bash(npm run build:*)",
-      "Bash(npm show:*)",
-      "Bash(npm run test)",
-      "Bash(openspec archive:*)",
-      "Bash(dir:*)",
-      "Bash(node test-mcp-prompts.mjs:*)",
-      "Bash(node dist/server.js:*)",
-      "Bash(node debug-mcp.mjs:*)",
-      "Bash(findstr:*)",
-      "Bash(node test-mcp-sdk.mjs:*)",
-      "Bash(node scripts/validate-knowledge.mjs:*)",
-      "Bash(npx openspec:*)",
-      "Bash(node:*)",
-      "Bash(GITHUB_TOKEN=\"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\" node \"C:/temp/Packager-MCP/test-github.mjs\")",
-      "Bash(find:*)",
-      "Bash(timeout 5 node:*)",
-      "Bash(npm run openspec:*)",
-      "Bash(where:*)",
-      "Bash(cat:*)",
-      "Bash(git checkout:*)",
-      "Bash(echo:*)",
-      "Bash(powershell:*)",
-      "Bash(xcopy:*)",
-      "Bash(timeout 10 node:*)",
-      "Bash(timeout 30 node:*)",
-      "Bash(timeout 60 node:*)"
-    ],
+    "allow": [],
     "deny": [],
     "ask": []
+  },
+  "mcpServers": {
+    "packager-mcp": {
+      "command": "node",
+      "args": ["C:/temp/Packager-MCP/dist/server.js"],
+      "env": {
+        "INTUNE_MCP_CONFIG": "C:/temp/Packager-MCP/scripts/intune_mcp_config.yaml"
+      }
+    }
   }
 }

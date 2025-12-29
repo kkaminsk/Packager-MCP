@@ -117,6 +117,40 @@ Verify the certificate path in your config file matches the actual file location
 
 The client ID in your config doesn't match a registered application. Re-run the setup script.
 
+### "Connection test failed: Intune API access denied"
+
+This error may appear at the end of setup:
+
+```
+FAILED: Access denied to Intune API. Admin consent may not be granted.
+ERROR: Connection test failed: Intune API access denied - Response status code does not indicate success: Forbidden (Forbidden).
+```
+
+**This error is often not fatal.** It typically occurs because Azure AD permissions take 1-5 minutes to propagate after granting admin consent.
+
+**Remediation steps:**
+
+1. **Wait and retry** - Wait 2-3 minutes for Azure AD propagation, then test manually:
+   ```powershell
+   Connect-MgGraph -ClientId '<your-client-id>' -TenantId '<your-tenant-id>' -CertificateThumbprint '<thumbprint>'
+   Get-MgDeviceAppManagementMobileApp -Top 1
+   ```
+
+2. **Verify permissions in Entra Portal** - Go to https://entra.microsoft.com and navigate to:
+   - **Identity** → **Applications** → **App registrations**
+   - Find your app (Packager-MCP-*)
+   - Click **API permissions**
+   - Verify `DeviceManagementApps.ReadWrite.All` is listed
+   - Check for a green checkmark indicating admin consent is granted
+   - If not granted, click **Grant admin consent for [tenant]**
+
+3. **Check service principal** - Ensure a service principal exists for the app:
+   - In Entra Portal, go to **Enterprise applications**
+   - Search for your app name
+   - If not found, the service principal may not have been created
+
+The setup still creates valid configuration files even if the test fails. Once permissions propagate, the MCP server will work correctly.
+
 ## Log Files
 
 The setup script creates a log file at:

@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(powershell -NoProfile -Command \"[System.IO.File]::ReadAllBytes\\(''Invoke-GraphWithRetry.ps1''\\) | Select-Object -First 10 | ForEach-Object { ''{0:X2}'' -f $_}\")",
+      "Bash(powershell -NoProfile -Command \"Get-Content ''C:\\\\temp\\\\Packager-MCP\\\\scripts\\\\functions\\\\Invoke-GraphWithRetry.ps1'' | Select-Object -First 5\")",
+      "Bash(pwsh -NoProfile -File \"C:\\\\temp\\\\Packager-MCP\\\\scripts\\\\test-parse.ps1\")",
+      "Bash(del \"C:\\\\temp\\\\Packager-MCP\\\\scripts\\\\test-parse.ps1\")",
+      "Bash(pwsh -NoProfile -File \"C:\\\\temp\\\\Packager-MCP\\\\scripts\\\\Setup-PackagerMcpIntune.ps1\")"
+    ]
+  }
+}

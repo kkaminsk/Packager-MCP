@@ -7,8 +7,9 @@ Read the @claude.md for context
 4. Download the installer to the Files folder using Invoke-WebRequest
 5. Test the installation by running Invoke-AppDeploymentToolkit.ps1 from an elevated command prompt. STOP if this fails.
 6. Make a Detection.ps1 and verify that it works.
-7. Download the intune content prep ustility and make an .intunewin file of the package named <application>-v<version>.intunewin
-8. Make an extensive Readme.md for the package.
+7. Test the uninstall of the application.
+8. Download the intune content prep ustility and make an .intunewin file of the package named <application>-v<version>.intunewin
+9. Make an extensive Readme.md for the package.
 
 Example 2: Claude will find a redirect URL and fix it.
 Use Packager-MCP
@@ -19,5 +20,6 @@ Read the @claude.md for context
 4. Download the installer to the Files folder using Invoke-WebRequest
 5. Test the installation by running Invoke-AppDeploymentToolkit.ps1 from an elevated command prompt. STOP if this fails.
 6. Make a Detection.ps1 and verify that it works.
-7. Download the intune content prep ustility and make an .intunewin file of the package named <application>-v<version>.intunewin
-8. Make an extensive Readme.md for the package.
+7. Test the uninstall of the application.
+8. Download the intune content prep ustility and make an .intunewin file of the package named <application>-v<version>.intunewin
+9. Make an extensive Readme.md for the package.

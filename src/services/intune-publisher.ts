@@ -10,6 +10,7 @@ import type {
   IntuneAppCategory,
   FileEncryptionInfo,
   UploadProgressCallback,
+  Win32LobAppRule,
 } from '../types/intune-publisher.js';
 import type { IntuneDetectionRule } from '../types/intune.js';
 
@@ -85,6 +86,8 @@ class IntunePublisherService {
       const metadata = await this.readIntunewinMetadata(input.intunewinPath);
 
       // Step 4: Determine app metadata
+      const { basename } = await import('node:path');
+      const fileName = basename(input.intunewinPath);
       const appName = input.appName || metadata.name || 'Unknown Application';
       const appVersion = input.appVersion || metadata.version || '1.0.0';
       const appVendor = input.appVendor || metadata.publisher || 'Unknown Publisher';
@@ -101,6 +104,7 @@ class IntunePublisherService {
         description,
         publisher: appVendor,
         displayVersion: appVersion,
+        fileName,
         installCommand: input.installCommand || DEFAULT_INSTALL_COMMAND,
         uninstallCommand: input.uninstallCommand || DEFAULT_UNINSTALL_COMMAND,
         setupFilePath: metadata.setupFile || 'Invoke-AppDeployToolkit.exe',
@@ -245,6 +249,9 @@ class IntunePublisherService {
 
   /**
    * Read metadata from .intunewin file
+   * .intunewin files are ZIP archives containing:
+   * - IntunePackage.intunewin (encrypted content)
+   * - Metadata/Detection.xml (app info and encryption keys)
    */
   private async readIntunewinMetadata(filePath: string): Promise<{
     name?: string;
@@ -254,27 +261,85 @@ class IntunePublisherService {
     encryptionInfo?: FileEncryptionInfo;
     unencryptedContentSize?: number;
   }> {
-    // .intunewin files are ZIP archives containing Detection.xml with metadata
-    // For now, return empty metadata - the caller should provide explicit values
-    // Full implementation would extract and parse the Detection.xml file
-
     const { basename } = await import('node:path');
+    const { readFileSync } = await import('node:fs');
     const fileName = basename(filePath, '.intunewin');
 
     logger.debug('Reading intunewin metadata', { filePath, fileName });
 
-    // Extract basic info from filename if it follows convention: AppName_Version.intunewin
-    const match = fileName.match(/^(.+?)_(\d+[\d.]+)$/);
+    try {
+      // Read the .intunewin file (it's a ZIP archive)
+      const fileBuffer = readFileSync(filePath);
+
+      // Find the Detection.xml file in the ZIP
+      // ZIP files have a central directory at the end, but we can search for the XML
+      const content = fileBuffer.toString('utf8', 0, Math.min(fileBuffer.length, 100000));
+
+      // Look for the Detection.xml content pattern
+      const detectionXmlMatch = fileBuffer.toString('binary').match(/<ApplicationInfo[\s\S]*?<\/ApplicationInfo>/);
+
+      if (detectionXmlMatch) {
+        const xmlContent = detectionXmlMatch[0];
+        logger.debug('Found Detection.xml content');
+
+        // Parse XML elements
+        const getName = (tag: string) => {
+          const match = xmlContent.match(new RegExp(`<${tag}>([^<]*)</${tag}>`));
+          return match ? match[1] : undefined;
+        };
+
+        const name = getName('Name');
+        const setupFile = getName('SetupFile');
+        const unencryptedContentSize = parseInt(getName('UnencryptedContentSize') || '0', 10);
+
+        // Extract encryption info
+        const encryptionKey = getName('EncryptionKey');
+        const macKey = getName('MacKey');
+        const initializationVector = getName('InitializationVector');
+        const mac = getName('Mac');
+        const profileIdentifier = getName('ProfileIdentifier');
+        const fileDigest = getName('FileDigest');
+        const fileDigestAlgorithm = getName('FileDigestAlgorithm');
+
+        let encryptionInfo: FileEncryptionInfo | undefined;
+        if (encryptionKey && macKey && initializationVector && mac) {
+          encryptionInfo = {
+            encryptionKey,
+            macKey,
+            initializationVector,
+            mac,
+            profileIdentifier: profileIdentifier || 'ProfileVersion1',
+            fileDigest: fileDigest || '',
+            fileDigestAlgorithm: fileDigestAlgorithm || 'SHA256',
+          };
+          logger.debug('Extracted encryption info from intunewin');
+        }
+
+        return {
+          name: name || fileName.replace(/_/g, ' '),
+          setupFile: setupFile || 'Invoke-AppDeployToolkit.exe',
+          encryptionInfo,
+          unencryptedContentSize: unencryptedContentSize || undefined,
+        };
+      }
+    } catch (error) {
+      logger.warn('Failed to parse intunewin metadata', {
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+
+    // Fallback: Extract basic info from filename
+    const match = fileName.match(/^(.+?)[-_]v?(\d+[\d.]+)$/i);
     if (match && match[1] && match[2]) {
       return {
-        name: match[1].replace(/_/g, ' '),
+        name: match[1].replace(/[-_]/g, ' '),
         version: match[2],
         setupFile: 'Invoke-AppDeployToolkit.exe',
       };
     }
 
     return {
-      name: fileName.replace(/_/g, ' '),
+      name: fileName.replace(/[-_]/g, ' '),
       setupFile: 'Invoke-AppDeployToolkit.exe',
     };
   }
@@ -287,6 +352,7 @@ class IntunePublisherService {
     description: string;
     publisher: string;
     displayVersion?: string;
+    fileName: string;
     installCommand: string;
     uninstallCommand: string;
     setupFilePath: string;
@@ -298,6 +364,7 @@ class IntunePublisherService {
       description: params.description,
       publisher: params.publisher,
       displayVersion: params.displayVersion,
+      fileName: params.fileName,
       installCommandLine: params.installCommand,
       uninstallCommandLine: params.uninstallCommand,
       applicableArchitectures: 'x64',
@@ -319,10 +386,82 @@ class IntunePublisherService {
     };
 
     if (params.detectionRule) {
-      app.rules = [params.detectionRule];
+      // Convert detection rule to win32LobAppRule format expected by Graph API
+      const rule = this.convertDetectionToRule(params.detectionRule);
+      app.rules = [rule];
     }
 
     return app;
+  }
+
+  /**
+   * Convert detection rule format to win32LobAppRule format
+   * The Graph API expects rules with ruleType='detection', not standalone detection objects
+   */
+  private convertDetectionToRule(detection: IntuneDetectionRule): Win32LobAppRule {
+    const odataType: string = detection['@odata.type'];
+
+    if (odataType === '#microsoft.graph.win32LobAppFileSystemDetection') {
+      // Convert file detection to file rule
+      const fileDetection = detection as {
+        path: string;
+        fileOrFolderName: string;
+        check32BitOn64System?: boolean;
+        detectionType?: string;
+        operator?: string;
+        detectionValue?: string;
+      };
+      return {
+        '@odata.type': '#microsoft.graph.win32LobAppFileSystemRule',
+        ruleType: 'detection',
+        path: fileDetection.path,
+        fileOrFolderName: fileDetection.fileOrFolderName,
+        check32BitOn64System: fileDetection.check32BitOn64System ?? false,
+        operationType: fileDetection.detectionType || 'exists',
+        operator: fileDetection.operator,
+        comparisonValue: fileDetection.detectionValue,
+      };
+    } else if (odataType === '#microsoft.graph.win32LobAppRegistryDetection') {
+      // Convert registry detection to registry rule
+      const regDetection = detection as {
+        keyPath: string;
+        valueName?: string;
+        check32BitOn64System?: boolean;
+        detectionType?: string;
+        operator?: string;
+        detectionValue?: string;
+      };
+      return {
+        '@odata.type': '#microsoft.graph.win32LobAppRegistryRule',
+        ruleType: 'detection',
+        keyPath: regDetection.keyPath,
+        valueName: regDetection.valueName || '',
+        check32BitOn64System: regDetection.check32BitOn64System ?? false,
+        operationType: regDetection.detectionType || 'exists',
+        operator: regDetection.operator,
+        comparisonValue: regDetection.detectionValue,
+      };
+    } else if (odataType === '#microsoft.graph.win32LobAppProductCodeDetection') {
+      // MSI product code detection uses the same type in rules
+      const msiDetection = detection as {
+        productCode: string;
+        productVersionOperator?: string;
+        productVersion?: string;
+      };
+      return {
+        '@odata.type': '#microsoft.graph.win32LobAppProductCodeRule',
+        ruleType: 'detection',
+        productCode: msiDetection.productCode,
+        productVersionOperator: msiDetection.productVersionOperator || 'notConfigured',
+        productVersion: msiDetection.productVersion || '',
+      };
+    }
+
+    // Fallback: create a basic rule from the detection
+    return {
+      '@odata.type': odataType.replace('Detection', 'Rule'),
+      ruleType: 'detection',
+    };
   }
 
   /**
@@ -352,6 +491,7 @@ class IntunePublisherService {
 
   /**
    * Upload app content to Intune
+   * The .intunewin file is a ZIP containing the actual encrypted content
    */
   private async uploadAppContent(
     accessToken: string,
@@ -360,14 +500,34 @@ class IntunePublisherService {
     metadata: { encryptionInfo?: FileEncryptionInfo; unencryptedContentSize?: number },
     onProgress?: (bytesUploaded: number, totalBytes: number) => void
   ): Promise<void> {
-    const { readFileSync, statSync } = await import('node:fs');
     const { basename } = await import('node:path');
+    const AdmZip = (await import('adm-zip')).default;
 
+    // Extract the encrypted content from inside the .intunewin ZIP
+    // The structure is: .intunewin -> Contents/IntunePackage.intunewin
+    const zip = new AdmZip(filePath);
+    const entries = zip.getEntries();
+
+    // Find the IntunePackage.intunewin file
+    const contentEntry = entries.find(e =>
+      e.entryName.endsWith('IntunePackage.intunewin') ||
+      e.entryName.includes('Contents/') && e.entryName.endsWith('.intunewin')
+    );
+
+    if (!contentEntry) {
+      throw new Error('Could not find IntunePackage.intunewin in the .intunewin archive');
+    }
+
+    // Get the encrypted content
+    const fileContent = contentEntry.getData();
+    const fileSize = fileContent.length;
     const fileName = basename(filePath);
-    const fileStats = statSync(filePath);
-    const fileSize = fileStats.size;
 
-    logger.debug('Starting content upload', { fileName, fileSize });
+    logger.debug('Starting content upload', {
+      fileName,
+      fileSize,
+      contentEntry: contentEntry.entryName
+    });
 
     // Step 1: Create content version
     const contentVersionResponse = await fetch(
@@ -391,6 +551,8 @@ class IntunePublisherService {
     const contentVersionId = contentVersion.id;
 
     // Step 2: Create file entry
+    // size = unencrypted content size, sizeEncrypted = encrypted file size
+    const unencryptedSize = metadata.unencryptedContentSize || fileSize;
     const fileEntryResponse = await fetch(
       `${GRAPH_BASE_URL}/deviceAppManagement/mobileApps/${appId}/microsoft.graph.win32LobApp/contentVersions/${contentVersionId}/files`,
       {
@@ -402,7 +564,7 @@ class IntunePublisherService {
         body: JSON.stringify({
           '@odata.type': '#microsoft.graph.mobileAppContentFile',
           name: fileName,
-          size: fileSize,
+          size: unencryptedSize,
           sizeEncrypted: fileSize,
           isDependency: false,
         }),
@@ -443,7 +605,7 @@ class IntunePublisherService {
     }
 
     // Step 4: Upload file chunks to Azure Storage
-    const fileContent = readFileSync(filePath);
+    // fileContent is already extracted from the ZIP above
     const blockIds: string[] = [];
     let bytesUploaded = 0;
 
@@ -486,6 +648,12 @@ class IntunePublisherService {
     }
 
     // Step 6: Commit file to Intune
+    // Build commit body - only include fileEncryptionInfo if we have it
+    const commitBody: Record<string, unknown> = {};
+    if (metadata.encryptionInfo) {
+      commitBody.fileEncryptionInfo = metadata.encryptionInfo;
+    }
+
     const commitFileResponse = await fetch(
       `${GRAPH_BASE_URL}/deviceAppManagement/mobileApps/${appId}/microsoft.graph.win32LobApp/contentVersions/${contentVersionId}/files/${fileId}/commit`,
       {
@@ -494,9 +662,7 @@ class IntunePublisherService {
           'Authorization': `Bearer ${accessToken}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          fileEncryptionInfo: metadata.encryptionInfo || null,
-        }),
+        body: JSON.stringify(commitBody),
       }
     );
 
