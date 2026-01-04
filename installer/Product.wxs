@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+
+  <Package Name="Packager-MCP"
+           Manufacturer="Packager-MCP Contributors"
+           Version="1.0.0"
+           UpgradeCode="E8A7B3C1-9D2F-4E5A-B6C8-7F1D2E3A4B5C"
+           Scope="perMachine">
+
+    <SummaryInformation Description="MCP server for Windows application packaging with Microsoft Intune"
+                        Manufacturer="Packager-MCP Contributors" />
+
+    <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed."
+                  Schedule="afterInstallInitialize" />
+
+    <Launch Condition="VersionNT64"
+            Message="This application requires a 64-bit version of Windows." />
+
+    <Media Id="1" Cabinet="PackagerMCP.cab" EmbedCab="yes" />
+
+    <!-- Directory Structure -->
+    <StandardDirectory Id="ProgramFiles64Folder">
+      <Directory Id="INSTALLFOLDER" Name="Packager-MCP">
+        <Directory Id="DistDir" Name="dist">
+          <Directory Id="DistHandlersDir" Name="handlers" />
+          <Directory Id="DistServicesDir" Name="services" />
+          <Directory Id="DistTemplatesDir" Name="templates" />
+          <Directory Id="DistKnowledgeDir" Name="knowledge" />
+          <Directory Id="DistTypesDir" Name="types" />
+          <Directory Id="DistUtilsDir" Name="utils" />
+          <Directory Id="DistCacheDir" Name="cache" />
+          <Directory Id="DistConfigDir" Name="config" />
+          <Directory Id="DistWorkflowsDir" Name="workflows" />
+        </Directory>
+        <Directory Id="ExamplesDir" Name="examples" />
+      </Directory>
+    </StandardDirectory>
+
+    <StandardDirectory Id="ProgramMenuFolder">
+      <Directory Id="ApplicationProgramsFolder" Name="Packager-MCP" />
+    </StandardDirectory>
+
+    <!-- Feature Definitions -->
+    <Feature Id="ProductFeature" Title="Packager-MCP" Description="MCP server for Windows application packaging" Level="1" Display="expand">
+      <Feature Id="CoreFeature" Title="MCP Server" Description="Core MCP server files (required)" Level="1" AllowAbsent="no">
+        <ComponentGroupRef Id="RootFilesComponents" />
+        <ComponentGroupRef Id="DistRootComponents" />
+        <ComponentGroupRef Id="RegistryComponents" />
+        <ComponentGroupRef Id="HandlersComponents" />
+        <ComponentGroupRef Id="ServicesComponents" />
+        <ComponentGroupRef Id="TemplatesComponents" />
+        <ComponentGroupRef Id="KnowledgeComponents" />
+        <ComponentGroupRef Id="TypesComponents" />
+        <ComponentGroupRef Id="UtilsComponents" />
+        <ComponentGroupRef Id="CacheComponents" />
+        <ComponentGroupRef Id="ConfigComponents" />
+        <ComponentGroupRef Id="WorkflowsComponents" />
+        <ComponentGroupRef Id="NodeModulesComponents" />
+      </Feature>
+
+      <Feature Id="ExamplesFeature" Title="Example Files" Description="Sample prompts and documentation" Level="1" AllowAbsent="yes">
+        <ComponentGroupRef Id="ExamplesComponents" />
+      </Feature>
+
+      <Feature Id="ShortcutsFeature" Title="Start Menu Shortcuts" Description="Add shortcuts to Start Menu" Level="1" AllowAbsent="yes">
+        <ComponentGroupRef Id="ShortcutComponents" />
+      </Feature>
+    </Feature>
+
+  </Package>
+
+  <!-- Static Component Groups -->
+  <Fragment>
+    <ComponentGroup Id="RootFilesComponents" Directory="INSTALLFOLDER">
+      <Component Id="PackageJson">
+        <File Source="$(var.SourceDir)\package.json" />
+      </Component>
+      <Component Id="ReadmeFile">
+        <File Source="$(var.SourceDir)\README.md" />
+      </Component>
+    </ComponentGroup>
+
+    <ComponentGroup Id="DistRootComponents" Directory="DistDir">
+      <Component Id="ServerJS">
+        <File Source="$(var.SourceDir)\dist\server.js" />
+      </Component>
+    </ComponentGroup>
+
+    <ComponentGroup Id="ExamplesComponents" Directory="ExamplesDir">
+      <Component Id="ExampleClaudeMd">
+        <File Source="$(var.SourceDir)\Packaging_Files\Claude_NewPackage.md" />
+      </Component>
+      <Component Id="ExamplePrompt">
+        <File Source="$(var.SourceDir)\Packaging_Files\Prompt.txt" />
+      </Component>
+      <Component Id="ExampleSetClaudeEnv">
+        <File Source="$(var.SourceDir)\Packaging_Files\Set-ClaudeCLIEnv.ps1" />
+      </Component>
+    </ComponentGroup>
+
+    <ComponentGroup Id="RegistryComponents" Directory="INSTALLFOLDER">
+      <Component Id="RegistryEntries">
+        <RegistryKey Root="HKLM" Key="SOFTWARE\Packager-MCP">
+          <RegistryValue Name="InstallPath" Type="string" Value="[INSTALLFOLDER]" KeyPath="yes" />
+          <RegistryValue Name="Version" Type="string" Value="1.0.0" />
+        </RegistryKey>
+      </Component>
+    </ComponentGroup>
+
+    <ComponentGroup Id="ShortcutComponents" Directory="ApplicationProgramsFolder">
+      <Component Id="StartMenuShortcuts">
+        <Shortcut Id="ExamplesShortcut" Name="Packager-MCP Examples"
+                  Description="Open Packager-MCP example files"
+                  Target="[ExamplesDir]" WorkingDirectory="ExamplesDir" />
+        <RemoveFolder Id="RemoveApplicationProgramsFolder" On="uninstall" />
+        <RegistryValue Root="HKCU" Key="Software\Packager-MCP" Name="StartMenuShortcuts" Type="integer" Value="1" KeyPath="yes" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+
+</Wix>

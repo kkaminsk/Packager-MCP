@@ -1,0 +1,115 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Fragment>
+    <ComponentGroup Id="ServicesComponents" Directory="DistServicesDir">
+      <Component Id="ServicesComponents_1" Guid="53C54E57-C147-4FDC-BEFD-DE9C4A5A458C">
+        <File Id="File_ServicesComponents_1" Source="$(var.SourceDir)\dist\services\detection.d.ts" KeyPath="yes" />
+      </Component>
+      <Component Id="ServicesComponents_2" Guid="A1AFC3CF-68EE-439F-996A-D29BBE0E92C7">
+        <File Id="File_ServicesComponents_2" Source="$(var.SourceDir)\dist\services\detection.d.ts.map" KeyPath="yes" />
+      </Component>
+      <Component Id="ServicesComponents_3" Guid="615BCA08-E2E7-4A9B-9147-133F9708A2E1">
+        <File Id="File_ServicesComponents_3" Source="$(var.SourceDir)\dist\services\detection.js" KeyPath="yes" />
+      </Component>
+      <Component Id="ServicesComponents_4" Guid="4BD3D764-8A84-4718-B7BE-F306E84DA9A0">
+        <File Id="File_ServicesComponents_4" Source="$(var.SourceDir)\dist\services\detection.js.map" KeyPath="yes" />
+      </Component>
+      <Component Id="ServicesComponents_5" Guid="F82D59E8-2EC3-48C1-BFC8-67DDC70DC470">
+        <File Id="File_ServicesComponents_5" Source="$(var.SourceDir)\dist\services\download.d.ts" KeyPath="yes" />
+      </Component>
+      <Component Id="ServicesComponents_6" Guid="690B39F6-B131-4C0F-BE1D-F2EB6D9D64E3">
+        <File Id="File_ServicesComponents_6" Source="$(var.SourceDir)\dist\services\download.d.ts.map" KeyPath="yes" />
+      </Component>
+      <Component Id="ServicesComponents_7" Guid="B11DC4E4-8AB2-48EE-91A7-D4CB5B691C76">
+        <File Id="File_ServicesComponents_7" Source="$(var.SourceDir)\dist\services\download.js" KeyPath="yes" />
+      </Component>
+      <Component Id="ServicesComponents_8" Guid="AC4B160F-F6CC-4679-8858-C933420CA85F">
+        <File Id="File_ServicesComponents_8" Source="$(var.SourceDir)\dist\services\download.js.map" KeyPath="yes" />
+      </Component>
+      <Component Id="ServicesComponents_9" Guid="62E9B619-493C-48AE-839F-ED878B5E84B1">
+        <File Id="File_ServicesComponents_9" Source="$(var.SourceDir)\dist\services\graph-auth.d.ts" KeyPath="yes" />
+      </Component>
+      <Component Id="ServicesComponents_10" Guid="4154A40E-E52E-460E-9975-5950D48C2288">
+        <File Id="File_ServicesComponents_10" Source="$(var.SourceDir)\dist\services\graph-auth.d.ts.map" KeyPath="yes" />
+      </Component>
+      <Component Id="ServicesComponents_11" Guid="ABD0EBE6-4B05-45F3-A563-8D19ED1037A9">
+        <File Id="File_ServicesComponents_11" Source="$(var.SourceDir)\dist\services\graph-auth.js" KeyPath="yes" />
+      </Component>
+      <Component Id="ServicesComponents_12" Guid="F76E846C-79A4-496C-8C3F-AA2886A0F7EE">
+        <File Id="File_ServicesComponents_12" Source="$(var.SourceDir)\dist\services\graph-auth.js.map" KeyPath="yes" />
+      </Component>
+      <Component Id="ServicesComponents_13" Guid="96B00813-2E98-481A-AEDA-BDD01437478D">
+        <File Id="File_ServicesComponents_13" Source="$(var.SourceDir)\dist\services\index.d.ts" KeyPath="yes" />
+      </Component>
+      <Component Id="ServicesComponents_14" Guid="84D47BE9-7044-4F85-A34E-CAF7D4F8F44A">
+        <File Id="File_ServicesComponents_14" Source="$(var.SourceDir)\dist\services\index.d.ts.map" KeyPath="yes" />
+      </Component>
+      <Component Id="ServicesComponents_15" Guid="7A638BEC-D13E-421F-82A7-52BFDC86A243">
+        <File Id="File_ServicesComponents_15" Source="$(var.SourceDir)\dist\services\index.js" KeyPath="yes" />
+      </Component>
+      <Component Id="ServicesComponents_16" Guid="D7BEF4D9-E836-426E-A82C-E7C3633EB5BC">
+        <File Id="File_ServicesComponents_16" Source="$(var.SourceDir)\dist\services\index.js.map" KeyPath="yes" />
+      </Component>
+      <Component Id="ServicesComponents_17" Guid="138C132A-DA76-4A2C-B155-0B1A866012CE">
+        <File Id="File_ServicesComponents_17" Source="$(var.SourceDir)\dist\services\intune-publisher.d.ts" KeyPath="yes" />
+      </Component>
+      <Component Id="ServicesComponents_18" Guid="EBCA89BF-AE6E-4351-9C2E-B5FE996B0C00">
+        <File Id="File_ServicesComponents_18" Source="$(var.SourceDir)\dist\services\intune-publisher.d.ts.map" KeyPath="yes" />
+      </Component>
+      <Component Id="ServicesComponents_19" Guid="3A38D68C-0259-4219-890E-31BDE6A4DC80">
+        <File Id="File_ServicesComponents_19" Source="$(var.SourceDir)\dist\services\intune-publisher.js" KeyPath="yes" />
+      </Component>
+      <Component Id="ServicesComponents_20" Guid="F340B59C-2696-4EC7-BD3B-84305D098335">
+        <File Id="File_ServicesComponents_20" Source="$(var.SourceDir)\dist\services\intune-publisher.js.map" KeyPath="yes" />
+      </Component>
+      <Component Id="ServicesComponents_21" Guid="4BCBD84E-C711-4F5F-B68C-FBA42567A444">
+        <File Id="File_ServicesComponents_21" Source="$(var.SourceDir)\dist\services\psadt-download.d.ts" KeyPath="yes" />
+      </Component>
+      <Component Id="ServicesComponents_22" Guid="E00B395B-DBB3-4D29-86A8-C6CF348B809F">
+        <File Id="File_ServicesComponents_22" Source="$(var.SourceDir)\dist\services\psadt-download.d.ts.map" KeyPath="yes" />
+      </Component>
+      <Component Id="ServicesComponents_23" Guid="7093EAB8-5501-42D7-95D2-3F1A0071F8B0">
+        <File Id="File_ServicesComponents_23" Source="$(var.SourceDir)\dist\services\psadt-download.js" KeyPath="yes" />
+      </Component>
+      <Component Id="ServicesComponents_24" Guid="E37686BA-0517-431C-A8CC-9405497ABAD9">
+        <File Id="File_ServicesComponents_24" Source="$(var.SourceDir)\dist\services\psadt-download.js.map" KeyPath="yes" />
+      </Component>
+      <Component Id="ServicesComponents_25" Guid="6F391A38-04DC-49E6-8874-9C1FE9C786E4">
+        <File Id="File_ServicesComponents_25" Source="$(var.SourceDir)\dist\services\psadt.d.ts" KeyPath="yes" />
+      </Component>
+      <Component Id="ServicesComponents_26" Guid="19A47B54-75DA-4C12-AEE1-2DBF0B7A69EA">
+        <File Id="File_ServicesComponents_26" Source="$(var.SourceDir)\dist\services\psadt.d.ts.map" KeyPath="yes" />
+      </Component>
+      <Component Id="ServicesComponents_27" Guid="A77B4A56-ACB0-45FC-98EF-B2CE4CEA3989">
+        <File Id="File_ServicesComponents_27" Source="$(var.SourceDir)\dist\services\psadt.js" KeyPath="yes" />
+      </Component>
+      <Component Id="ServicesComponents_28" Guid="2F0E8724-038B-42E0-9DA5-A29EAD5B1ABE">
+        <File Id="File_ServicesComponents_28" Source="$(var.SourceDir)\dist\services\psadt.js.map" KeyPath="yes" />
+      </Component>
+      <Component Id="ServicesComponents_29" Guid="F478FBDF-D9EB-4B87-9DE5-38A8F750C82F">
+        <File Id="File_ServicesComponents_29" Source="$(var.SourceDir)\dist\services\validation.d.ts" KeyPath="yes" />
+      </Component>
+      <Component Id="ServicesComponents_30" Guid="83D6953E-1AA0-4C78-A6EE-A5228210D120">
+        <File Id="File_ServicesComponents_30" Source="$(var.SourceDir)\dist\services\validation.d.ts.map" KeyPath="yes" />
+      </Component>
+      <Component Id="ServicesComponents_31" Guid="6671D664-82EF-403A-A074-58B69B6FD47A">
+        <File Id="File_ServicesComponents_31" Source="$(var.SourceDir)\dist\services\validation.js" KeyPath="yes" />
+      </Component>
+      <Component Id="ServicesComponents_32" Guid="E4033B25-6176-48B0-9719-6D1E998C3A32">
+        <File Id="File_ServicesComponents_32" Source="$(var.SourceDir)\dist\services\validation.js.map" KeyPath="yes" />
+      </Component>
+      <Component Id="ServicesComponents_33" Guid="6489968A-0518-49DD-98CC-E58D763CCBA5">
+        <File Id="File_ServicesComponents_33" Source="$(var.SourceDir)\dist\services\winget.d.ts" KeyPath="yes" />
+      </Component>
+      <Component Id="ServicesComponents_34" Guid="BC17AC48-B9EF-483B-B659-541628275A60">
+        <File Id="File_ServicesComponents_34" Source="$(var.SourceDir)\dist\services\winget.d.ts.map" KeyPath="yes" />
+      </Component>
+      <Component Id="ServicesComponents_35" Guid="081BC4AA-C8E2-4930-80D9-DC3F76752569">
+        <File Id="File_ServicesComponents_35" Source="$(var.SourceDir)\dist\services\winget.js" KeyPath="yes" />
+      </Component>
+      <Component Id="ServicesComponents_36" Guid="3B254D2E-E870-4D19-8960-806762798CBF">
+        <File Id="File_ServicesComponents_36" Source="$(var.SourceDir)\dist\services\winget.js.map" KeyPath="yes" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+</Wix>

@@ -1,0 +1,16 @@
+<Project Sdk="WixToolset.Sdk/6.0.2">
+  <PropertyGroup>
+    <OutputType>Package</OutputType>
+    <OutputName>Packager-MCP-$(Version)</OutputName>
+    <InstallerPlatform>x64</InstallerPlatform>
+    <SourceDir Condition="'$(SourceDir)' == ''">$(MSBuildProjectDirectory)\..</SourceDir>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <DefineConstants>SourceDir=$(SourceDir)</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="*.wxs" />
+  </ItemGroup>
+</Project>

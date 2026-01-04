@@ -49,6 +49,56 @@ Look for the [PackagerMCP_Claude.docx](https://github.com/kkaminsk/Packager-MCP/
 
 ### Installation
 
+#### Option 1: MSI Installer (Recommended for Enterprise)
+
+Download the latest MSI from [Releases](https://github.com/kkaminsk/Packager-MCP/releases) or build it yourself (see below).
+
+**Interactive Install:**
+```powershell
+msiexec /i "Packager-MCP-1.0.0.msi"
+```
+
+**Silent Install (for enterprise deployment):**
+```powershell
+msiexec /i "Packager-MCP-1.0.0.msi" /qn /norestart
+```
+
+**Silent Install with Logging:**
+```powershell
+msiexec /i "Packager-MCP-1.0.0.msi" /qn /norestart /l*v "C:\temp\packager-mcp-install.log"
+```
+
+**Default installation path:** `C:\Program Files\Packager-MCP`
+
+**What's Included:**
+- MCP server files (`dist/`)
+- Example files and prompts (`examples/`)
+- Start Menu shortcuts (optional feature)
+
+**Post-Installation Steps:**
+
+1. Install Node.js dependencies:
+   ```powershell
+   cd "C:\Program Files\Packager-MCP"
+   npm install --omit=dev
+   ```
+
+2. Configure Claude CLI:
+   ```bash
+   claude mcp add packager-mcp -s user -- node "C:\Program Files\Packager-MCP\dist\server.js"
+   ```
+
+**Uninstall:**
+```powershell
+# Interactive
+msiexec /x "Packager-MCP-1.0.0.msi"
+
+# Silent
+msiexec /x "Packager-MCP-1.0.0.msi" /qn
+```
+
+#### Option 2: From Source (Development)
+
 ```bash
 # Install prerequisites (if not already installed)
 winget install git.git
@@ -64,6 +114,17 @@ npm install
 # Build the project
 npm run build
 ```
+
+#### Building the MSI Installer
+
+If you want to build the MSI installer yourself:
+
+```powershell
+# Prerequisites: .NET SDK 6.0+, WiX Toolset v5
+.\scripts\build-msi.ps1
+```
+
+See `installer/README.md` for detailed build instructions.
 
 ### Add MCP to Your Client
 

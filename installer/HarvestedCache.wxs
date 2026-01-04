@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Fragment>
+    <ComponentGroup Id="CacheComponents" Directory="DistCacheDir">
+      <Component Id="CacheComponents_1" Guid="F1639C88-99CC-4133-88D8-076556740276">
+        <File Id="File_CacheComponents_1" Source="$(var.SourceDir)\dist\cache\index.d.ts" KeyPath="yes" />
+      </Component>
+      <Component Id="CacheComponents_2" Guid="F298627C-FC0A-47F8-A682-E00125F0847C">
+        <File Id="File_CacheComponents_2" Source="$(var.SourceDir)\dist\cache\index.d.ts.map" KeyPath="yes" />
+      </Component>
+      <Component Id="CacheComponents_3" Guid="363DC8CA-1FBB-488C-A013-E181EFFF6BB2">
+        <File Id="File_CacheComponents_3" Source="$(var.SourceDir)\dist\cache\index.js" KeyPath="yes" />
+      </Component>
+      <Component Id="CacheComponents_4" Guid="DEA4590C-E4A4-42A9-AF7F-EF7676B44830">
+        <File Id="File_CacheComponents_4" Source="$(var.SourceDir)\dist\cache\index.js.map" KeyPath="yes" />
+      </Component>
+      <Component Id="CacheComponents_5" Guid="E2BDCFA2-D88C-44FD-B4DA-DC09FA8C1D9E">
+        <File Id="File_CacheComponents_5" Source="$(var.SourceDir)\dist\cache\lru-cache.d.ts" KeyPath="yes" />
+      </Component>
+      <Component Id="CacheComponents_6" Guid="CE38AFA7-EFCC-432D-9AF6-8D2DEA374224">
+        <File Id="File_CacheComponents_6" Source="$(var.SourceDir)\dist\cache\lru-cache.d.ts.map" KeyPath="yes" />
+      </Component>
+      <Component Id="CacheComponents_7" Guid="8032E4FA-E311-49CF-AD39-BDCA71D671C1">
+        <File Id="File_CacheComponents_7" Source="$(var.SourceDir)\dist\cache\lru-cache.js" KeyPath="yes" />
+      </Component>
+      <Component Id="CacheComponents_8" Guid="A78CBDC9-EC6F-4895-AD5B-C2C82DE8107A">
+        <File Id="File_CacheComponents_8" Source="$(var.SourceDir)\dist\cache\lru-cache.js.map" KeyPath="yes" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+</Wix>
