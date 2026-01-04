@@ -57,8 +57,9 @@ $OutputDir = Join-Path $InstallerDir 'bin'
 $NodeBundleDir = Join-Path $InstallerDir 'nodejs-bundle'
 
 # Node.js download checksums (SHA256) - update when changing NodeVersion
+# Get checksums from: https://nodejs.org/dist/vX.Y.Z/SHASUMS256.txt
 $NodeChecksums = @{
-    "20.18.1" = "e29e25ce5e2478a4d61eb3f67de2ca7a55d03e77bb65d65c2f4a2b0f194daafc"
+    "20.18.1" = "56e5aacdeee7168871721b75819ccacf2367de8761b78eaceacdecd41e04ca03"
     "22.11.0" = "2c8d66c8f83de91178ec26eb73f74c1be54dce2c06e3b7a4e0d1e51d2e6a88f7"
 }
 
@@ -356,15 +357,45 @@ foreach ($target in $HarvestTargets) {
         -ProjectRootPath $ProjectRoot
 }
 
-# Harvest Node.js bundle
+# Harvest Node.js bundle - use a custom harvester since paths differ from project root
 Write-Host "  Harvesting Node.js bundle..."
 $nodeHarvestOutput = Join-Path $InstallerDir "HarvestedNodeJS.wxs"
-Invoke-HarvestDirectory `
-    -SourcePath $NodeExtractPath `
-    -OutputFile $nodeHarvestOutput `
-    -ComponentGroupId "NodeJSComponents" `
-    -DirectoryRefId "NodeJSDir" `
-    -ProjectRootPath $NodeBundleDir
+
+# Generate WiX XML for Node.js with correct paths
+$nodeFiles = Get-ChildItem -Path $NodeExtractPath -Recurse -File
+$nodeComponentId = 0
+$nodeXmlContent = @"
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Fragment>
+    <ComponentGroup Id="NodeJSComponents" Directory="NodeJSDir">
+
+"@
+
+foreach ($file in $nodeFiles) {
+    $nodeComponentId++
+    $relativePath = $file.FullName.Substring($NodeExtractPath.Length).TrimStart('\')
+    $fileId = ("NodeJS_" + $nodeComponentId).Replace("-", "_")
+    $componentGuid = [guid]::NewGuid().ToString().ToUpper()
+    # Use absolute path for Node.js files
+    $nodeSourcePath = $file.FullName.Replace('\', '\\')
+
+    $nodeXmlContent += @"
+      <Component Id="$fileId" Guid="$componentGuid">
+        <File Id="File_$fileId" Source="$nodeSourcePath" KeyPath="yes" />
+      </Component>
+
+"@
+}
+
+$nodeXmlContent += @"
+    </ComponentGroup>
+  </Fragment>
+</Wix>
+"@
+
+$nodeXmlContent | Set-Content -Path $nodeHarvestOutput -Encoding UTF8
+Write-Host "  Harvested $nodeComponentId Node.js files"
 
 Write-Host "Directory harvesting complete." -ForegroundColor Green
 
