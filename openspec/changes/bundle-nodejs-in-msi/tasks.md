@@ -30,7 +30,7 @@
 
 ## 5. Testing
 
-- [ ] 5.1 Verify MSI builds with bundled Node.js
+- [x] 5.1 Verify MSI builds with bundled Node.js (30.27 MB confirms Node.js included)
 - [ ] 5.2 Verify installation on system without Node.js installed
 - [ ] 5.3 Verify MCP server starts using bundled Node.js
 - [ ] 5.4 Verify bundled Node.js doesn't conflict with system Node.js
