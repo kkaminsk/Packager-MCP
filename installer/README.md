@@ -31,7 +31,7 @@ This directory contains the WiX Toolset v5 source files for building the Package
 ### Runtime Requirements (for installation)
 
 - Windows 10 or later (64-bit)
-- Node.js 20.0 or later
+- **No Node.js required** - Node.js runtime is bundled with the installer
 
 ## Building the MSI
 
@@ -55,11 +55,17 @@ From the project root directory:
 # Skip npm ci (use existing node_modules/)
 .\scripts\build-msi.ps1 -SkipNpmCi
 
-# Clean before building
+# Skip Node.js download (use existing nodejs-bundle/)
+.\scripts\build-msi.ps1 -SkipNodeDownload
+
+# Use specific Node.js version (default: 20.18.1)
+.\scripts\build-msi.ps1 -NodeVersion "22.11.0"
+
+# Clean before building (removes bin/, nodejs-bundle/, and Harvested*.wxs)
 .\scripts\build-msi.ps1 -Clean
 
 # Combine options
-.\scripts\build-msi.ps1 -Version "1.0.1" -SkipBuild -SkipNpmCi
+.\scripts\build-msi.ps1 -Version "1.0.1" -SkipBuild -SkipNpmCi -SkipNodeDownload
 ```
 
 ### Build Output
@@ -117,11 +123,15 @@ C:\Program Files\Packager-MCP\
 │   ├── services\
 │   ├── templates\
 │   └── knowledge\
+├── nodejs\                  # Bundled Node.js runtime
+│   ├── node.exe            # Node.js executable
+│   ├── npm.cmd
+│   └── ...
 ├── examples\               # Sample files from Packaging_Files
 │   ├── Claude_NewPackage.md
 │   ├── Prompt.txt
 │   └── Set-ClaudeCLIEnv.ps1
-├── node_modules\           # Production dependencies
+├── launch-server.cmd       # Server launcher script
 ├── package.json
 └── README.md
 ```
@@ -132,15 +142,18 @@ The installer creates:
 ```
 HKEY_LOCAL_MACHINE\SOFTWARE\Packager-MCP
 ├── InstallPath = "C:\Program Files\Packager-MCP"
-└── Version = "1.0.0"
+├── Version = "1.0.0"
+└── NodePath = "C:\Program Files\Packager-MCP\nodejs"
 ```
 
 ## Post-Installation Configuration
 
-After installation, configure Claude Code to use the MCP server:
+After installation, configure Claude Code to use the MCP server.
+
+### Using Bundled Node.js (Recommended)
 
 ```bash
-claude mcp add packager-mcp -s user -- node "C:\Program Files\Packager-MCP\dist\server.js"
+claude mcp add packager-mcp -s user -- "C:\Program Files\Packager-MCP\nodejs\node.exe" "C:\Program Files\Packager-MCP\dist\server.js"
 ```
 
 ### With Azure/Intune Integration
@@ -150,7 +163,14 @@ claude mcp add packager-mcp -s user \
   -e AZURE_TENANT_ID=your-tenant-guid \
   -e AZURE_CLIENT_ID=your-app-client-id \
   -e AZURE_CLIENT_CERTIFICATE_PATH=C:/path/to/certificate.pem \
-  -- node "C:\Program Files\Packager-MCP\dist\server.js"
+  -- "C:\Program Files\Packager-MCP\nodejs\node.exe" "C:\Program Files\Packager-MCP\dist\server.js"
+```
+
+### Using Launch Script
+
+You can also use the launch script directly:
+```bash
+claude mcp add packager-mcp -s user -- "C:\Program Files\Packager-MCP\launch-server.cmd"
 ```
 
 ## Features
@@ -174,16 +194,6 @@ msiexec /i "Packager-MCP-1.0.0.msi" /qn ADDLOCAL=CoreFeature,ExamplesFeature
 ```
 
 ## Troubleshooting
-
-### "Node.js not found" Error
-
-The installer requires Node.js 20+ to be installed. Install from:
-https://nodejs.org
-
-Verify installation:
-```powershell
-node --version  # Should show v20.x.x or later
-```
 
 ### Build Fails with "wix not found"
 
@@ -217,12 +227,24 @@ type install.log | Select-String "error"
 
 ```
 installer/
-├── Packager-MCP.wixproj    # WiX project file
 ├── Product.wxs             # Main product definition
-├── Directories.wxi         # Directory structure
-├── Components.wxi          # Static component definitions
-├── Features.wxi            # Feature tree
+├── launch-server.cmd       # Server launcher script (bundled in MSI)
 ├── README.md               # This file
 ├── bin/                    # Build output (MSI files)
+├── nodejs-bundle/          # Downloaded Node.js runtime (created by build)
 └── Harvested*.wxs          # Auto-generated component files (created by build)
 ```
+
+## Bundled Node.js
+
+The installer bundles Node.js runtime (default: 20.18.1 LTS) to ensure the MCP server works without requiring a system-wide Node.js installation.
+
+### Updating Node.js Version
+
+1. Update the `$NodeChecksums` hashtable in `scripts/build-msi.ps1` with the new version's SHA256 hash
+2. Get the checksum from https://nodejs.org/dist/vX.Y.Z/SHASUMS256.txt
+3. Rebuild the MSI: `.\scripts\build-msi.ps1 -NodeVersion "X.Y.Z" -Clean`
+
+### Size Impact
+
+The bundled Node.js adds approximately 30-35 MB to the MSI package size.

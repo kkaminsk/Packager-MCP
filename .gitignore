@@ -2,6 +2,11 @@ node_modules/
 dist/
 *.log
 
+# Installer build artifacts
+installer/bin/
+installer/nodejs-bundle/
+installer/Harvested*.wxs
+
 # Config files with secrets
 packager-mcp.yaml
 packager-mcp.yml

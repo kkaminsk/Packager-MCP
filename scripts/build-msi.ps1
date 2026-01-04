@@ -5,14 +5,19 @@
     This script:
     1. Ensures dist/ folder is up to date (npm run build)
     2. Installs production node_modules (npm ci --production)
-    3. Harvests directory contents into WiX fragment files
-    4. Builds the MSI using dotnet build
+    3. Downloads and bundles Node.js runtime
+    4. Harvests directory contents into WiX fragment files
+    5. Builds the MSI using dotnet build
 .PARAMETER Version
     Version number for the MSI (e.g., "1.0.0"). Defaults to version from package.json.
 .PARAMETER SkipBuild
     Skip npm build step (use existing dist/ folder).
 .PARAMETER SkipNpmCi
     Skip npm ci --production step (use existing node_modules/).
+.PARAMETER SkipNodeDownload
+    Skip Node.js download step (use existing nodejs-bundle/ folder).
+.PARAMETER NodeVersion
+    Node.js version to bundle (e.g., "20.18.1"). Defaults to 20.18.1 LTS.
 .PARAMETER Clean
     Clean build artifacts before building.
 .EXAMPLE
@@ -34,6 +39,12 @@ param(
     [switch]$SkipNpmCi,
 
     [Parameter()]
+    [switch]$SkipNodeDownload,
+
+    [Parameter()]
+    [string]$NodeVersion = "20.18.1",
+
+    [Parameter()]
     [switch]$Clean
 )
 
@@ -43,6 +54,13 @@ $ProjectRoot = Split-Path -Parent $PSScriptRoot
 $InstallerDir = Join-Path $ProjectRoot 'installer'
 $DistDir = Join-Path $ProjectRoot 'dist'
 $OutputDir = Join-Path $InstallerDir 'bin'
+$NodeBundleDir = Join-Path $InstallerDir 'nodejs-bundle'
+
+# Node.js download checksums (SHA256) - update when changing NodeVersion
+$NodeChecksums = @{
+    "20.18.1" = "e29e25ce5e2478a4d61eb3f67de2ca7a55d03e77bb65d65c2f4a2b0f194daafc"
+    "22.11.0" = "2c8d66c8f83de91178ec26eb73f74c1be54dce2c06e3b7a4e0d1e51d2e6a88f7"
+}
 
 Write-Host "======================================" -ForegroundColor Cyan
 Write-Host " Packager-MCP MSI Build Script" -ForegroundColor Cyan
@@ -50,7 +68,82 @@ Write-Host "======================================" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "Project Root: $ProjectRoot"
 Write-Host "Installer Dir: $InstallerDir"
+Write-Host "Node.js Version: $NodeVersion"
 Write-Host ""
+
+#region Functions
+
+function Get-NodeJsBundle {
+    <#
+    .SYNOPSIS
+        Downloads and extracts Node.js Windows x64 binary.
+    #>
+    param(
+        [string]$Version,
+        [string]$DestinationPath,
+        [hashtable]$Checksums
+    )
+
+    $nodeFolderName = "node-v$Version-win-x64"
+    $nodeZipName = "$nodeFolderName.zip"
+    $nodeUrl = "https://nodejs.org/dist/v$Version/$nodeZipName"
+    $zipPath = Join-Path $DestinationPath $nodeZipName
+    $extractPath = Join-Path $DestinationPath $nodeFolderName
+
+    # Check if already extracted
+    $nodeExe = Join-Path $extractPath "node.exe"
+    if (Test-Path $nodeExe) {
+        Write-Host "  Node.js $Version already extracted at: $extractPath" -ForegroundColor Green
+        return $extractPath
+    }
+
+    # Create destination directory
+    if (-not (Test-Path $DestinationPath)) {
+        New-Item -ItemType Directory -Path $DestinationPath -Force | Out-Null
+    }
+
+    # Download if not cached
+    if (-not (Test-Path $zipPath)) {
+        Write-Host "  Downloading Node.js $Version from: $nodeUrl"
+        try {
+            $ProgressPreference = 'SilentlyContinue'  # Speeds up download
+            Invoke-WebRequest -Uri $nodeUrl -OutFile $zipPath -UseBasicParsing
+            $ProgressPreference = 'Continue'
+        } catch {
+            throw "Failed to download Node.js: $_"
+        }
+        Write-Host "  Downloaded: $zipPath" -ForegroundColor Green
+    } else {
+        Write-Host "  Using cached download: $zipPath" -ForegroundColor Green
+    }
+
+    # Verify checksum if available
+    if ($Checksums.ContainsKey($Version)) {
+        Write-Host "  Verifying SHA256 checksum..."
+        $expectedHash = $Checksums[$Version]
+        $actualHash = (Get-FileHash -Path $zipPath -Algorithm SHA256).Hash.ToLower()
+        if ($actualHash -ne $expectedHash.ToLower()) {
+            Remove-Item -Path $zipPath -Force
+            throw "Checksum mismatch! Expected: $expectedHash, Got: $actualHash"
+        }
+        Write-Host "  Checksum verified." -ForegroundColor Green
+    } else {
+        Write-Warning "No checksum available for Node.js $Version - skipping verification"
+    }
+
+    # Extract
+    Write-Host "  Extracting Node.js..."
+    Expand-Archive -Path $zipPath -DestinationPath $DestinationPath -Force
+
+    if (-not (Test-Path $nodeExe)) {
+        throw "Extraction failed - node.exe not found at: $nodeExe"
+    }
+
+    Write-Host "  Extracted to: $extractPath" -ForegroundColor Green
+    return $extractPath
+}
+
+#endregion Functions
 
 # Get version from package.json if not specified
 if (-not $Version) {
@@ -65,6 +158,9 @@ if ($Clean) {
     Write-Host "Cleaning build artifacts..." -ForegroundColor Yellow
     if (Test-Path $OutputDir) {
         Remove-Item -Path $OutputDir -Recurse -Force
+    }
+    if (Test-Path $NodeBundleDir) {
+        Remove-Item -Path $NodeBundleDir -Recurse -Force
     }
     $HarvestedFiles = Get-ChildItem -Path $InstallerDir -Filter "Harvested*.wxs" -ErrorAction SilentlyContinue
     foreach ($file in $HarvestedFiles) {
@@ -116,9 +212,24 @@ if (-not $SkipNpmCi) {
     Write-Host "Step 2: Skipping npm ci (--SkipNpmCi)" -ForegroundColor Yellow
 }
 
-# Step 3: Check for WiX Toolset
+# Step 3: Download and extract Node.js
+if (-not $SkipNodeDownload) {
+    Write-Host ""
+    Write-Host "Step 3: Downloading Node.js $NodeVersion..." -ForegroundColor Yellow
+    $NodeExtractPath = Get-NodeJsBundle -Version $NodeVersion -DestinationPath $NodeBundleDir -Checksums $NodeChecksums
+    Write-Host "Node.js bundle ready." -ForegroundColor Green
+} else {
+    Write-Host ""
+    Write-Host "Step 3: Skipping Node.js download (--SkipNodeDownload)" -ForegroundColor Yellow
+    $NodeExtractPath = Join-Path $NodeBundleDir "node-v$NodeVersion-win-x64"
+    if (-not (Test-Path (Join-Path $NodeExtractPath "node.exe"))) {
+        throw "Node.js bundle not found at $NodeExtractPath. Run without -SkipNodeDownload."
+    }
+}
+
+# Step 4: Check for WiX Toolset
 Write-Host ""
-Write-Host "Step 3: Checking WiX Toolset installation..." -ForegroundColor Yellow
+Write-Host "Step 4: Checking WiX Toolset installation..." -ForegroundColor Yellow
 
 $WixInstalled = $false
 try {
@@ -140,9 +251,9 @@ if (-not $WixInstalled) {
     Write-Host "WiX Toolset installed." -ForegroundColor Green
 }
 
-# Step 4: Harvest directories
+# Step 5: Harvest directories
 Write-Host ""
-Write-Host "Step 4: Harvesting directory contents..." -ForegroundColor Yellow
+Write-Host "Step 5: Harvesting directory contents..." -ForegroundColor Yellow
 
 function Invoke-HarvestDirectory {
     param(
@@ -222,7 +333,7 @@ $HarvestTargets = @(
     @{ Source = "dist\workflows"; Output = "HarvestedWorkflows.wxs"; ComponentGroup = "WorkflowsComponents"; DirectoryRef = "DistWorkflowsDir" }
 )
 
-# Create empty NodeModulesComponents (not bundled - user runs npm install)
+# Create empty NodeModulesComponents (not bundled - users run npm install after installation)
 $emptyNodeModules = @"
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
@@ -245,11 +356,21 @@ foreach ($target in $HarvestTargets) {
         -ProjectRootPath $ProjectRoot
 }
 
+# Harvest Node.js bundle
+Write-Host "  Harvesting Node.js bundle..."
+$nodeHarvestOutput = Join-Path $InstallerDir "HarvestedNodeJS.wxs"
+Invoke-HarvestDirectory `
+    -SourcePath $NodeExtractPath `
+    -OutputFile $nodeHarvestOutput `
+    -ComponentGroupId "NodeJSComponents" `
+    -DirectoryRefId "NodeJSDir" `
+    -ProjectRootPath $NodeBundleDir
+
 Write-Host "Directory harvesting complete." -ForegroundColor Green
 
-# Step 5: Build MSI
+# Step 6: Build MSI
 Write-Host ""
-Write-Host "Step 5: Building MSI package..." -ForegroundColor Yellow
+Write-Host "Step 6: Building MSI package..." -ForegroundColor Yellow
 
 # Create output directory
 if (-not (Test-Path $OutputDir)) {

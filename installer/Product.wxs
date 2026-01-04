@@ -32,6 +32,7 @@
           <Directory Id="DistConfigDir" Name="config" />
           <Directory Id="DistWorkflowsDir" Name="workflows" />
         </Directory>
+        <Directory Id="NodeJSDir" Name="nodejs" />
         <Directory Id="ExamplesDir" Name="examples" />
       </Directory>
     </StandardDirectory>
@@ -56,6 +57,8 @@
         <ComponentGroupRef Id="ConfigComponents" />
         <ComponentGroupRef Id="WorkflowsComponents" />
         <ComponentGroupRef Id="NodeModulesComponents" />
+        <ComponentGroupRef Id="NodeJSComponents" />
+        <ComponentGroupRef Id="LauncherComponents" />
       </Feature>
 
       <Feature Id="ExamplesFeature" Title="Example Files" Description="Sample prompts and documentation" Level="1" AllowAbsent="yes">
@@ -103,12 +106,22 @@
         <RegistryKey Root="HKLM" Key="SOFTWARE\Packager-MCP">
           <RegistryValue Name="InstallPath" Type="string" Value="[INSTALLFOLDER]" KeyPath="yes" />
           <RegistryValue Name="Version" Type="string" Value="1.0.0" />
+          <RegistryValue Name="NodePath" Type="string" Value="[NodeJSDir]" />
         </RegistryKey>
+      </Component>
+    </ComponentGroup>
+
+    <ComponentGroup Id="LauncherComponents" Directory="INSTALLFOLDER">
+      <Component Id="LaunchScript">
+        <File Source="$(var.SourceDir)\installer\launch-server.cmd" KeyPath="yes" />
       </Component>
     </ComponentGroup>
 
     <ComponentGroup Id="ShortcutComponents" Directory="ApplicationProgramsFolder">
       <Component Id="StartMenuShortcuts">
+        <Shortcut Id="ServerShortcut" Name="Start Packager-MCP Server"
+                  Description="Start the Packager-MCP server"
+                  Target="[INSTALLFOLDER]launch-server.cmd" WorkingDirectory="INSTALLFOLDER" />
         <Shortcut Id="ExamplesShortcut" Name="Packager-MCP Examples"
                   Description="Open Packager-MCP example files"
                   Target="[ExamplesDir]" WorkingDirectory="ExamplesDir" />
