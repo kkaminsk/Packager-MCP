@@ -1,0 +1,46 @@
+# Dependencies
+node_modules/
+
+# Build output (rebuilt in container)
+dist/
+
+# Git
+.git/
+.gitignore
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Test and development
+*.test.ts
+__tests__/
+coverage/
+.nyc_output/
+
+# Documentation and specs (not needed at runtime)
+*.md
+!README.md
+openspec/
+ReferenceKnowledge/
+
+# Local configuration
+.env
+.env.*
+*.local.json
+intune_mcp_config.yaml
+
+# Scripts (setup, not runtime)
+scripts/
+
+# Packaging files (development only)
+Packaging_Files/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Installer (WiX)
+installer/

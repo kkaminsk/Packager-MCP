@@ -4,12 +4,21 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "10101:10101"
+      - "8081:8081"
     environment:
       - GITHUB_TOKEN=${GITHUB_TOKEN}
       - LOG_LEVEL=${LOG_LEVEL:-info}
       - LOG_FORMAT=${LOG_FORMAT:-json}
+      - TRANSPORT_TYPE=http
+      - TRANSPORT_PORT=8081
+      - TRANSPORT_HOST=0.0.0.0
     volumes:
       # Optional: Mount config file
       - ./packager-mcp.yaml:/app/packager-mcp.yaml:ro
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s

@@ -21,10 +21,10 @@
 
 ## 3. Metadata Enrichment
 
-- [ ] 3.1 Add web search integration for app descriptions (deferred - uses default description)
-- [ ] 3.2 Implement description extraction and truncation (deferred)
+- [x] 3.1 Add web search integration for app descriptions (handled by workflow via Perplexity MCP)
+- [x] 3.2 Implement description extraction and truncation (handled by workflow via Perplexity MCP)
 - [x] 3.3 Add category mapping logic based on app name/description
-- [ ] 3.4 Implement logo search and download (deferred - user provides logo path)
+- [x] 3.4 Implement logo search and download (handled by workflow via Perplexity MCP + Icons8)
 - [x] 3.5 Add image format validation (PNG/JPEG, dimensions)
 
 ## 4. MCP Tool Implementation
@@ -60,6 +60,8 @@
 
 ## Notes
 
-- Web search integration for descriptions and logos was deferred. The tool accepts user-provided descriptions and logo paths.
+- **Metadata enrichment architecture:** The `publish_to_intune` tool accepts user-provided descriptions and logo paths. The packaging workflow (documented in `Packaging_Files/Claude_NewPackage.md`) handles metadata gathering via:
+  - **Descriptions:** `mcp__perplexity__reason` generates professional app descriptions for Intune
+  - **Logos:** Primary source is Icons8 (`https://img.icons8.com/color/256/<appname>.png`), fallback is `mcp__perplexity__search`
 - Unit tests for the new services require extensive mocking of Azure Identity and Graph API. Manual testing with a real Intune tenant is recommended.
-- Build and all existing tests pass (177 tests).
+- Build and all existing tests pass (189 tests).

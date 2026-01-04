@@ -33,8 +33,8 @@ RUN useradd --create-home --shell /bin/bash appuser && \
     chown -R appuser:appuser /app
 USER appuser
 
-# Expose MCP port
-EXPOSE 10101
+# Expose HTTP transport port
+EXPOSE 8081
 
 # Default command
 CMD ["node", "dist/server.js"]
