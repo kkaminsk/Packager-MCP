@@ -29,3 +29,14 @@ github:
   # token: ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
   # Number of retries on rate limit errors
   rateLimitRetries: 3
+
+# Transport configuration
+transport:
+  # Transport mode: stdio (CLI), http (network), or both
+  type: stdio
+  # HTTP server port (only used when type is http or both)
+  port: 8081
+  # HTTP server host binding (use 0.0.0.0 for Docker/network access)
+  host: 127.0.0.1
+  # Session timeout in milliseconds (30 minutes)
+  sessionTimeoutMs: 1800000
