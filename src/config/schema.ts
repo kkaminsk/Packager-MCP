@@ -23,6 +23,13 @@ export const psadtConfigSchema = z.object({
   defaultVersion: z.string().default('latest'),
 });
 
+export const transportConfigSchema = z.object({
+  type: z.enum(['stdio', 'http', 'both']).default('stdio'),
+  port: z.number().min(1).max(65535).default(8081),
+  host: z.string().default('127.0.0.1'),
+  sessionTimeoutMs: z.number().min(0).default(30 * 60 * 1000),
+});
+
 const defaultCacheConfig = {
   maxSize: 1000,
   defaultTtlMs: 15 * 60 * 1000,
@@ -44,6 +51,13 @@ const defaultPsadtConfig = {
   defaultVersion: 'latest',
 };
 
+const defaultTransportConfig = {
+  type: 'stdio' as const,
+  port: 8081,
+  host: '127.0.0.1',
+  sessionTimeoutMs: 30 * 60 * 1000,
+};
+
 export const serverConfigSchema = z.object({
   name: z.string().default('intune-packaging-assistant'),
   version: z.string().default('1.0.0'),
@@ -51,6 +65,7 @@ export const serverConfigSchema = z.object({
   logging: loggingConfigSchema.default(defaultLoggingConfig),
   github: githubConfigSchema.default(defaultGithubConfig),
   psadt: psadtConfigSchema.optional().default(defaultPsadtConfig),
+  transport: transportConfigSchema.default(defaultTransportConfig),
 });
 
 export type ServerConfigInput = z.input<typeof serverConfigSchema>;

@@ -8,8 +8,12 @@ This guide covers containerized deployment of Packager-MCP.
 # Build the image
 docker build -t packager-mcp .
 
-# Run with required environment variable
-docker run -p 10101:10101 -e GITHUB_TOKEN=your_token packager-mcp
+# Run with HTTP transport (recommended for Docker)
+docker run -p 8081:8081 \
+  -e GITHUB_TOKEN=your_token \
+  -e TRANSPORT_TYPE=http \
+  -e TRANSPORT_HOST=0.0.0.0 \
+  packager-mcp
 ```
 
 ## Environment Variables
@@ -19,6 +23,9 @@ docker run -p 10101:10101 -e GITHUB_TOKEN=your_token packager-mcp
 | `GITHUB_TOKEN` | Yes | - | GitHub Personal Access Token for Winget API access |
 | `LOG_LEVEL` | No | `info` | Logging level: `debug`, `info`, `warn`, `error` |
 | `LOG_FORMAT` | No | `json` | Log format: `json` or `text` |
+| `TRANSPORT_TYPE` | No | `stdio` | Transport mode: `stdio`, `http`, or `both` |
+| `TRANSPORT_PORT` | No | `8081` | HTTP server port |
+| `TRANSPORT_HOST` | No | `127.0.0.1` | HTTP server host binding |
 
 **Security Note:** Never bake secrets into Docker images. Always inject `GITHUB_TOKEN` via environment variables at runtime.
 
@@ -27,8 +34,10 @@ docker run -p 10101:10101 -e GITHUB_TOKEN=your_token packager-mcp
 ### Option 1: Environment Variables Only
 
 ```bash
-docker run -p 10101:10101 \
+docker run -p 8081:8081 \
   -e GITHUB_TOKEN=your_token \
+  -e TRANSPORT_TYPE=http \
+  -e TRANSPORT_HOST=0.0.0.0 \
   -e LOG_LEVEL=debug \
   packager-mcp
 ```
@@ -50,12 +59,16 @@ logging:
   format: json
 github:
   rateLimitRetries: 3
+transport:
+  type: http           # 'stdio', 'http', or 'both'
+  port: 8081           # HTTP server port
+  host: 0.0.0.0        # Bind to all interfaces for Docker
 ```
 
 Mount it into the container:
 
 ```bash
-docker run -p 10101:10101 \
+docker run -p 8081:8081 \
   -e GITHUB_TOKEN=your_token \
   -v $(pwd)/packager-mcp.yaml:/app/packager-mcp.yaml:ro \
   packager-mcp
@@ -125,7 +138,32 @@ The server will start and wait for MCP protocol messages on stdin. Press `Ctrl+C
 
 | Port | Protocol | Description |
 |------|----------|-------------|
-| 10101 | TCP | MCP server connections |
+| 8081 | TCP | Default HTTP transport port (MCP over HTTP/SSE) |
+
+## Running with HTTP Transport
+
+For network-accessible deployments, use HTTP transport mode:
+
+```bash
+# Run with HTTP transport on port 8081
+docker run -p 8081:8081 \
+  -e GITHUB_TOKEN=your_token \
+  -e TRANSPORT_TYPE=http \
+  -e TRANSPORT_HOST=0.0.0.0 \
+  packager-mcp
+
+# Test health endpoint
+curl http://localhost:8081/health
+```
+
+### HTTP Transport Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/health` | GET | Health check for load balancer probes |
+| `/mcp` | GET | Establish SSE stream connection |
+| `/mcp` | POST | Send JSON-RPC messages |
+| `/mcp` | DELETE | Terminate session |
 
 ## Troubleshooting
 

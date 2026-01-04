@@ -26,6 +26,7 @@ This server combines:
 ```
 src/
 ├── server.ts              # MCP server entry point
+├── http-server.ts         # HTTP/SSE transport server
 ├── handlers/
 │   ├── tools.ts           # Tool implementations
 │   ├── resources.ts       # Resource handlers
@@ -175,6 +176,50 @@ docker compose up
 | `GITHUB_TOKEN` | Yes | GitHub PAT for Winget API access |
 | `LOG_LEVEL` | No | `debug`, `info`, `warn`, `error` (default: `info`) |
 | `LOG_FORMAT` | No | `json` or `text` (default: `json`) |
+| `TRANSPORT_TYPE` | No | `stdio`, `http`, or `both` (default: `stdio`) |
+| `TRANSPORT_PORT` | No | HTTP server port (default: `8081`) |
+| `TRANSPORT_HOST` | No | HTTP server host binding (default: `127.0.0.1`) |
+
+### Transport Configuration
+
+The MCP server supports two transport modes:
+
+| Mode | Description |
+|------|-------------|
+| `stdio` | Standard input/output transport (default, for CLI integrations) |
+| `http` | HTTP/SSE transport on configurable port (for network clients) |
+| `both` | Run both transports simultaneously |
+
+#### Configuration via YAML
+
+```yaml
+transport:
+  type: http          # 'stdio', 'http', or 'both'
+  port: 8081          # HTTP server port
+  host: 0.0.0.0       # Bind to all interfaces (use 127.0.0.1 for localhost only)
+  sessionTimeoutMs: 1800000  # 30 minutes
+```
+
+#### HTTP Transport Endpoints
+
+When HTTP transport is enabled, the following endpoints are available:
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/health` | GET | Health check for load balancers |
+| `/mcp` | GET | Establish SSE stream connection |
+| `/mcp` | POST | Send JSON-RPC messages |
+| `/mcp` | DELETE | Terminate session |
+
+#### Example: Running in HTTP Mode
+
+```bash
+# Via environment variables
+TRANSPORT_TYPE=http TRANSPORT_PORT=8081 node dist/server.js
+
+# Via Docker
+docker run -p 8081:8081 -e TRANSPORT_TYPE=http -e TRANSPORT_HOST=0.0.0.0 packager-mcp
+```
 
 ### Azure Authentication (for Intune Publishing)
 

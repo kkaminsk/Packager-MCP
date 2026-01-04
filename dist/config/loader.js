@@ -2,6 +2,14 @@ import { readFileSync, existsSync } from 'node:fs';
 import { parse as parseYaml } from 'yaml';
 import { serverConfigSchema } from './schema.js';
 import { DEFAULT_CONFIG } from '../types/config.js';
+/**
+ * Environment variable names for transport configuration overrides
+ */
+const ENV_VARS = {
+    TRANSPORT_TYPE: 'TRANSPORT_TYPE',
+    TRANSPORT_PORT: 'TRANSPORT_PORT',
+    TRANSPORT_HOST: 'TRANSPORT_HOST',
+};
 const CONFIG_PATHS = [
     './packager-mcp.yaml',
     './packager-mcp.yml',
@@ -44,6 +52,8 @@ export class ConfigLoader {
         return undefined;
     }
     mergeWithDefaults(validated) {
+        // Get transport config with environment variable overrides
+        const transportConfig = this.getTransportConfigWithEnvOverrides(validated);
         return {
             name: validated.name,
             version: validated.version,
@@ -61,6 +71,37 @@ export class ConfigLoader {
                 token: validated.github.token,
                 rateLimitRetries: validated.github.rateLimitRetries,
             },
+            transport: transportConfig,
+        };
+    }
+    /**
+     * Get transport configuration with environment variable overrides
+     */
+    getTransportConfigWithEnvOverrides(validated) {
+        const envType = process.env[ENV_VARS.TRANSPORT_TYPE];
+        const envPort = process.env[ENV_VARS.TRANSPORT_PORT];
+        const envHost = process.env[ENV_VARS.TRANSPORT_HOST];
+        // Validate transport type from env
+        let transportType = validated.transport.type;
+        if (envType) {
+            if (envType === 'stdio' || envType === 'http' || envType === 'both') {
+                transportType = envType;
+            }
+            // Invalid values are silently ignored, using config file value
+        }
+        // Parse port from env
+        let port = validated.transport.port;
+        if (envPort) {
+            const parsedPort = parseInt(envPort, 10);
+            if (!isNaN(parsedPort) && parsedPort >= 1 && parsedPort <= 65535) {
+                port = parsedPort;
+            }
+        }
+        return {
+            type: transportType,
+            port,
+            host: envHost ?? validated.transport.host,
+            sessionTimeoutMs: validated.transport.sessionTimeoutMs,
         };
     }
 }

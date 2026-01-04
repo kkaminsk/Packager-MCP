@@ -7,10 +7,10 @@ export declare const cacheConfigSchema: z.ZodObject<{
 }, z.core.$strip>;
 export declare const loggingConfigSchema: z.ZodObject<{
     level: z.ZodDefault<z.ZodEnum<{
-        error: "error";
         debug: "debug";
         info: "info";
         warn: "warn";
+        error: "error";
     }>>;
     format: z.ZodDefault<z.ZodEnum<{
         json: "json";
@@ -26,6 +26,16 @@ export declare const psadtConfigSchema: z.ZodObject<{
     cacheTtlHours: z.ZodDefault<z.ZodNumber>;
     defaultVersion: z.ZodDefault<z.ZodString>;
 }, z.core.$strip>;
+export declare const transportConfigSchema: z.ZodObject<{
+    type: z.ZodDefault<z.ZodEnum<{
+        stdio: "stdio";
+        http: "http";
+        both: "both";
+    }>>;
+    port: z.ZodDefault<z.ZodNumber>;
+    host: z.ZodDefault<z.ZodString>;
+    sessionTimeoutMs: z.ZodDefault<z.ZodNumber>;
+}, z.core.$strip>;
 export declare const serverConfigSchema: z.ZodObject<{
     name: z.ZodDefault<z.ZodString>;
     version: z.ZodDefault<z.ZodString>;
@@ -37,10 +47,10 @@ export declare const serverConfigSchema: z.ZodObject<{
     }, z.core.$strip>>;
     logging: z.ZodDefault<z.ZodObject<{
         level: z.ZodDefault<z.ZodEnum<{
-            error: "error";
             debug: "debug";
             info: "info";
             warn: "warn";
+            error: "error";
         }>>;
         format: z.ZodDefault<z.ZodEnum<{
             json: "json";
@@ -56,6 +66,16 @@ export declare const serverConfigSchema: z.ZodObject<{
         cacheTtlHours: z.ZodDefault<z.ZodNumber>;
         defaultVersion: z.ZodDefault<z.ZodString>;
     }, z.core.$strip>>>;
+    transport: z.ZodDefault<z.ZodObject<{
+        type: z.ZodDefault<z.ZodEnum<{
+            stdio: "stdio";
+            http: "http";
+            both: "both";
+        }>>;
+        port: z.ZodDefault<z.ZodNumber>;
+        host: z.ZodDefault<z.ZodString>;
+        sessionTimeoutMs: z.ZodDefault<z.ZodNumber>;
+    }, z.core.$strip>>;
 }, z.core.$strip>;
 export type ServerConfigInput = z.input<typeof serverConfigSchema>;
 export type ServerConfigOutput = z.output<typeof serverConfigSchema>;

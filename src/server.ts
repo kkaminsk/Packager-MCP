@@ -1,11 +1,16 @@
 #!/usr/bin/env node
 
+import { Server } from 'node:http';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { loadConfig } from './config/loader.js';
 import { initLogger, getLogger } from './utils/logger.js';
 import { initCacheManager } from './cache/lru-cache.js';
 import { registerAllHandlers } from './handlers/index.js';
+import { createHttpServer, shutdownHttpServer } from './http-server.js';
+
+// Track HTTP server for graceful shutdown
+let httpServer: Server | undefined;
 
 async function main(): Promise<void> {
   const config = loadConfig();
@@ -65,19 +70,23 @@ If you write a script manually instead of using the tool output, it WILL fail wi
 
   registerAllHandlers(server);
 
-  const transport = new StdioServerTransport();
+  const transportType = config.transport.type;
 
-  process.on('SIGINT', async () => {
-    logger.info('Received SIGINT, shutting down gracefully');
+  // Setup graceful shutdown handlers
+  const shutdown = async (signal: string) => {
+    logger.info(`Received ${signal}, shutting down gracefully`);
+
+    // Close HTTP server if active
+    if (httpServer) {
+      await shutdownHttpServer(httpServer);
+    }
+
     await server.close();
     process.exit(0);
-  });
+  };
 
-  process.on('SIGTERM', async () => {
-    logger.info('Received SIGTERM, shutting down gracefully');
-    await server.close();
-    process.exit(0);
-  });
+  process.on('SIGINT', () => shutdown('SIGINT'));
+  process.on('SIGTERM', () => shutdown('SIGTERM'));
 
   process.on('uncaughtException', (error) => {
     logger.error('Uncaught exception', { error: error.message, stack: error.stack });
@@ -89,9 +98,30 @@ If you write a script manually instead of using the tool output, it WILL fail wi
     process.exit(1);
   });
 
-  logger.info('Connecting to stdio transport');
-  await server.connect(transport);
-  logger.info('MCP server running on stdio');
+  // Start transports based on configuration
+  if (transportType === 'stdio' || transportType === 'both') {
+    const stdioTransport = new StdioServerTransport();
+    logger.info('Connecting to stdio transport');
+    await server.connect(stdioTransport);
+    logger.info('MCP server running on stdio');
+  }
+
+  if (transportType === 'http' || transportType === 'both') {
+    httpServer = await createHttpServer({
+      config: config.transport,
+      serverVersion: config.version,
+      mcpServer: server,
+    });
+    logger.info('MCP server running on HTTP', {
+      url: `http://${config.transport.host}:${config.transport.port}/mcp`,
+      healthCheck: `http://${config.transport.host}:${config.transport.port}/health`,
+    });
+  }
+
+  // Keep the process running if only HTTP transport is active
+  if (transportType === 'http') {
+    logger.info('HTTP-only mode: server will run until terminated');
+  }
 }
 
 main().catch((error) => {

@@ -6,6 +6,10 @@ export declare class ConfigLoader {
     getConfig(): ServerConfig;
     private findConfigFile;
     private mergeWithDefaults;
+    /**
+     * Get transport configuration with environment variable overrides
+     */
+    private getTransportConfigWithEnvOverrides;
 }
 export declare function getConfigLoader(): ConfigLoader;
 export declare function loadConfig(customPath?: string): ServerConfig;
