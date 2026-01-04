@@ -162,7 +162,7 @@ The server supports containerized deployment via Docker. See `DOCKER.md` for ful
 ```bash
 # Build and run
 docker build -t packager-mcp .
-docker run -p 10101:10101 -e GITHUB_TOKEN=your_token packager-mcp
+docker run -p 8081:8081 -e GITHUB_TOKEN=your_token -e TRANSPORT_TYPE=http -e TRANSPORT_HOST=0.0.0.0 packager-mcp
 
 # Or use Docker Compose
 export GITHUB_TOKEN=your_token
@@ -284,6 +284,58 @@ Build for both `linux/amd64` and `linux/arm64`:
 ```bash
 docker buildx build --platform linux/amd64,linux/arm64 -t packager-mcp --push .
 ```
+
+## Windows MSI Installer
+
+A WiX-based MSI installer is available for enterprise deployment. The installer bundles Node.js runtime, so no prerequisites are required.
+
+### Building the MSI
+
+```powershell
+# From project root
+.\scripts\build-msi.ps1
+
+# Build options
+.\scripts\build-msi.ps1 -Version "1.0.1"           # Custom version
+.\scripts\build-msi.ps1 -SkipBuild                  # Skip TypeScript build
+.\scripts\build-msi.ps1 -SkipNodeDownload           # Use cached Node.js
+.\scripts\build-msi.ps1 -NodeVersion "22.11.0"      # Different Node.js version
+.\scripts\build-msi.ps1 -Clean                      # Clean build
+```
+
+### Installation
+
+```powershell
+# Interactive
+msiexec /i "Packager-MCP-1.0.0.msi"
+
+# Silent (enterprise deployment)
+msiexec /i "Packager-MCP-1.0.0.msi" /qn
+
+# Silent with logging
+msiexec /i "Packager-MCP-1.0.0.msi" /qn /l*v "install.log"
+```
+
+### Installation Directory
+
+```
+C:\Program Files\Packager-MCP\
+├── dist\                    # Compiled MCP server
+├── nodejs\                  # Bundled Node.js 20.x runtime
+├── examples\                # Sample prompts and documentation
+├── launch-server.cmd        # Server launcher script
+└── package.json
+```
+
+### Post-Installation
+
+Configure Claude Code to use the installed MCP server:
+
+```bash
+claude mcp add packager-mcp -s user -- "C:\Program Files\Packager-MCP\nodejs\node.exe" "C:\Program Files\Packager-MCP\dist\server.js"
+```
+
+See `installer/README.md` for detailed documentation.
 
 ## Performance Targets
 
