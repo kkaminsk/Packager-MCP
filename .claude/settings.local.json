@@ -1,16 +1,34 @@
 {
   "permissions": {
-    "allow": [],
+    "allow": [
+      "Bash(openspec list:*)",
+      "Bash(mkdir:*)",
+      "Bash(openspec validate:*)",
+      "Bash(powershell -ExecutionPolicy Bypass -File scripts/build-msi.ps1)",
+      "Bash(powershell -ExecutionPolicy Bypass -File scripts/build-msi.ps1:*)",
+      "Bash(ls:*)",
+      "Bash(dotnet build:*)",
+      "Bash(wix:*)",
+      "Bash(cat:*)",
+      "Bash(Get-Item \"C:\\\\temp\\\\Packager-MCP\\\\installer\\\\bin\\\\Packager-MCP-1.0.0.msi\")",
+      "Bash(Select-Object Name, Length, LastWriteTime)",
+      "Bash(Format-List)",
+      "Bash(dir \"C:\\\\temp\\\\Packager-MCP\\\\installer\\\\bin\\\\*.msi\")",
+      "Bash(git push)"
+    ],
     "deny": [],
     "ask": []
   },
   "mcpServers": {
     "packager-mcp": {
       "command": "node",
-      "args": ["C:/temp/Packager-MCP/dist/server.js"],
       "env": {
-        "INTUNE_MCP_CONFIG": "C:/temp/Packager-MCP/scripts/intune_mcp_config.yaml"
-      }
+        "INTUNE_MCP_CONFIG": "C:/temp/Packager-MCP/scripts/intune_mcp_config.yaml",
+        "INTUNE_CERT_PASSWORD": "555Palace!"
+      },
+      "args": [
+        "C:/temp/Packager-MCP/dist/server.js"
+      ]
     }
   }
 }
