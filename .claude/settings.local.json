@@ -14,7 +14,18 @@
       "Bash(Select-Object Name, Length, LastWriteTime)",
       "Bash(Format-List)",
       "Bash(dir \"C:\\\\temp\\\\Packager-MCP\\\\installer\\\\bin\\\\*.msi\")",
-      "Bash(git push)"
+      "Bash(git push)",
+      "Bash(npm run build:*)",
+      "Bash(npm run test:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(openspec archive add-verify-psadt-functions-tool:*)",
+      "Bash(openspec archive remove-psadt-v3-support:*)",
+      "Bash(openspec archive update-psadt-version-to-v417:*)",
+      "Bash(npx openspec:*)",
+      "Bash(npm test:*)",
+      "Bash(pwsh:*)",
+      "Bash(dir:*)"
     ],
     "deny": [],
     "ask": []

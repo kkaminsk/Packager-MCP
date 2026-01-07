@@ -77,4 +77,112 @@ describe('loadConfig helper', () => {
         expect(config.name).toBe('intune-packaging-assistant');
     });
 });
+describe('Transport Configuration', () => {
+    afterEach(() => {
+        if (existsSync(TEST_CONFIG_PATH)) {
+            unlinkSync(TEST_CONFIG_PATH);
+        }
+        // Clean up environment variables
+        delete process.env.TRANSPORT_TYPE;
+        delete process.env.TRANSPORT_PORT;
+        delete process.env.TRANSPORT_HOST;
+    });
+    it('should return default transport config', () => {
+        const loader = new ConfigLoader();
+        const config = loader.load();
+        expect(config.transport.type).toBe('stdio');
+        expect(config.transport.port).toBe(8081);
+        expect(config.transport.host).toBe('127.0.0.1');
+        expect(config.transport.sessionTimeoutMs).toBe(30 * 60 * 1000);
+    });
+    it('should load transport config from YAML', () => {
+        const yamlContent = `
+transport:
+  type: http
+  port: 9000
+  host: 0.0.0.0
+`;
+        writeFileSync(TEST_CONFIG_PATH, yamlContent);
+        const loader = new ConfigLoader();
+        const config = loader.load(TEST_CONFIG_PATH);
+        expect(config.transport.type).toBe('http');
+        expect(config.transport.port).toBe(9000);
+        expect(config.transport.host).toBe('0.0.0.0');
+    });
+    it('should support both transport type', () => {
+        const yamlContent = `
+transport:
+  type: both
+`;
+        writeFileSync(TEST_CONFIG_PATH, yamlContent);
+        const loader = new ConfigLoader();
+        const config = loader.load(TEST_CONFIG_PATH);
+        expect(config.transport.type).toBe('both');
+    });
+    it('should override transport type with TRANSPORT_TYPE env var', () => {
+        const yamlContent = `
+transport:
+  type: stdio
+`;
+        writeFileSync(TEST_CONFIG_PATH, yamlContent);
+        process.env.TRANSPORT_TYPE = 'http';
+        const loader = new ConfigLoader();
+        const config = loader.load(TEST_CONFIG_PATH);
+        expect(config.transport.type).toBe('http');
+    });
+    it('should override transport port with TRANSPORT_PORT env var', () => {
+        process.env.TRANSPORT_PORT = '3000';
+        const loader = new ConfigLoader();
+        const config = loader.load();
+        expect(config.transport.port).toBe(3000);
+    });
+    it('should override transport host with TRANSPORT_HOST env var', () => {
+        process.env.TRANSPORT_HOST = '0.0.0.0';
+        const loader = new ConfigLoader();
+        const config = loader.load();
+        expect(config.transport.host).toBe('0.0.0.0');
+    });
+    it('should ignore invalid TRANSPORT_TYPE values', () => {
+        process.env.TRANSPORT_TYPE = 'invalid';
+        const loader = new ConfigLoader();
+        const config = loader.load();
+        expect(config.transport.type).toBe('stdio');
+    });
+    it('should ignore invalid TRANSPORT_PORT values', () => {
+        process.env.TRANSPORT_PORT = 'not-a-number';
+        const loader = new ConfigLoader();
+        const config = loader.load();
+        expect(config.transport.port).toBe(8081);
+    });
+    it('should reject port numbers out of range', () => {
+        process.env.TRANSPORT_PORT = '70000';
+        const loader = new ConfigLoader();
+        const config = loader.load();
+        expect(config.transport.port).toBe(8081);
+    });
+    it('should reject negative port numbers', () => {
+        process.env.TRANSPORT_PORT = '-1';
+        const loader = new ConfigLoader();
+        const config = loader.load();
+        expect(config.transport.port).toBe(8081);
+    });
+    it('should throw on invalid transport type in YAML', () => {
+        const yamlContent = `
+transport:
+  type: invalid
+`;
+        writeFileSync(TEST_CONFIG_PATH, yamlContent);
+        const loader = new ConfigLoader();
+        expect(() => loader.load(TEST_CONFIG_PATH)).toThrow();
+    });
+    it('should throw on invalid port in YAML', () => {
+        const yamlContent = `
+transport:
+  port: 70000
+`;
+        writeFileSync(TEST_CONFIG_PATH, yamlContent);
+        const loader = new ConfigLoader();
+        expect(() => loader.load(TEST_CONFIG_PATH)).toThrow();
+    });
+});
 //# sourceMappingURL=config-loader.test.js.map
