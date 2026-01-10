@@ -37,7 +37,9 @@
       "WebFetch(domain:deepwiki.com)",
       "WebFetch(domain:github.com)",
       "Bash(grep:*)",
-      "Bash(powershell.exe:*)"
+      "Bash(powershell.exe:*)",
+      "Bash(powershell:*)",
+      "Bash(cmd /c \"cd /d C:\\\\Users\\\\W365CA\\\\Documents\\\\GitHub\\\\Packager-MCP\\\\installer && dotnet build -c Debug\")"
     ],
     "deny": [],
     "ask": []
