@@ -415,6 +415,8 @@ try {
 
     # Build with wix CLI directly (more reliable than dotnet build)
     $buildArgs = @("build") + $wxsFiles + @(
+        "-ext", "WixToolset.UI.wixext",
+        "-ext", "WixToolset.Util.wixext",
         "-d", "SourceDir=$ProjectRoot",
         "-o", "$OutputDir\Packager-MCP-$Version.msi"
     )

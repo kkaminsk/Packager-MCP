@@ -2,28 +2,28 @@
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
   <Fragment>
     <ComponentGroup Id="CacheComponents" Directory="DistCacheDir">
-      <Component Id="CacheComponents_1" Guid="5D21034E-26B1-4D17-B97D-26D95B2FC080">
+      <Component Id="CacheComponents_1" Guid="DFF0A526-ED25-4056-892F-1DCFB187B0A2">
         <File Id="File_CacheComponents_1" Source="$(var.SourceDir)\dist\cache\index.d.ts" KeyPath="yes" />
       </Component>
-      <Component Id="CacheComponents_2" Guid="BDC9C448-8073-40C9-A68A-505A56E994B9">
+      <Component Id="CacheComponents_2" Guid="F01AACC8-363C-4DDF-9155-544CA473BD46">
         <File Id="File_CacheComponents_2" Source="$(var.SourceDir)\dist\cache\index.d.ts.map" KeyPath="yes" />
       </Component>
-      <Component Id="CacheComponents_3" Guid="C8B25EE2-6DB1-4F69-9DAD-62C2BF74BC0E">
+      <Component Id="CacheComponents_3" Guid="A2230D94-DACB-4EFC-B2EE-9327C94C077F">
         <File Id="File_CacheComponents_3" Source="$(var.SourceDir)\dist\cache\index.js" KeyPath="yes" />
       </Component>
-      <Component Id="CacheComponents_4" Guid="5B4F2F98-70D0-4166-A97A-E0C41AB7C180">
+      <Component Id="CacheComponents_4" Guid="6ABF1B20-B4A2-4B49-A83E-D41BB5632143">
         <File Id="File_CacheComponents_4" Source="$(var.SourceDir)\dist\cache\index.js.map" KeyPath="yes" />
       </Component>
-      <Component Id="CacheComponents_5" Guid="68C8FEC7-C077-4C97-93EF-1F0CF1306C9A">
+      <Component Id="CacheComponents_5" Guid="20747D45-BFAC-407F-A434-A43B01014A44">
         <File Id="File_CacheComponents_5" Source="$(var.SourceDir)\dist\cache\lru-cache.d.ts" KeyPath="yes" />
       </Component>
-      <Component Id="CacheComponents_6" Guid="E51E8B7A-04DD-491F-BD1F-F0F0A5184D7C">
+      <Component Id="CacheComponents_6" Guid="8B932B59-7287-4265-A5F9-0F6D83C7AE1D">
         <File Id="File_CacheComponents_6" Source="$(var.SourceDir)\dist\cache\lru-cache.d.ts.map" KeyPath="yes" />
       </Component>
-      <Component Id="CacheComponents_7" Guid="6272C9E7-6B52-4B30-8E84-11906D21765A">
+      <Component Id="CacheComponents_7" Guid="CFF0FF22-EBDD-467A-9110-BC5F96E41056">
         <File Id="File_CacheComponents_7" Source="$(var.SourceDir)\dist\cache\lru-cache.js" KeyPath="yes" />
       </Component>
-      <Component Id="CacheComponents_8" Guid="048AF064-B8F1-4F33-A4C6-B7180DC90398">
+      <Component Id="CacheComponents_8" Guid="8B7E25A9-0FBF-462A-A676-6CDF400D6E4F">
         <File Id="File_CacheComponents_8" Source="$(var.SourceDir)\dist\cache\lru-cache.js.map" KeyPath="yes" />
       </Component>
     </ComponentGroup>

@@ -2,160 +2,160 @@
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
   <Fragment>
     <ComponentGroup Id="TypesComponents" Directory="DistTypesDir">
-      <Component Id="TypesComponents_1" Guid="74D8DDB8-2C51-4664-947B-667A2F0EEF48">
+      <Component Id="TypesComponents_1" Guid="ED00C85B-7E1B-447A-B5E4-7B52F249D337">
         <File Id="File_TypesComponents_1" Source="$(var.SourceDir)\dist\types\azure-auth.d.ts" KeyPath="yes" />
       </Component>
-      <Component Id="TypesComponents_2" Guid="271E4A0B-98F1-4E1F-830F-D7B95E61DEAF">
+      <Component Id="TypesComponents_2" Guid="DBA26760-131C-491E-AC2B-8A80CCFDF6F0">
         <File Id="File_TypesComponents_2" Source="$(var.SourceDir)\dist\types\azure-auth.d.ts.map" KeyPath="yes" />
       </Component>
-      <Component Id="TypesComponents_3" Guid="637ABA33-F282-4794-8505-2764E07D60CF">
+      <Component Id="TypesComponents_3" Guid="E1F31087-C5E5-4B7A-9FA0-A855067D46C6">
         <File Id="File_TypesComponents_3" Source="$(var.SourceDir)\dist\types\azure-auth.js" KeyPath="yes" />
       </Component>
-      <Component Id="TypesComponents_4" Guid="7D0225CF-047E-4305-96E0-B58EC968B534">
+      <Component Id="TypesComponents_4" Guid="6BDD9FBB-2B83-4E2B-B132-EB92BBF92E90">
         <File Id="File_TypesComponents_4" Source="$(var.SourceDir)\dist\types\azure-auth.js.map" KeyPath="yes" />
       </Component>
-      <Component Id="TypesComponents_5" Guid="18F920F0-237C-471B-A430-3E7A8C40FFD8">
+      <Component Id="TypesComponents_5" Guid="91E52286-6D65-4958-86AE-BC7FCB33B3D9">
         <File Id="File_TypesComponents_5" Source="$(var.SourceDir)\dist\types\config.d.ts" KeyPath="yes" />
       </Component>
-      <Component Id="TypesComponents_6" Guid="DEFED742-0733-4057-BD06-5CD88DD88EED">
+      <Component Id="TypesComponents_6" Guid="22B0CD1E-73A3-4E29-8C05-1AC38C859D67">
         <File Id="File_TypesComponents_6" Source="$(var.SourceDir)\dist\types\config.d.ts.map" KeyPath="yes" />
       </Component>
-      <Component Id="TypesComponents_7" Guid="614DC3F0-D71C-4EA2-8326-36EED38EEF3A">
+      <Component Id="TypesComponents_7" Guid="9F8E9098-B9C2-4A1C-A638-0EFD0A65A308">
         <File Id="File_TypesComponents_7" Source="$(var.SourceDir)\dist\types\config.js" KeyPath="yes" />
       </Component>
-      <Component Id="TypesComponents_8" Guid="50FD25EE-242B-46D4-90CB-80A37CC56584">
+      <Component Id="TypesComponents_8" Guid="B093D3D2-CA88-4679-9E69-A58446FD0804">
         <File Id="File_TypesComponents_8" Source="$(var.SourceDir)\dist\types\config.js.map" KeyPath="yes" />
       </Component>
-      <Component Id="TypesComponents_9" Guid="07594108-6B47-4D56-B1EB-05ED06A73873">
+      <Component Id="TypesComponents_9" Guid="2623B921-F024-4A3D-9380-D0A673EACC1D">
         <File Id="File_TypesComponents_9" Source="$(var.SourceDir)\dist\types\download.d.ts" KeyPath="yes" />
       </Component>
-      <Component Id="TypesComponents_10" Guid="5459B9A2-E75C-4A29-903D-A3F75402BED1">
+      <Component Id="TypesComponents_10" Guid="AC1DB20C-0198-42DA-840E-4C95D2D55C5F">
         <File Id="File_TypesComponents_10" Source="$(var.SourceDir)\dist\types\download.d.ts.map" KeyPath="yes" />
       </Component>
-      <Component Id="TypesComponents_11" Guid="F747E2E2-170F-45B1-AB9B-F818CB416FC5">
+      <Component Id="TypesComponents_11" Guid="8E37ADE3-FA19-42CA-92A1-3E72BA55820D">
         <File Id="File_TypesComponents_11" Source="$(var.SourceDir)\dist\types\download.js" KeyPath="yes" />
       </Component>
-      <Component Id="TypesComponents_12" Guid="EC4B1403-DEC8-4010-99AE-D98D1EA6625B">
+      <Component Id="TypesComponents_12" Guid="92949BE5-4378-4277-B5F7-40DC90478E9C">
         <File Id="File_TypesComponents_12" Source="$(var.SourceDir)\dist\types\download.js.map" KeyPath="yes" />
       </Component>
-      <Component Id="TypesComponents_13" Guid="71CEBCAD-CE5C-400D-B8B7-26FFDCFD1A3D">
+      <Component Id="TypesComponents_13" Guid="D92FA254-7AA6-4B92-A2CB-585C9F672F14">
         <File Id="File_TypesComponents_13" Source="$(var.SourceDir)\dist\types\index.d.ts" KeyPath="yes" />
       </Component>
-      <Component Id="TypesComponents_14" Guid="B1D7DD05-E187-40E7-8C9E-48EDE8CE7842">
+      <Component Id="TypesComponents_14" Guid="94936700-6FC8-4226-8A1C-FBAF19D54E14">
         <File Id="File_TypesComponents_14" Source="$(var.SourceDir)\dist\types\index.d.ts.map" KeyPath="yes" />
       </Component>
-      <Component Id="TypesComponents_15" Guid="EF9B38AC-A529-496B-8E90-154B83D57509">
+      <Component Id="TypesComponents_15" Guid="4316A05D-3CBC-4D80-8789-815CAF54AFDD">
         <File Id="File_TypesComponents_15" Source="$(var.SourceDir)\dist\types\index.js" KeyPath="yes" />
       </Component>
-      <Component Id="TypesComponents_16" Guid="DD997512-0E04-4DB7-99F0-7B9428311A22">
+      <Component Id="TypesComponents_16" Guid="C382E5D3-ECF1-4658-864D-79A0977B6819">
         <File Id="File_TypesComponents_16" Source="$(var.SourceDir)\dist\types\index.js.map" KeyPath="yes" />
       </Component>
-      <Component Id="TypesComponents_17" Guid="34386C5E-7130-4A5B-9085-0D5C1059CEA6">
+      <Component Id="TypesComponents_17" Guid="8FE8B426-1B87-4FE9-A8AC-9D19ED949D21">
         <File Id="File_TypesComponents_17" Source="$(var.SourceDir)\dist\types\intune-config.d.ts" KeyPath="yes" />
       </Component>
-      <Component Id="TypesComponents_18" Guid="19A107CF-712A-4DE1-AF63-3F4A0D1757BC">
+      <Component Id="TypesComponents_18" Guid="7191B812-B982-4C03-962B-12C99C70FBD4">
         <File Id="File_TypesComponents_18" Source="$(var.SourceDir)\dist\types\intune-config.d.ts.map" KeyPath="yes" />
       </Component>
-      <Component Id="TypesComponents_19" Guid="57BF5DAB-0B16-431E-8DE0-3750FA151C17">
+      <Component Id="TypesComponents_19" Guid="6F567525-6011-43E1-98F6-7E76A1B026D7">
         <File Id="File_TypesComponents_19" Source="$(var.SourceDir)\dist\types\intune-config.js" KeyPath="yes" />
       </Component>
-      <Component Id="TypesComponents_20" Guid="6E925FE3-F7FB-45CA-A854-3E4E6C2A36FD">
+      <Component Id="TypesComponents_20" Guid="69767EA2-2508-429B-B82B-3368F8297A57">
         <File Id="File_TypesComponents_20" Source="$(var.SourceDir)\dist\types\intune-config.js.map" KeyPath="yes" />
       </Component>
-      <Component Id="TypesComponents_21" Guid="DC09C156-F1C1-48F2-89C4-0FAE91DF9BCB">
+      <Component Id="TypesComponents_21" Guid="EC3C5D6B-41AA-4B20-A366-AE3CCAC143E8">
         <File Id="File_TypesComponents_21" Source="$(var.SourceDir)\dist\types\intune-publisher.d.ts" KeyPath="yes" />
       </Component>
-      <Component Id="TypesComponents_22" Guid="B3FCC074-D38E-4DF3-A4D4-5237DB4A7E03">
+      <Component Id="TypesComponents_22" Guid="58C86007-811C-4754-B7F7-8447B0A1296C">
         <File Id="File_TypesComponents_22" Source="$(var.SourceDir)\dist\types\intune-publisher.d.ts.map" KeyPath="yes" />
       </Component>
-      <Component Id="TypesComponents_23" Guid="7EE29A95-D254-4E87-8F5E-F75677D2CC89">
+      <Component Id="TypesComponents_23" Guid="4655AC0D-65C5-448F-A360-233DC2717EC6">
         <File Id="File_TypesComponents_23" Source="$(var.SourceDir)\dist\types\intune-publisher.js" KeyPath="yes" />
       </Component>
-      <Component Id="TypesComponents_24" Guid="592F9E44-8067-4C7A-8C8A-25C17C4C805B">
+      <Component Id="TypesComponents_24" Guid="1F126306-EA80-4F9E-8E24-78CD7F33A4B7">
         <File Id="File_TypesComponents_24" Source="$(var.SourceDir)\dist\types\intune-publisher.js.map" KeyPath="yes" />
       </Component>
-      <Component Id="TypesComponents_25" Guid="BF73E5F0-FB4D-4FEB-8569-C26709EA54E5">
+      <Component Id="TypesComponents_25" Guid="584E1499-3285-49DA-A498-E986A0ACD3B6">
         <File Id="File_TypesComponents_25" Source="$(var.SourceDir)\dist\types\intune.d.ts" KeyPath="yes" />
       </Component>
-      <Component Id="TypesComponents_26" Guid="7D799697-B054-4505-AAA4-C7F1AB816F2F">
+      <Component Id="TypesComponents_26" Guid="B095A522-DAE5-4F9F-9F48-A81EAC9D5BA7">
         <File Id="File_TypesComponents_26" Source="$(var.SourceDir)\dist\types\intune.d.ts.map" KeyPath="yes" />
       </Component>
-      <Component Id="TypesComponents_27" Guid="637807D1-7133-47A2-8FC9-830BDFC2966B">
+      <Component Id="TypesComponents_27" Guid="952B26C8-0121-4DD0-B69B-722F5567DBF5">
         <File Id="File_TypesComponents_27" Source="$(var.SourceDir)\dist\types\intune.js" KeyPath="yes" />
       </Component>
-      <Component Id="TypesComponents_28" Guid="ECDB59B6-9F88-44FA-BCC7-26C59E636CA8">
+      <Component Id="TypesComponents_28" Guid="0CC8CADF-3582-4508-B4A7-2E86C6998383">
         <File Id="File_TypesComponents_28" Source="$(var.SourceDir)\dist\types\intune.js.map" KeyPath="yes" />
       </Component>
-      <Component Id="TypesComponents_29" Guid="6E242652-5988-47C5-AECA-2EA7CF3E9A7F">
+      <Component Id="TypesComponents_29" Guid="DBD6A47E-C0EE-4EBB-BA5C-1945865DECB9">
         <File Id="File_TypesComponents_29" Source="$(var.SourceDir)\dist\types\mcp.d.ts" KeyPath="yes" />
       </Component>
-      <Component Id="TypesComponents_30" Guid="4B442E41-3379-409F-9F6A-43E948AAEB81">
+      <Component Id="TypesComponents_30" Guid="40569055-C84E-4037-A4C2-FFD02C50666F">
         <File Id="File_TypesComponents_30" Source="$(var.SourceDir)\dist\types\mcp.d.ts.map" KeyPath="yes" />
       </Component>
-      <Component Id="TypesComponents_31" Guid="C6EC40A3-C2A9-4C13-ADB1-4A242B3BCDAD">
+      <Component Id="TypesComponents_31" Guid="B179133B-3028-4375-96F1-B1095F02277A">
         <File Id="File_TypesComponents_31" Source="$(var.SourceDir)\dist\types\mcp.js" KeyPath="yes" />
       </Component>
-      <Component Id="TypesComponents_32" Guid="CFDA2380-85DC-40D9-B7C1-11747042B797">
+      <Component Id="TypesComponents_32" Guid="5285E59E-F255-46B9-A448-8307094A2C25">
         <File Id="File_TypesComponents_32" Source="$(var.SourceDir)\dist\types\mcp.js.map" KeyPath="yes" />
       </Component>
-      <Component Id="TypesComponents_33" Guid="99B48A6A-F32C-4045-920D-6AE6C1D4264F">
+      <Component Id="TypesComponents_33" Guid="6EDE6ED2-D974-4109-9339-C59902B383F5">
         <File Id="File_TypesComponents_33" Source="$(var.SourceDir)\dist\types\prompts.d.ts" KeyPath="yes" />
       </Component>
-      <Component Id="TypesComponents_34" Guid="1C4CB17F-5CF8-425C-B8E3-83E0AF7C2BA8">
+      <Component Id="TypesComponents_34" Guid="DC119136-87F3-406D-BF8A-E47709C7685B">
         <File Id="File_TypesComponents_34" Source="$(var.SourceDir)\dist\types\prompts.d.ts.map" KeyPath="yes" />
       </Component>
-      <Component Id="TypesComponents_35" Guid="06A0CBBC-9788-4B7C-A41F-8D4A0A4D726A">
+      <Component Id="TypesComponents_35" Guid="DBEEF317-E541-4E05-BB33-87AF3CC98036">
         <File Id="File_TypesComponents_35" Source="$(var.SourceDir)\dist\types\prompts.js" KeyPath="yes" />
       </Component>
-      <Component Id="TypesComponents_36" Guid="9CD69E9A-9E36-4A2E-8324-895673B669D3">
+      <Component Id="TypesComponents_36" Guid="D30202F8-F95B-4249-926E-559BF84933BA">
         <File Id="File_TypesComponents_36" Source="$(var.SourceDir)\dist\types\prompts.js.map" KeyPath="yes" />
       </Component>
-      <Component Id="TypesComponents_37" Guid="E52CEC5C-89BE-4367-A9F7-C7DFE7ED5583">
+      <Component Id="TypesComponents_37" Guid="0E1C6AA0-641D-4B6A-9F6F-D7A3D8EE9299">
         <File Id="File_TypesComponents_37" Source="$(var.SourceDir)\dist\types\psadt-download.d.ts" KeyPath="yes" />
       </Component>
-      <Component Id="TypesComponents_38" Guid="F0FF5FF2-81BB-40CF-8290-D86426F71100">
+      <Component Id="TypesComponents_38" Guid="87A05338-5F14-427F-B977-8C6BFBF858D9">
         <File Id="File_TypesComponents_38" Source="$(var.SourceDir)\dist\types\psadt-download.d.ts.map" KeyPath="yes" />
       </Component>
-      <Component Id="TypesComponents_39" Guid="5742514E-518C-4118-8BCB-9B9F59843469">
+      <Component Id="TypesComponents_39" Guid="2B9271D6-DCA4-4FA0-845B-D1FAF74F0522">
         <File Id="File_TypesComponents_39" Source="$(var.SourceDir)\dist\types\psadt-download.js" KeyPath="yes" />
       </Component>
-      <Component Id="TypesComponents_40" Guid="B6E985FF-8368-4E90-B679-A4FA38E47806">
+      <Component Id="TypesComponents_40" Guid="E9D654FC-4DDD-4FA0-9886-588A4D25D7D5">
         <File Id="File_TypesComponents_40" Source="$(var.SourceDir)\dist\types\psadt-download.js.map" KeyPath="yes" />
       </Component>
-      <Component Id="TypesComponents_41" Guid="93440095-6C8F-419D-B0A1-350537F61A30">
+      <Component Id="TypesComponents_41" Guid="81553178-1F89-4E4A-A4F7-5168D2EBE98B">
         <File Id="File_TypesComponents_41" Source="$(var.SourceDir)\dist\types\psadt.d.ts" KeyPath="yes" />
       </Component>
-      <Component Id="TypesComponents_42" Guid="A178F8FD-F21E-487F-85A7-5DBE0FCA7FD0">
+      <Component Id="TypesComponents_42" Guid="C513F8FA-02EC-4CD2-92D5-E090ACDF5B8F">
         <File Id="File_TypesComponents_42" Source="$(var.SourceDir)\dist\types\psadt.d.ts.map" KeyPath="yes" />
       </Component>
-      <Component Id="TypesComponents_43" Guid="1FB43F20-537D-43D1-B767-38DC43C88230">
+      <Component Id="TypesComponents_43" Guid="12F180AB-F8FF-412F-8373-98F6753EF1C7">
         <File Id="File_TypesComponents_43" Source="$(var.SourceDir)\dist\types\psadt.js" KeyPath="yes" />
       </Component>
-      <Component Id="TypesComponents_44" Guid="768FCCB9-50C5-4B8E-9D1B-12E61F5F9A20">
+      <Component Id="TypesComponents_44" Guid="4A937BC0-2E9F-4223-AF5C-B20650CE05D0">
         <File Id="File_TypesComponents_44" Source="$(var.SourceDir)\dist\types\psadt.js.map" KeyPath="yes" />
       </Component>
-      <Component Id="TypesComponents_45" Guid="24EB94A4-A348-4E39-8D85-35C57B1DC2AC">
+      <Component Id="TypesComponents_45" Guid="172CF775-C302-4551-9F7F-1455E28802AA">
         <File Id="File_TypesComponents_45" Source="$(var.SourceDir)\dist\types\validation.d.ts" KeyPath="yes" />
       </Component>
-      <Component Id="TypesComponents_46" Guid="E1E623BF-EF2D-4079-949D-9BBA65D8AF3B">
+      <Component Id="TypesComponents_46" Guid="00BE012D-7C8D-4565-BD47-BC6A89C1653C">
         <File Id="File_TypesComponents_46" Source="$(var.SourceDir)\dist\types\validation.d.ts.map" KeyPath="yes" />
       </Component>
-      <Component Id="TypesComponents_47" Guid="76E98E75-26A9-4F55-A44D-D58F7DE6F832">
+      <Component Id="TypesComponents_47" Guid="9B466AF4-BE6E-4DF6-9CB6-693E1FD7B068">
         <File Id="File_TypesComponents_47" Source="$(var.SourceDir)\dist\types\validation.js" KeyPath="yes" />
       </Component>
-      <Component Id="TypesComponents_48" Guid="501E3B54-D566-4936-8462-220D27AB11D5">
+      <Component Id="TypesComponents_48" Guid="786EFC4F-1490-45D6-A58F-34775BB1DAB3">
         <File Id="File_TypesComponents_48" Source="$(var.SourceDir)\dist\types\validation.js.map" KeyPath="yes" />
       </Component>
-      <Component Id="TypesComponents_49" Guid="A91EEF3A-1E2A-40A1-8D13-0C0174382BD7">
+      <Component Id="TypesComponents_49" Guid="72561F97-520B-47E7-AA5B-51A6103D2308">
         <File Id="File_TypesComponents_49" Source="$(var.SourceDir)\dist\types\winget.d.ts" KeyPath="yes" />
       </Component>
-      <Component Id="TypesComponents_50" Guid="91E4DA36-E24F-4BC3-B838-EF31C54939E6">
+      <Component Id="TypesComponents_50" Guid="85264597-8C8E-4D5F-B1E5-89580ABC001F">
         <File Id="File_TypesComponents_50" Source="$(var.SourceDir)\dist\types\winget.d.ts.map" KeyPath="yes" />
       </Component>
-      <Component Id="TypesComponents_51" Guid="73AC60CE-9424-470E-A314-C78AE92710AD">
+      <Component Id="TypesComponents_51" Guid="98C4424B-0BA7-49B8-9258-D603D30491B3">
         <File Id="File_TypesComponents_51" Source="$(var.SourceDir)\dist\types\winget.js" KeyPath="yes" />
       </Component>
-      <Component Id="TypesComponents_52" Guid="708B6E68-CD9E-48BC-AF48-AD4FD91B53AC">
+      <Component Id="TypesComponents_52" Guid="DC53C187-259E-4337-BA37-B7C84CDA8BB6">
         <File Id="File_TypesComponents_52" Source="$(var.SourceDir)\dist\types\winget.js.map" KeyPath="yes" />
       </Component>
     </ComponentGroup>

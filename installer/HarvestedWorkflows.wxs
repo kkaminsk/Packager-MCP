@@ -2,76 +2,76 @@
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
   <Fragment>
     <ComponentGroup Id="WorkflowsComponents" Directory="DistWorkflowsDir">
-      <Component Id="WorkflowsComponents_1" Guid="C8524E2A-94DE-4A88-B6F3-9CBA2CA3512A">
+      <Component Id="WorkflowsComponents_1" Guid="529CB51E-607D-4367-BA22-BA51BA080E7B">
         <File Id="File_WorkflowsComponents_1" Source="$(var.SourceDir)\dist\workflows\bulk-lookup.d.ts" KeyPath="yes" />
       </Component>
-      <Component Id="WorkflowsComponents_2" Guid="E3768433-289A-41D0-AEA8-5DC14A4CD086">
+      <Component Id="WorkflowsComponents_2" Guid="F0635FFA-2DF2-4F9C-B5ED-ACC94EF79818">
         <File Id="File_WorkflowsComponents_2" Source="$(var.SourceDir)\dist\workflows\bulk-lookup.d.ts.map" KeyPath="yes" />
       </Component>
-      <Component Id="WorkflowsComponents_3" Guid="CF3C4015-3B34-48B1-BF4F-EE070354E239">
+      <Component Id="WorkflowsComponents_3" Guid="0DB33FCF-6AB7-44A3-BDD6-62DF30629B1D">
         <File Id="File_WorkflowsComponents_3" Source="$(var.SourceDir)\dist\workflows\bulk-lookup.js" KeyPath="yes" />
       </Component>
-      <Component Id="WorkflowsComponents_4" Guid="943A79BA-203D-41EB-AC78-2A9FD760B6E3">
+      <Component Id="WorkflowsComponents_4" Guid="95AB8A10-22EB-4040-BD5D-89549D796D13">
         <File Id="File_WorkflowsComponents_4" Source="$(var.SourceDir)\dist\workflows\bulk-lookup.js.map" KeyPath="yes" />
       </Component>
-      <Component Id="WorkflowsComponents_5" Guid="3198284B-CC1A-4286-BC14-EEAB3AF544CE">
+      <Component Id="WorkflowsComponents_5" Guid="9415DD89-8EFA-4A11-927E-980A645B1F92">
         <File Id="File_WorkflowsComponents_5" Source="$(var.SourceDir)\dist\workflows\convert-legacy.d.ts" KeyPath="yes" />
       </Component>
-      <Component Id="WorkflowsComponents_6" Guid="40B577BD-7F80-4226-9242-58F807D19E47">
+      <Component Id="WorkflowsComponents_6" Guid="1CD8BBB1-0F62-418D-BBBA-A49B7A9A2DFE">
         <File Id="File_WorkflowsComponents_6" Source="$(var.SourceDir)\dist\workflows\convert-legacy.d.ts.map" KeyPath="yes" />
       </Component>
-      <Component Id="WorkflowsComponents_7" Guid="09EDDC92-8906-44D0-A0DB-06134F9B6F19">
+      <Component Id="WorkflowsComponents_7" Guid="5873B05D-2DC0-4C07-B972-4EBC6D538BBB">
         <File Id="File_WorkflowsComponents_7" Source="$(var.SourceDir)\dist\workflows\convert-legacy.js" KeyPath="yes" />
       </Component>
-      <Component Id="WorkflowsComponents_8" Guid="F522820D-90A4-41C3-92B9-49F0CA929F1F">
+      <Component Id="WorkflowsComponents_8" Guid="E1269A08-3463-4288-95E0-148CDCDF07A5">
         <File Id="File_WorkflowsComponents_8" Source="$(var.SourceDir)\dist\workflows\convert-legacy.js.map" KeyPath="yes" />
       </Component>
-      <Component Id="WorkflowsComponents_9" Guid="978D9CFC-E07B-4C44-9C34-0F1822763E97">
+      <Component Id="WorkflowsComponents_9" Guid="95B4DEBB-42FB-404D-9C4F-B27C0D936A5E">
         <File Id="File_WorkflowsComponents_9" Source="$(var.SourceDir)\dist\workflows\index.d.ts" KeyPath="yes" />
       </Component>
-      <Component Id="WorkflowsComponents_10" Guid="5500C387-8593-417A-9ADB-927713D44090">
+      <Component Id="WorkflowsComponents_10" Guid="20D70A18-3CBC-4DD2-A047-69753B541A21">
         <File Id="File_WorkflowsComponents_10" Source="$(var.SourceDir)\dist\workflows\index.d.ts.map" KeyPath="yes" />
       </Component>
-      <Component Id="WorkflowsComponents_11" Guid="99A17E29-E556-4271-9C50-5B1748359CE1">
+      <Component Id="WorkflowsComponents_11" Guid="556AB055-E4A5-4EE8-8250-9A1A3D1CB007">
         <File Id="File_WorkflowsComponents_11" Source="$(var.SourceDir)\dist\workflows\index.js" KeyPath="yes" />
       </Component>
-      <Component Id="WorkflowsComponents_12" Guid="850ED4B3-37D5-4C9A-84EF-033C7036B0D0">
+      <Component Id="WorkflowsComponents_12" Guid="0F103C80-6E19-4DCF-A273-3C044EF98E36">
         <File Id="File_WorkflowsComponents_12" Source="$(var.SourceDir)\dist\workflows\index.js.map" KeyPath="yes" />
       </Component>
-      <Component Id="WorkflowsComponents_13" Guid="94388B6D-099D-4F31-AB1E-E6879F433E4E">
+      <Component Id="WorkflowsComponents_13" Guid="73E3BBE0-661B-48D0-A704-A19BB3EFDD38">
         <File Id="File_WorkflowsComponents_13" Source="$(var.SourceDir)\dist\workflows\package-app.d.ts" KeyPath="yes" />
       </Component>
-      <Component Id="WorkflowsComponents_14" Guid="B4EEDB2D-790C-4596-B1C9-B0E83C85008E">
+      <Component Id="WorkflowsComponents_14" Guid="092F3600-31CE-4C69-8991-C5410ABE662E">
         <File Id="File_WorkflowsComponents_14" Source="$(var.SourceDir)\dist\workflows\package-app.d.ts.map" KeyPath="yes" />
       </Component>
-      <Component Id="WorkflowsComponents_15" Guid="EDC72520-A8B3-4CBC-8EB3-9C9BC6EF07B4">
+      <Component Id="WorkflowsComponents_15" Guid="E796405D-EF45-4689-8B22-92A97C8571ED">
         <File Id="File_WorkflowsComponents_15" Source="$(var.SourceDir)\dist\workflows\package-app.js" KeyPath="yes" />
       </Component>
-      <Component Id="WorkflowsComponents_16" Guid="8689E867-C59F-4D49-A659-BAE04616D11E">
+      <Component Id="WorkflowsComponents_16" Guid="F44E6548-316B-4E32-8AB0-D2BE780AD9AD">
         <File Id="File_WorkflowsComponents_16" Source="$(var.SourceDir)\dist\workflows\package-app.js.map" KeyPath="yes" />
       </Component>
-      <Component Id="WorkflowsComponents_17" Guid="CEF35742-E676-4144-8A72-5286080ECF86">
+      <Component Id="WorkflowsComponents_17" Guid="9FEA08AB-672E-4066-8A99-42A14619CA0E">
         <File Id="File_WorkflowsComponents_17" Source="$(var.SourceDir)\dist\workflows\publish-to-intune.d.ts" KeyPath="yes" />
       </Component>
-      <Component Id="WorkflowsComponents_18" Guid="165BF211-5BC2-40C5-84B0-9117F4875893">
+      <Component Id="WorkflowsComponents_18" Guid="1D7E9CBC-2120-45BD-8C26-30F1E0F03D79">
         <File Id="File_WorkflowsComponents_18" Source="$(var.SourceDir)\dist\workflows\publish-to-intune.d.ts.map" KeyPath="yes" />
       </Component>
-      <Component Id="WorkflowsComponents_19" Guid="EBB0E715-5A5D-4426-AE97-3A3E6C31F5DF">
+      <Component Id="WorkflowsComponents_19" Guid="992824BB-AA46-4502-8FDE-411C1D2B807C">
         <File Id="File_WorkflowsComponents_19" Source="$(var.SourceDir)\dist\workflows\publish-to-intune.js" KeyPath="yes" />
       </Component>
-      <Component Id="WorkflowsComponents_20" Guid="1C66B47F-6B06-4686-A012-38D3DA2FB68E">
+      <Component Id="WorkflowsComponents_20" Guid="E3072392-7BFD-4478-8463-E0037C15595E">
         <File Id="File_WorkflowsComponents_20" Source="$(var.SourceDir)\dist\workflows\publish-to-intune.js.map" KeyPath="yes" />
       </Component>
-      <Component Id="WorkflowsComponents_21" Guid="3999584E-D72B-4D59-B1E2-C5E3979F06B3">
+      <Component Id="WorkflowsComponents_21" Guid="7C364BF8-1F1F-4D58-AB44-0B67B42F0DAB">
         <File Id="File_WorkflowsComponents_21" Source="$(var.SourceDir)\dist\workflows\troubleshoot.d.ts" KeyPath="yes" />
       </Component>
-      <Component Id="WorkflowsComponents_22" Guid="5424C9F8-826A-47B6-BC91-E862F89CBD89">
+      <Component Id="WorkflowsComponents_22" Guid="F7720DD5-5462-42F3-8B5C-FB9903754EBB">
         <File Id="File_WorkflowsComponents_22" Source="$(var.SourceDir)\dist\workflows\troubleshoot.d.ts.map" KeyPath="yes" />
       </Component>
-      <Component Id="WorkflowsComponents_23" Guid="8427948C-7149-4099-A2C8-60BBD8AF6873">
+      <Component Id="WorkflowsComponents_23" Guid="B61C9E9C-A888-48A6-8DC4-6B3EA4718D05">
         <File Id="File_WorkflowsComponents_23" Source="$(var.SourceDir)\dist\workflows\troubleshoot.js" KeyPath="yes" />
       </Component>
-      <Component Id="WorkflowsComponents_24" Guid="444B59E4-C713-4C2E-AA25-00D3F811A419">
+      <Component Id="WorkflowsComponents_24" Guid="8F61EE5B-7068-42C7-A296-4B91D3C0BC03">
         <File Id="File_WorkflowsComponents_24" Source="$(var.SourceDir)\dist\workflows\troubleshoot.js.map" KeyPath="yes" />
       </Component>
     </ComponentGroup>

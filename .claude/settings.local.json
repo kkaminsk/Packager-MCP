@@ -25,7 +25,19 @@
       "Bash(npx openspec:*)",
       "Bash(npm test:*)",
       "Bash(pwsh:*)",
-      "Bash(dir:*)"
+      "Bash(dir:*)",
+      "WebSearch",
+      "WebFetch(domain:claude.ai)",
+      "WebFetch(domain:storage.googleapis.com)",
+      "Skill(openspec:apply)",
+      "Bash(powershell -ExecutionPolicy Bypass -File .\\\\scripts\\\\build-msi.ps1:*)",
+      "Bash(powershell -ExecutionPolicy Bypass -File \"C:\\\\temp\\\\Packager-MCP\\\\scripts\\\\build-msi.ps1\":*)",
+      "Bash(powershell -ExecutionPolicy Bypass -File:*)",
+      "Bash(dotnet restore:*)",
+      "WebFetch(domain:deepwiki.com)",
+      "WebFetch(domain:github.com)",
+      "Bash(grep:*)",
+      "Bash(powershell.exe:*)"
     ],
     "deny": [],
     "ask": []

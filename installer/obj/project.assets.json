@@ -1,0 +1,109 @@
+{
+  "version": 3,
+  "targets": {
+    "native,Version=v0.0": {
+      "WixToolset.UI.wixext/6.0.2": {
+        "type": "package",
+        "build": {
+          "build/WixToolset.UI.wixext.targets": {}
+        }
+      },
+      "WixToolset.Util.wixext/6.0.2": {
+        "type": "package",
+        "build": {
+          "build/WixToolset.Util.wixext.targets": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "WixToolset.UI.wixext/6.0.2": {
+      "sha512": "1Hq+Kp4WTb9TLRLRpv/iGod6MnNadz1ZrmY1USS6SL/WVxFuiBvQVGGLXrcdQld9J7oVWCZ8k9eMFtaYJOJ5AQ==",
+      "type": "package",
+      "path": "wixtoolset.ui.wixext/6.0.2",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "OSMFEULA.txt",
+        "README.md",
+        "build/WixToolset.UI.wixext.targets",
+        "icon.png",
+        "wixext6/WixToolset.UI.wixext.dll",
+        "wixtoolset.ui.wixext.6.0.2.nupkg.sha512",
+        "wixtoolset.ui.wixext.nuspec"
+      ]
+    },
+    "WixToolset.Util.wixext/6.0.2": {
+      "sha512": "plP64ub/0KjNbtLeaeiibVCPkKfr439WTKZmTwVSoQ4fznLHBZLsE0+wcyk6dA5cQuQsD5hlmnVGTKgPioiusQ==",
+      "type": "package",
+      "path": "wixtoolset.util.wixext/6.0.2",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "OSMFEULA.txt",
+        "README.md",
+        "build/WixToolset.Util.wixext.targets",
+        "icon.png",
+        "wixext6/WixToolset.Util.wixext.dll",
+        "wixtoolset.util.wixext.6.0.2.nupkg.sha512",
+        "wixtoolset.util.wixext.nuspec"
+      ]
+    }
+  },
+  "projectFileDependencyGroups": {
+    "native,Version=v0.0": [
+      "WixToolset.UI.wixext >= 6.*",
+      "WixToolset.Util.wixext >= 6.*"
+    ]
+  },
+  "packageFolders": {
+    "C:\\Users\\KevinKaminski\\.nuget\\packages\\": {}
+  },
+  "project": {
+    "version": "1.0.0",
+    "restore": {
+      "projectUniqueName": "C:\\temp\\Packager-MCP\\installer\\Packager-MCP.wixproj",
+      "projectName": "Packager-MCP-1.0.0",
+      "projectPath": "C:\\temp\\Packager-MCP\\installer\\Packager-MCP.wixproj",
+      "packagesPath": "C:\\Users\\KevinKaminski\\.nuget\\packages\\",
+      "outputPath": "C:\\temp\\Packager-MCP\\installer\\obj\\",
+      "projectStyle": "PackageReference",
+      "UsingMicrosoftNETSdk": false,
+      "configFilePaths": [
+        "C:\\Users\\KevinKaminski\\AppData\\Roaming\\NuGet\\NuGet.Config"
+      ],
+      "originalTargetFrameworks": [
+        "native"
+      ],
+      "sources": {
+        "https://api.nuget.org/v3/index.json": {}
+      },
+      "frameworks": {
+        "native": {
+          "targetAlias": "native",
+          "projectReferences": {}
+        }
+      },
+      "restoreAuditProperties": {
+        "enableAudit": "true",
+        "auditLevel": "low",
+        "auditMode": "direct"
+      }
+    },
+    "frameworks": {
+      "native": {
+        "targetAlias": "native",
+        "dependencies": {
+          "WixToolset.UI.wixext": {
+            "target": "Package",
+            "version": "[6.*, )"
+          },
+          "WixToolset.Util.wixext": {
+            "target": "Package",
+            "version": "[6.*, )"
+          }
+        }
+      }
+    }
+  }
+}

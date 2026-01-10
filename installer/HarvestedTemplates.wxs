@@ -2,37 +2,37 @@
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
   <Fragment>
     <ComponentGroup Id="TemplatesComponents" Directory="DistTemplatesDir">
-      <Component Id="TemplatesComponents_1" Guid="8C59E1DB-0898-41AA-8EE6-BF4312879006">
+      <Component Id="TemplatesComponents_1" Guid="87C4784F-3C7D-4FB6-8FC5-D279AA9E1E16">
         <File Id="File_TemplatesComponents_1" Source="$(var.SourceDir)\dist\templates\exe-advanced.hbs" KeyPath="yes" />
       </Component>
-      <Component Id="TemplatesComponents_2" Guid="35318FF5-9681-4A1E-AFD1-1C0BA4D453EF">
+      <Component Id="TemplatesComponents_2" Guid="D83FC0F4-0C97-4D17-BDBA-B89F8CAB1B0D">
         <File Id="File_TemplatesComponents_2" Source="$(var.SourceDir)\dist\templates\exe-basic.hbs" KeyPath="yes" />
       </Component>
-      <Component Id="TemplatesComponents_3" Guid="135FE6C5-9CA8-4596-B58B-43F2B4225160">
+      <Component Id="TemplatesComponents_3" Guid="564AD52F-4971-420C-98B8-3BB223FDA7D7">
         <File Id="File_TemplatesComponents_3" Source="$(var.SourceDir)\dist\templates\exe-standard.hbs" KeyPath="yes" />
       </Component>
-      <Component Id="TemplatesComponents_4" Guid="C2C43E05-D7CD-4BA2-8657-36961D9181C3">
+      <Component Id="TemplatesComponents_4" Guid="2135CE6A-1806-4D9D-A800-AC53BBD8F2EE">
         <File Id="File_TemplatesComponents_4" Source="$(var.SourceDir)\dist\templates\msi-advanced.hbs" KeyPath="yes" />
       </Component>
-      <Component Id="TemplatesComponents_5" Guid="532813CD-C2B7-49C1-AB7B-610EFD23CA5F">
+      <Component Id="TemplatesComponents_5" Guid="7AF328EB-C1D0-44E6-B499-3EDAF53D7CB1">
         <File Id="File_TemplatesComponents_5" Source="$(var.SourceDir)\dist\templates\msi-basic.hbs" KeyPath="yes" />
       </Component>
-      <Component Id="TemplatesComponents_6" Guid="87170A5E-13D5-4638-A77B-4175AEB18942">
+      <Component Id="TemplatesComponents_6" Guid="F1A6181A-EAC9-4DCD-AC87-D5454510075B">
         <File Id="File_TemplatesComponents_6" Source="$(var.SourceDir)\dist\templates\msi-standard.hbs" KeyPath="yes" />
       </Component>
-      <Component Id="TemplatesComponents_7" Guid="89A8BBCA-87BE-42DC-A7B2-1CE60B2E1358">
+      <Component Id="TemplatesComponents_7" Guid="CB314575-BA34-412D-8F0E-69FD4F5255B3">
         <File Id="File_TemplatesComponents_7" Source="$(var.SourceDir)\dist\templates\msix.hbs" KeyPath="yes" />
       </Component>
-      <Component Id="TemplatesComponents_8" Guid="39DFC964-41A1-4667-A60F-052AFB86EC8C">
+      <Component Id="TemplatesComponents_8" Guid="C9B6AA48-27BA-4C5C-B575-F822ACE0FB2D">
         <File Id="File_TemplatesComponents_8" Source="$(var.SourceDir)\dist\templates\zip.hbs" KeyPath="yes" />
       </Component>
-      <Component Id="TemplatesComponents_9" Guid="FD0A876D-4D95-4324-8271-1AB700CB0B3D">
+      <Component Id="TemplatesComponents_9" Guid="0F96B713-C88D-484A-974D-EA7A2C4385BC">
         <File Id="File_TemplatesComponents_9" Source="$(var.SourceDir)\dist\templates\partials\error-handling.hbs" KeyPath="yes" />
       </Component>
-      <Component Id="TemplatesComponents_10" Guid="1A3DC498-110B-46A6-8613-9241BBDB70C6">
+      <Component Id="TemplatesComponents_10" Guid="B56B001D-9514-4B75-A09D-144936395A49">
         <File Id="File_TemplatesComponents_10" Source="$(var.SourceDir)\dist\templates\partials\header.hbs" KeyPath="yes" />
       </Component>
-      <Component Id="TemplatesComponents_11" Guid="FCC0F68E-4AFF-4DDA-AAD9-5CB1E03FADB2">
+      <Component Id="TemplatesComponents_11" Guid="56820FA7-D63C-45B2-999D-3AEF454ABBFE">
         <File Id="File_TemplatesComponents_11" Source="$(var.SourceDir)\dist\templates\partials\initialize.hbs" KeyPath="yes" />
       </Component>
     </ComponentGroup>

@@ -306,15 +306,29 @@ A WiX-based MSI installer is available for enterprise deployment. The installer 
 ### Installation
 
 ```powershell
-# Interactive
+# Interactive (includes GitHub PAT dialog and Claude Code registration)
 msiexec /i "Packager-MCP-1.0.0.msi"
 
 # Silent (enterprise deployment)
 msiexec /i "Packager-MCP-1.0.0.msi" /qn
 
+# Silent with GitHub PAT
+msiexec /i "Packager-MCP-1.0.0.msi" /qn GITHUBPAT="ghp_xxxxxxxxxxxx"
+
+# Silent without Claude Code registration
+msiexec /i "Packager-MCP-1.0.0.msi" /qn REGISTERWITHCLAUDE=0
+
 # Silent with logging
 msiexec /i "Packager-MCP-1.0.0.msi" /qn /l*v "install.log"
 ```
+
+### Installation Properties
+
+| Property | Default | Description |
+|----------|---------|-------------|
+| `INSTALLFOLDER` | `C:\Program Files\Packager-MCP` | Installation directory |
+| `GITHUBPAT` | (empty) | GitHub Personal Access Token for Winget API |
+| `REGISTERWITHCLAUDE` | `1` | Set to `0` to skip automatic Claude Code registration |
 
 ### Installation Directory
 
@@ -329,10 +343,13 @@ C:\Program Files\Packager-MCP\
 
 ### Post-Installation
 
-Configure Claude Code to use the installed MCP server:
+The installer automatically registers Packager-MCP with Claude Code (if installed). To manually register or re-register:
 
 ```bash
 claude mcp add packager-mcp -s user -- "C:\Program Files\Packager-MCP\nodejs\node.exe" "C:\Program Files\Packager-MCP\dist\server.js"
+
+# With GitHub PAT for higher API rate limits:
+claude mcp add packager-mcp -s user -e GITHUB_TOKEN=ghp_xxx -- "C:\Program Files\Packager-MCP\nodejs\node.exe" "C:\Program Files\Packager-MCP\dist\server.js"
 ```
 
 See `installer/README.md` for detailed documentation.

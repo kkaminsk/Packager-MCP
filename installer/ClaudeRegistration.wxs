@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+
+  <Fragment>
+    <!-- Custom Dialog: GitHub Configuration -->
+    <UI>
+      <Dialog Id="GitHubTokenDlg" Width="370" Height="270" Title="!(loc.InstallDirDlg_Title)">
+        <!-- Title bar description -->
+        <Control Id="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" TabSkip="no" Text="!(loc.InstallDirDlgBannerBitmap)" />
+        <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="370" Height="0" />
+        <Control Id="BottomLine" Type="Line" X="0" Y="234" Width="370" Height="0" />
+
+        <!-- Title -->
+        <Control Id="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Transparent="yes" NoPrefix="yes"
+                 Text="{\WixUI_Font_Title}GitHub Configuration" />
+        <Control Id="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Transparent="yes" NoPrefix="yes"
+                 Text="Configure GitHub API access for the MCP server." />
+
+        <!-- GitHub PAT Input -->
+        <Control Id="GitHubTokenLabel" Type="Text" X="20" Y="60" Width="330" Height="30" NoPrefix="yes"
+                 Text="Enter your GitHub Personal Access Token (PAT) for Winget API access. This is optional but recommended for higher rate limits:" />
+        <Control Id="GitHubTokenEdit" Type="Edit" X="20" Y="95" Width="330" Height="18"
+                 Property="GITHUBPAT" Password="yes" />
+        <Control Id="GitHubTokenNote" Type="Text" X="20" Y="118" Width="330" Height="20" NoPrefix="yes"
+                 Text="{\WixUI_Font_Smaller}Leave blank to use unauthenticated access (60 requests/hour limit)." />
+
+        <!-- Register with Claude Code checkbox -->
+        <Control Id="RegisterCheckbox" Type="CheckBox" X="20" Y="150" Width="330" Height="18"
+                 Property="REGISTERWITHCLAUDE" CheckBoxValue="1"
+                 Text="Register Packager-MCP with Claude Code automatically" />
+        <Control Id="RegisterNote" Type="Text" X="35" Y="170" Width="315" Height="30" NoPrefix="yes"
+                 Text="{\WixUI_Font_Smaller}When checked, the installer will configure Claude Code to use this MCP server. Requires Claude Code to be installed." />
+
+        <!-- Navigation buttons -->
+        <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Text="!(loc.WixUIBack)">
+          <Publish Event="NewDialog" Value="InstallDirDlg" />
+        </Control>
+        <Control Id="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Default="yes" Text="!(loc.WixUINext)">
+          <Publish Event="NewDialog" Value="VerifyReadyDlg" />
+        </Control>
+        <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Cancel="yes" Text="!(loc.WixUICancel)">
+          <Publish Event="SpawnDialog" Value="CancelDlg" />
+        </Control>
+      </Dialog>
+
+      <!-- Insert GitHubTokenDlg into the dialog sequence -->
+      <!-- After InstallDirDlg, before VerifyReadyDlg -->
+      <Publish Dialog="InstallDirDlg" Control="Next" Event="NewDialog" Value="GitHubTokenDlg" Order="4" Condition="1" />
+      <Publish Dialog="VerifyReadyDlg" Control="Back" Event="NewDialog" Value="GitHubTokenDlg" Order="4" Condition="1" />
+    </UI>
+  </Fragment>
+
+</Wix>

@@ -1,0 +1,55 @@
+{
+  "format": 1,
+  "restore": {
+    "C:\\temp\\Packager-MCP\\installer\\Packager-MCP.wixproj": {}
+  },
+  "projects": {
+    "C:\\temp\\Packager-MCP\\installer\\Packager-MCP.wixproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\temp\\Packager-MCP\\installer\\Packager-MCP.wixproj",
+        "projectName": "Packager-MCP-1.0.0",
+        "projectPath": "C:\\temp\\Packager-MCP\\installer\\Packager-MCP.wixproj",
+        "packagesPath": "C:\\Users\\KevinKaminski\\.nuget\\packages\\",
+        "outputPath": "C:\\temp\\Packager-MCP\\installer\\obj\\",
+        "projectStyle": "PackageReference",
+        "UsingMicrosoftNETSdk": false,
+        "configFilePaths": [
+          "C:\\Users\\KevinKaminski\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "native"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "native": {
+            "targetAlias": "native",
+            "projectReferences": {}
+          }
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "native": {
+          "targetAlias": "native",
+          "dependencies": {
+            "WixToolset.UI.wixext": {
+              "target": "Package",
+              "version": "[6.*, )"
+            },
+            "WixToolset.Util.wixext": {
+              "target": "Package",
+              "version": "[6.*, )"
+            }
+          }
+        }
+      }
+    }
+  }
+}

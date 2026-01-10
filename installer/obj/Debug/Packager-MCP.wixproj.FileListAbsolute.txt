@@ -1,0 +1,6 @@
+C:\temp\Packager-MCP\installer\bin\Debug\Packager-MCP-1.0.0.msi
+C:\temp\Packager-MCP\installer\bin\Debug\Packager-MCP-1.0.0.wixpdb
+C:\temp\Packager-MCP\installer\obj\Debug\Packager-MCP.wixproj.CoreCompileInputs.cache
+C:\temp\Packager-MCP\installer\obj\Debug\Packager-MCP-1.0.0.msi
+C:\temp\Packager-MCP\installer\obj\Debug\Packager-MCP-1.0.0.wixpdb
+C:\temp\Packager-MCP\installer\obj\Debug\Packager-MCP.wixproj.BindTracking-neutral.txt

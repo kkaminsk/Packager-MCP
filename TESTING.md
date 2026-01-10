@@ -39,6 +39,22 @@ Remaining manual testing tasks from OpenSpec changes before archiving.
 - [ ] 5.3 Verify MCP server starts using bundled Node.js
 - [ ] 5.4 Verify bundled Node.js doesn't conflict with system Node.js
 
+## add-mcp-registration (8 tasks)
+
+### Silent Install Tests
+- [ ] 5.3 Test silent install with PAT: `msiexec /i ... /qn GITHUBPAT=ghp_xxx`
+- [ ] 5.4 Test silent install without PAT (should still register, just no token)
+
+### Interactive Install Tests
+- [ ] 6.1 Test interactive install with PAT entered
+- [ ] 6.2 Test interactive install with PAT blank
+- [ ] 6.3 Test interactive install with "Register" unchecked
+- [ ] 6.4 Test silent install with GITHUBPAT property
+
+### Edge Cases
+- [ ] 6.5 Test install when Claude Code is not installed (should skip gracefully)
+- [ ] 6.6 Verify `claude mcp list` shows packager-mcp after install
+
 ---
 
 ## Test Environment Requirements

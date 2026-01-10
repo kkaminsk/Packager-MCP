@@ -100,7 +100,38 @@ msiexec /i "Packager-MCP-1.0.0.msi" /qn /l*v "install.log"
 
 # Silent install to custom location
 msiexec /i "Packager-MCP-1.0.0.msi" /qn INSTALLFOLDER="D:\Tools\Packager-MCP"
+
+# Silent install with GitHub PAT (recommended for higher API rate limits)
+msiexec /i "Packager-MCP-1.0.0.msi" /qn GITHUBPAT="ghp_xxxxxxxxxxxx"
+
+# Silent install without Claude Code registration
+msiexec /i "Packager-MCP-1.0.0.msi" /qn REGISTERWITHCLAUDE=0
 ```
+
+### Installation Properties
+
+| Property | Default | Description |
+|----------|---------|-------------|
+| `INSTALLFOLDER` | `C:\Program Files\Packager-MCP` | Installation directory |
+| `GITHUBPAT` | (empty) | GitHub Personal Access Token for Winget API access |
+| `REGISTERWITHCLAUDE` | `1` | Set to `0` to skip automatic Claude Code registration |
+
+#### GitHub Personal Access Token (PAT)
+
+The GitHub PAT enables higher rate limits for the Winget package repository API:
+- Without PAT: 60 requests/hour
+- With PAT: 5,000 requests/hour
+
+During interactive installation, a dialog prompts for the PAT. For silent installs, use the `GITHUBPAT` property.
+
+#### Claude Code Registration
+
+By default, the installer automatically registers Packager-MCP with Claude Code using:
+```bash
+claude mcp add packager-mcp -s user [-e GITHUB_TOKEN=<pat>] -- "<InstallPath>\nodejs\node.exe" "<InstallPath>\dist\server.js"
+```
+
+If Claude Code is not installed, registration is skipped gracefully. To disable automatic registration, set `REGISTERWITHCLAUDE=0`.
 
 ### Uninstallation
 
@@ -226,16 +257,40 @@ msiexec /i "Packager-MCP-1.0.0.msi" /qn /l*v "install.log"
 type install.log | Select-String "error"
 ```
 
+### Claude Code Registration Fails
+
+Registration issues are logged to `%TEMP%\Packager-MCP-Registration.log`. Common issues:
+
+1. **Claude Code not installed**: Install via `winget install Anthropic.ClaudeCode`
+2. **Claude Code not in PATH**: The installer checks common locations but may miss custom installs
+3. **Permission issues**: Registration runs in user context; ensure the user has write access to Claude config
+
+To manually register after installation:
+```powershell
+claude mcp add packager-mcp -s user -- "C:\Program Files\Packager-MCP\nodejs\node.exe" "C:\Program Files\Packager-MCP\dist\server.js"
+
+# With GitHub PAT:
+claude mcp add packager-mcp -s user -e GITHUB_TOKEN=ghp_xxx -- "C:\Program Files\Packager-MCP\nodejs\node.exe" "C:\Program Files\Packager-MCP\dist\server.js"
+```
+
+Verify registration:
+```powershell
+claude mcp list
+```
+
 ## File Structure
 
 ```
 installer/
-├── Product.wxs             # Main product definition
-├── launch-server.cmd       # Server launcher script (bundled in MSI)
-├── README.md               # This file
-├── bin/                    # Build output (MSI files)
-├── nodejs-bundle/          # Downloaded Node.js runtime (created by build)
-└── Harvested*.wxs          # Auto-generated component files (created by build)
+├── Product.wxs               # Main product definition
+├── ClaudeRegistration.wxs    # Custom dialog for GitHub PAT and registration
+├── Register-PackagerMcp.ps1  # Registration script (bundled in MSI)
+├── launch-server.cmd         # Server launcher script (bundled in MSI)
+├── Packager-MCP.wixproj      # WiX project file
+├── README.md                 # This file
+├── bin/                      # Build output (MSI files)
+├── nodejs-bundle/            # Downloaded Node.js runtime (created by build)
+└── Harvested*.wxs            # Auto-generated component files (created by build)
 ```
 
 ## Bundled Node.js
