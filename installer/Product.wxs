@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui"
+     xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
 
   <Package Name="Packager-MCP"
            Manufacturer="Packager-MCP Contributors"
@@ -23,21 +25,47 @@
       </DirectorySearch>
     </Property>
 
+    <!-- PowerShell executable path property -->
+    <Property Id="POWERSHELLEXE" Value="[WindowsFolder]System32\WindowsPowerShell\v1.0\powershell.exe" />
+
     <!-- Non-blocking warning if Claude Code not found (interactive installs only) -->
+    <!-- Type 50: Property-based immediate custom action calling PowerShell (short message due to ICE03 limits) -->
     <CustomAction Id="ShowClaudeCodeWarning"
-                  Script="vbscript"
-                  Execute="immediate">
-      <![CDATA[
-        MsgBox "Claude Code is highly recommended for using Packager-MCP." & vbCrLf & vbCrLf & _
-               "The MCP server requires Claude Code to function." & vbCrLf & vbCrLf & _
-               "To install, run:" & vbCrLf & _
-               "winget install Anthropic.ClaudeCode", vbInformation, "Packager-MCP Setup"
-      ]]>
-    </CustomAction>
+                  Property="POWERSHELLEXE"
+                  ExeCommand="-NoProfile -ExecutionPolicy Bypass -Command &quot;Add-Type -AssemblyName PresentationFramework;[System.Windows.MessageBox]::Show('Install Claude Code: winget install Anthropic.ClaudeCode','Setup')&quot;"
+                  Execute="immediate"
+                  Return="ignore" />
 
     <InstallUISequence>
       <Custom Action="ShowClaudeCodeWarning" Before="ExecuteAction" Condition="NOT CLAUDECODE_FOUND AND UILevel &lt; 4" />
     </InstallUISequence>
+
+    <!-- GitHub PAT Property (Secure for command-line passing, Hidden to avoid logging) -->
+    <Property Id="GITHUBPAT" Secure="yes" Hidden="yes" />
+
+    <!-- Register with Claude Code option (default: enabled) -->
+    <Property Id="REGISTERWITHCLAUDE" Value="1" Secure="yes" />
+
+    <!-- UI Configuration - WixUI_InstallDir with custom install directory -->
+    <ui:WixUI Id="WixUI_InstallDir" InstallDirectory="INSTALLFOLDER" />
+
+    <!-- Custom Action: Register MCP Server with Claude Code -->
+    <!-- Uses WixQuietExec64 from WixToolset.Util extension for commit execution -->
+    <SetProperty Id="WixQuietExec64CmdLine"
+                 Before="RegisterMcpServer"
+                 Sequence="execute"
+                 Value="&quot;[WindowsFolder]System32\WindowsPowerShell\v1.0\powershell.exe&quot; -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File &quot;[INSTALLFOLDER]Register-PackagerMcp.ps1&quot; -InstallPath &quot;[INSTALLFOLDER]\&quot; -GitHubPat &quot;[GITHUBPAT]&quot;" />
+
+    <CustomAction Id="RegisterMcpServer"
+                  BinaryRef="Wix4UtilCA_X64"
+                  DllEntry="WixQuietExec64"
+                  Execute="commit"
+                  Impersonate="yes"
+                  Return="ignore" />
+
+    <InstallExecuteSequence>
+      <Custom Action="RegisterMcpServer" Before="InstallFinalize" Condition="REGISTERWITHCLAUDE=1 AND NOT Installed" />
+    </InstallExecuteSequence>
 
     <Media Id="1" Cabinet="PackagerMCP.cab" EmbedCab="yes" />
 
@@ -137,6 +165,9 @@
     <ComponentGroup Id="LauncherComponents" Directory="INSTALLFOLDER">
       <Component Id="LaunchScript">
         <File Source="$(var.SourceDir)\installer\launch-server.cmd" KeyPath="yes" />
+      </Component>
+      <Component Id="RegisterScript">
+        <File Source="$(var.SourceDir)\installer\Register-PackagerMcp.ps1" KeyPath="yes" />
       </Component>
     </ComponentGroup>
 

@@ -8,9 +8,17 @@
 
   <PropertyGroup>
     <DefineConstants>SourceDir=$(SourceDir)</DefineConstants>
+    <!-- Suppress ICE30 errors from NodeJS harvesting issues (pre-existing) -->
+    <SuppressIces>ICE30</SuppressIces>
   </PropertyGroup>
 
-  <ItemGroup>
+  <!-- SDK automatically discovers .wxs files, no need for explicit Compile includes -->
+  <!-- <ItemGroup>
     <Compile Include="*.wxs" />
+  </ItemGroup> -->
+
+  <ItemGroup>
+    <PackageReference Include="WixToolset.UI.wixext" Version="6.*" />
+    <PackageReference Include="WixToolset.Util.wixext" Version="6.*" />
   </ItemGroup>
 </Project>
