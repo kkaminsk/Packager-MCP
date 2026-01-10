@@ -16,6 +16,29 @@
     <Launch Condition="VersionNT64"
             Message="This application requires a 64-bit version of Windows." />
 
+    <!-- Claude Code Detection -->
+    <Property Id="CLAUDECODE_FOUND">
+      <DirectorySearch Id="ClaudeLocalDir" Path="[%USERPROFILE]\.claude\local">
+        <FileSearch Id="ClaudeExeSearch" Name="claude.exe" />
+      </DirectorySearch>
+    </Property>
+
+    <!-- Non-blocking warning if Claude Code not found (interactive installs only) -->
+    <CustomAction Id="ShowClaudeCodeWarning"
+                  Script="vbscript"
+                  Execute="immediate">
+      <![CDATA[
+        MsgBox "Claude Code is highly recommended for using Packager-MCP." & vbCrLf & vbCrLf & _
+               "The MCP server requires Claude Code to function." & vbCrLf & vbCrLf & _
+               "To install, run:" & vbCrLf & _
+               "winget install Anthropic.ClaudeCode", vbInformation, "Packager-MCP Setup"
+      ]]>
+    </CustomAction>
+
+    <InstallUISequence>
+      <Custom Action="ShowClaudeCodeWarning" Before="ExecuteAction" Condition="NOT CLAUDECODE_FOUND AND UILevel &lt; 4" />
+    </InstallUISequence>
+
     <Media Id="1" Cabinet="PackagerMCP.cab" EmbedCab="yes" />
 
     <!-- Directory Structure -->

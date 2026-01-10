@@ -32,6 +32,9 @@ This directory contains the WiX Toolset v5 source files for building the Package
 
 - Windows 10 or later (64-bit)
 - **No Node.js required** - Node.js runtime is bundled with the installer
+- **Claude Code recommended** - The MCP server requires Claude Code to function. Install via: `winget install Anthropic.ClaudeCode`
+
+> **Note:** During interactive installation, a warning will be displayed if Claude Code is not detected. Silent installations (`/qn`) proceed without interruption.
 
 ## Building the MSI
 
