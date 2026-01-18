@@ -1,11 +1,11 @@
 ---
 title: "PSADT v4 Overview"
 id: "psadt-overview"
-psadt_target: "4.1.7"
+psadt_target: "4.1.8"
 last_updated: "2025-12-07"
 verified_by: "maintainer"
 source_ref: "ReferenceKnowledge/V4Assets/PSAppDeployToolkit"
-tags: ["psadt", "overview", "architecture", "introduction", "v4.1.7"]
+tags: ["psadt", "overview", "architecture", "introduction", "v4.1.8"]
 ---
 
 # PSADT v4 Overview
@@ -21,7 +21,7 @@ PowerShell Application Deployment Toolkit (PSADT) is a framework that simplifies
 | Windows Client | Windows 10 (1809+), Windows 11 |
 | Windows Server | 2016, 2019, 2022, 2025 |
 
-## Key Features in v4.1.7
+## Key Features in v4.1.8
 
 - **No ServiceUI Required**: Intune deployments no longer need ServiceUI.exe for user interaction
 - **Fluent UI**: Modern user interface with Light/Dark mode support (default: `DialogStyle = 'Fluent'`)
@@ -52,7 +52,7 @@ Package/
 
 ## Session Object ($adtSession)
 
-The `$adtSession` hashtable defines your deployment. In v4.1.7, key properties include:
+The `$adtSession` hashtable defines your deployment. In v4.1.8, key properties include:
 
 ```powershell
 $adtSession = @{
@@ -84,7 +84,7 @@ $adtSession = @{
     # Script info (auto-populated)
     DeployAppScriptFriendlyName = $MyInvocation.MyCommand.Name
     DeployAppScriptParameters = $PSBoundParameters
-    DeployAppScriptVersion = '4.1.7'
+    DeployAppScriptVersion = '4.1.8'
 }
 ```
 
@@ -105,7 +105,7 @@ $adtSession = @{
 | `NonInteractive` | Shows progress but no prompts |
 | `Silent` | No UI at all |
 
-## Basic Script Structure (v4.1.7)
+## Basic Script Structure (v4.1.8)
 
 ```powershell
 [CmdletBinding()]
@@ -199,7 +199,7 @@ $ProgressPreference = [System.Management.Automation.ActionPreference]::SilentlyC
 Set-StrictMode -Version 1
 
 try {
-    Import-Module -FullyQualifiedName @{ ModuleName = 'PSAppDeployToolkit'; Guid = '8c3c366b-8606-4576-9f2d-4051144f7ca2'; ModuleVersion = '4.1.7' } -Force
+    Import-Module -FullyQualifiedName @{ ModuleName = 'PSAppDeployToolkit'; Guid = '8c3c366b-8606-4576-9f2d-4051144f7ca2'; ModuleVersion = '4.1.8' } -Force
     $iadtParams = Get-ADTBoundParametersAndDefaultValues -Invocation $MyInvocation
     $adtSession = Remove-ADTHashtableNullOrEmptyValues -Hashtable $adtSession
     $adtSession = Open-ADTSession @adtSession @iadtParams -PassThru
@@ -245,7 +245,7 @@ For interactive deployments, simply omit `-DeployMode Silent` - PSADT handles us
 
 ## Comparison: v3 vs v4
 
-| Feature | v3 | v4.1.7 |
+| Feature | v3 | v4.1.8 |
 |---------|----|----|
 | Main script | Deploy-Application.ps1 | Invoke-AppDeployToolkit.ps1 |
 | Architecture | Single script | Module-based (PowerShell module) |
@@ -275,7 +275,7 @@ The `get_psadt_template` tool can automatically create a complete PSADT package 
 ```
 
 This automatically:
-1. Copies PSADT v4.1.7 toolkit files from `ReferenceKnowledge/PSAppDeployToolkit_Template_v4/`
+1. Copies PSADT v4.1.8 toolkit files from `ReferenceKnowledge/PSAppDeployToolkit_Template_v4/`
 2. Generates a customized `Invoke-AppDeployToolkit.ps1` script
 3. Creates the complete package structure ready for your installer
 
@@ -283,7 +283,7 @@ This automatically:
 
 ```
 C:\Packages\7zip\
-├── PSAppDeployToolkit/            # Core module (v4.1.7, 135 functions)
+├── PSAppDeployToolkit/            # Core module (v4.1.8, 135 functions)
 │   ├── PSAppDeployToolkit.psd1    # Module manifest
 │   ├── PSAppDeployToolkit.psm1    # Module implementation
 │   └── ...
@@ -296,7 +296,7 @@ C:\Packages\7zip\
 
 ### Benefits
 - No network dependency - toolkit bundled with MCP server
-- Version pinned to v4.1.7 for reproducible builds
+- Version pinned to v4.1.8 for reproducible builds
 - Instant access - no download delays or rate limits
 - Verified source from official PSADT release
 

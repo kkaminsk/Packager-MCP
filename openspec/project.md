@@ -206,10 +206,10 @@ src/
 | MSIX/AppX | `Add-AppxPackage` | N/A | Modern format, self-contained |
 | ZIP | Extract + run | N/A | Manual or xcopy deployment |
 
-### PSADT v4.1.7 (PowerShell Application Deployment Toolkit)
+### PSADT v4.1.8 (PowerShell Application Deployment Toolkit)
 
 Key concepts:
-- Module-based: `Import-Module -FullyQualifiedName @{ ModuleName = 'PSAppDeployToolkit'; ModuleVersion = '4.1.7' }`
+- Module-based: `Import-Module -FullyQualifiedName @{ ModuleName = 'PSAppDeployToolkit'; ModuleVersion = '4.1.8' }`
 - Function prefix: All 135 functions use `ADT` prefix (e.g., `Show-ADTInstallationWelcome`)
 - Session hashtable: `$adtSession` (lowercase) for session configuration
 - Structured initialization: `Open-ADTSession` / `Close-ADTSession`
@@ -265,7 +265,7 @@ Key functions:
 ### PSADT Project
 - **Website**: https://psappdeploytoolkit.com
 - **GitHub**: https://github.com/PSAppDeployToolkit/PSAppDeployToolkit
-- **Version**: Target PSADT v4.1.7
+- **Version**: Target PSADT v4.1.8
 
 ### MCP Protocol
 - **Spec**: https://modelcontextprotocol.io

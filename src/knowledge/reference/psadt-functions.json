@@ -1,8 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "PSADT v4.1.7 Valid Functions Reference",
-  "description": "Authoritative list of 135 valid PSADT v4.1.7 function names for script validation",
-  "version": "4.1.7",
+  "title": "PSADT v4.1.8 Valid Functions Reference",
+  "description": "Authoritative list of 135 valid PSADT v4.1.8 function names for script validation",
+  "version": "4.1.8",
   "moduleGuid": "8c3c366b-8606-4576-9f2d-4051144f7ca2",
   "lastUpdated": "2025-12-12",
   "validFunctions": [

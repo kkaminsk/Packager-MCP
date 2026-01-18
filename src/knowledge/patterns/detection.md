@@ -1,11 +1,11 @@
 ---
 title: "Detection Rule Patterns"
 id: "kb-patterns-detection"
-psadt_target: "4.1.7"
+psadt_target: "4.1.8"
 last_updated: "2025-12-07"
 verified_by: "maintainer"
 source_ref: "ReferenceKnowledge/V4Assets/PSAppDeployToolkit"
-tags: ["detection", "patterns", "intune", "registry", "file", "v4.1.7"]
+tags: ["detection", "patterns", "intune", "registry", "file", "v4.1.8"]
 ---
 
 # Detection Rule Patterns

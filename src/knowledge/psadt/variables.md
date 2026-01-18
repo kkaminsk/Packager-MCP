@@ -1,22 +1,22 @@
 ---
 title: "PSADT v4 Built-in Variables"
 id: "psadt-variables"
-psadt_target: "4.1.7"
+psadt_target: "4.1.8"
 last_updated: "2025-12-07"
 verified_by: "maintainer"
 source_ref: "ReferenceKnowledge/V4Assets/PSAppDeployToolkit"
-tags: ["psadt", "variables", "session", "environment", "v4.1.7"]
+tags: ["psadt", "variables", "session", "environment", "v4.1.8"]
 ---
 
-# PSADT v4.1.7 Built-in Variables
+# PSADT v4.1.8 Built-in Variables
 
-PSADT v4.1.7 provides variables through the `$adtSession` object and environment variables that become available after opening a session.
+PSADT v4.1.8 provides variables through the `$adtSession` object and environment variables that become available after opening a session.
 
 ## Session Object ($adtSession)
 
-In v4.1.7, you define `$adtSession` as a hashtable, then it becomes the session object after `Open-ADTSession`.
+In v4.1.8, you define `$adtSession` as a hashtable, then it becomes the session object after `Open-ADTSession`.
 
-### Session Variables (v4.1.7)
+### Session Variables (v4.1.8)
 
 ```powershell
 # Initial hashtable definition
@@ -54,7 +54,7 @@ $adtSession = @{
     # Script info (auto-populated)
     DeployAppScriptFriendlyName = $MyInvocation.MyCommand.Name
     DeployAppScriptParameters = $PSBoundParameters
-    DeployAppScriptVersion = '4.1.7'
+    DeployAppScriptVersion = '4.1.8'
 }
 
 # After Open-ADTSession, these become session properties:

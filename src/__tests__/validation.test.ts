@@ -1,13 +1,13 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { ValidationService, getValidationService, resetValidationService } from '../services/validation.js';
 
-// Sample valid PSADT v4.1.7 script for testing
+// Sample valid PSADT v4.1.8 script for testing
 const VALID_PSADT_SCRIPT = `
 <#
 .SYNOPSIS
     Test Application Deployment Script
 .DESCRIPTION
-    Deploys Test App using PSADT v4.1.7
+    Deploys Test App using PSADT v4.1.8
 .NOTES
     Version: 1.0.0
     Author: Test Author
@@ -23,7 +23,7 @@ $adtSession = @{
     AppVersion = '1.0.0'
 }
 
-Import-Module -FullyQualifiedName @{ ModuleName = 'PSAppDeployToolkit'; ModuleVersion = '4.1.7' }
+Import-Module -FullyQualifiedName @{ ModuleName = 'PSAppDeployToolkit'; ModuleVersion = '4.1.8' }
 
 try {
     $adtSession = Open-ADTSession @adtSession -PassThru

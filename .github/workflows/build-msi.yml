@@ -1,0 +1,162 @@
+name: Build and Sign MSI
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number (e.g., 1.0.0)'
+        required: false
+        default: ''
+      sign:
+        description: 'Sign the MSI'
+        required: false
+        default: 'true'
+        type: boolean
+
+jobs:
+  build:
+    name: Build MSI
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build TypeScript
+        run: npm run build
+
+      - name: Install WiX Toolset
+        run: dotnet tool install --global wix
+
+      - name: Get version from tag or input
+        id: version
+        shell: pwsh
+        run: |
+          if ("${{ github.event.inputs.version }}" -ne "") {
+            $version = "${{ github.event.inputs.version }}"
+          } elseif ("${{ github.ref }}" -match "refs/tags/v(.+)") {
+            $version = $matches[1]
+          } else {
+            $packageJson = Get-Content package.json | ConvertFrom-Json
+            $version = $packageJson.version
+          }
+          Write-Host "Version: $version"
+          "version=$version" >> $env:GITHUB_OUTPUT
+
+      - name: Build MSI (unsigned)
+        shell: pwsh
+        run: |
+          .\scripts\build-msi.ps1 -Version "${{ steps.version.outputs.version }}"
+
+      - name: Upload unsigned MSI
+        uses: actions/upload-artifact@v4
+        with:
+          name: msi-unsigned
+          path: installer/bin/*.msi
+          retention-days: 7
+
+  sign:
+    name: Sign MSI
+    needs: build
+    runs-on: windows-latest
+    if: |
+      (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.sign == 'true')
+
+    steps:
+      - name: Download unsigned MSI
+        uses: actions/download-artifact@v4
+        with:
+          name: msi-unsigned
+          path: ./packages
+
+      - name: Install AzureSignTool
+        run: dotnet tool install --global AzureSignTool
+
+      - name: Sign MSI with Azure Key Vault
+        shell: pwsh
+        env:
+          AZURE_KEY_VAULT_URI: ${{ secrets.AZURE_KEY_VAULT_URI }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CERT_NAME: ${{ secrets.AZURE_CERT_NAME }}
+        run: |
+          $msiFiles = Get-ChildItem -Path ./packages -Filter "*.msi"
+
+          foreach ($msi in $msiFiles) {
+            Write-Host "Signing: $($msi.FullName)"
+
+            AzureSignTool sign `
+              --azure-key-vault-url "$env:AZURE_KEY_VAULT_URI" `
+              --azure-key-vault-client-id "$env:AZURE_CLIENT_ID" `
+              --azure-key-vault-client-secret "$env:AZURE_CLIENT_SECRET" `
+              --azure-key-vault-tenant-id "$env:AZURE_TENANT_ID" `
+              --azure-key-vault-certificate "$env:AZURE_CERT_NAME" `
+              --timestamp-rfc3161 http://timestamp.digicert.com `
+              --file-digest sha256 `
+              "$($msi.FullName)"
+
+            if ($LASTEXITCODE -ne 0) {
+              throw "Signing failed for $($msi.Name)"
+            }
+          }
+
+      - name: Verify signatures
+        shell: pwsh
+        run: |
+          $msiFiles = Get-ChildItem -Path ./packages -Filter "*.msi"
+
+          foreach ($msi in $msiFiles) {
+            $sig = Get-AuthenticodeSignature $msi.FullName
+
+            if ($sig.Status -ne 'Valid') {
+              throw "Signature verification failed for $($msi.Name): $($sig.Status)"
+            }
+
+            Write-Host "Signature valid: $($msi.Name)"
+            Write-Host "  Subject: $($sig.SignerCertificate.Subject)"
+            Write-Host "  Timestamp: $($sig.TimeStamperCertificate.Subject)"
+          }
+
+      - name: Upload signed MSI
+        uses: actions/upload-artifact@v4
+        with:
+          name: msi-signed
+          path: ./packages/*.msi
+          retention-days: 90
+
+  release:
+    name: Create Release
+    needs: sign
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download signed MSI
+        uses: actions/download-artifact@v4
+        with:
+          name: msi-signed
+          path: ./release
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ./release/*.msi
+          draft: true
+          generate_release_notes: true

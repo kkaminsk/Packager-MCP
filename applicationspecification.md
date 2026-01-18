@@ -258,7 +258,7 @@ Tools are functions that Claude can invoke to perform actions or retrieve dynami
 
 #### 3.1.6 `verify_psadt_functions`
 
-**Purpose**: Verify that a PSADT script file uses only valid v4.1.7 function names. This tool catches AI-generated incorrect function names like `Initialize-ADTDeployment` (which should be `Open-ADTSession`).
+**Purpose**: Verify that a PSADT script file uses only valid v4.1.8 function names. This tool catches AI-generated incorrect function names like `Initialize-ADTDeployment` (which should be `Open-ADTSession`).
 
 **Input Parameters**:
 ```json
@@ -291,7 +291,7 @@ Tools are functions that Claude can invoke to perform actions or retrieve dynami
 
 **Behavior**:
 - Scans the script for all ADT-prefixed function calls
-- Validates each against the official PSADT v4.1.7 function list (135 functions)
+- Validates each against the official PSADT v4.1.8 function list (135 functions)
 - Identifies common AI hallucinations like `Initialize-ADTDeployment`
 - Returns suggested replacements for invalid functions
 
@@ -813,7 +813,7 @@ $adtSession = @{
     RequireAdmin = $true
     DeployAppScriptFriendlyName = $MyInvocation.MyCommand.Name
     DeployAppScriptParameters = $PSBoundParameters
-    DeployAppScriptVersion = '4.1.7'
+    DeployAppScriptVersion = '4.1.8'
 }
 
 ## Deployment functions
@@ -861,7 +861,7 @@ $ProgressPreference = [System.Management.Automation.ActionPreference]::SilentlyC
 Set-StrictMode -Version 1
 
 try {
-    Import-Module -FullyQualifiedName @{ ModuleName = "$PSScriptRoot\PSAppDeployToolkit\PSAppDeployToolkit.psd1"; Guid = '8c3c366b-8606-4576-9f2d-4051144f7ca2'; ModuleVersion = '4.1.7' } -Force
+    Import-Module -FullyQualifiedName @{ ModuleName = "$PSScriptRoot\PSAppDeployToolkit\PSAppDeployToolkit.psd1"; Guid = '8c3c366b-8606-4576-9f2d-4051144f7ca2'; ModuleVersion = '4.1.8' } -Force
     $iadtParams = Get-ADTBoundParametersAndDefaultValues -Invocation $MyInvocation
     $adtSession = Remove-ADTHashtableNullOrEmptyValues -Hashtable $adtSession
     $adtSession = Open-ADTSession @adtSession @iadtParams -PassThru

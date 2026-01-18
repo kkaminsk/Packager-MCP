@@ -64,7 +64,7 @@ The system SHALL support environment-specific validation rules.
 - **THEN** the system SHALL skip deployment-system-specific rules
 
 ### Requirement: PSADT Structure Validation
-The system SHALL validate PSADT v4.1.7 script structure.
+The system SHALL validate PSADT v4.1.8 script structure.
 
 #### Scenario: Check param block exists
 - **WHEN** validating a PSADT script
@@ -92,7 +92,7 @@ The system SHALL validate PSADT v4.1.7 script structure.
 
 #### Scenario: Check correct function names
 - **WHEN** validating a PSADT script
-- **THEN** the system SHALL verify correct v4.1.7 function names are used:
+- **THEN** the system SHALL verify correct v4.1.8 function names are used:
   - `Get-ADTApplication` (not `Get-ADTInstalledApplication`)
   - `Open-ADTSession` (not `Initialize-ADTDeployment`)
   - `Close-ADTSession` (not `Complete-ADTDeployment`)
@@ -168,7 +168,7 @@ The system SHALL report which validation checks passed.
 
 ### Requirement: Verify PSADT Functions Tool
 
-The system SHALL provide a `verify_psadt_functions` MCP tool that validates PSADT scripts against the authoritative list of 135 valid v4.1.7 function names.
+The system SHALL provide a `verify_psadt_functions` MCP tool that validates PSADT scripts against the authoritative list of 135 valid v4.1.8 function names.
 
 #### Scenario: Verify valid script file
 - **WHEN** the user invokes `verify_psadt_functions` with a path to a valid PSADT script
@@ -205,11 +205,11 @@ The system SHALL provide a `verify_psadt_functions` MCP tool that validates PSAD
 
 ### Requirement: Valid PSADT Function Reference Data
 
-The system SHALL maintain an authoritative reference list of valid PSADT v4.1.7 function names.
+The system SHALL maintain an authoritative reference list of valid PSADT v4.1.8 function names.
 
 #### Scenario: Reference data includes all 135 functions
 - **WHEN** the validation service is initialized
-- **THEN** the reference data SHALL include all 135 exported functions from PSADT v4.1.7
+- **THEN** the reference data SHALL include all 135 exported functions from PSADT v4.1.8
 
 #### Scenario: Reference data includes legacy function mappings
 - **WHEN** validating scripts

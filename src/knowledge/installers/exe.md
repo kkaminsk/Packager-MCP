@@ -1,11 +1,11 @@
 ---
 title: "EXE Installer Guide"
 id: "kb-installers-exe"
-psadt_target: "4.1.7"
+psadt_target: "4.1.8"
 last_updated: "2025-12-07"
 verified_by: "maintainer"
 source_ref: "ReferenceKnowledge/V4Assets/PSAppDeployToolkit"
-tags: ["exe", "installers", "guide", "inno-setup", "nsis", "installshield", "v4.1.7"]
+tags: ["exe", "installers", "guide", "inno-setup", "nsis", "installshield", "v4.1.8"]
 ---
 
 # EXE Installer Guide
@@ -321,7 +321,7 @@ Remove-ADTFolder -Path "$env:ProgramData\Application" -ContinueOnError
 Remove-ADTRegistryKey -Key 'HKLM:\SOFTWARE\Application' -Recurse -ContinueOnError
 ```
 
-## Complete PSADT v4.1.7 Example
+## Complete PSADT v4.1.8 Example
 
 ```powershell
 #Requires -Version 5.1
@@ -357,7 +357,7 @@ $adtSession = @{
 # Initialize
 $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
 try {
-    Import-Module -FullyQualifiedName @{ ModuleName = "$PSScriptRoot\PSAppDeployToolkit\PSAppDeployToolkit.psd1"; Guid = '8c3c366b-8606-4576-9f2d-4051144f7ca2'; ModuleVersion = '4.1.7' } -Force
+    Import-Module -FullyQualifiedName @{ ModuleName = "$PSScriptRoot\PSAppDeployToolkit\PSAppDeployToolkit.psd1"; Guid = '8c3c366b-8606-4576-9f2d-4051144f7ca2'; ModuleVersion = '4.1.8' } -Force
     $iadtParams = Get-ADTBoundParametersAndDefaultValues -Invocation $MyInvocation
     $adtSession = Open-ADTSession @adtSession @iadtParams -PassThru
 }

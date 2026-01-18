@@ -10,7 +10,7 @@ This project uses the **Packager-MCP** server for creating PowerShell App Deploy
 | `get_psadt_template` | Generate PSADT v4 deployment scripts from templates |
 | `get_silent_install_args` | Get silent install arguments for an installer type |
 | `validate_package` | Validate scripts against best practices |
-| `verify_psadt_functions` | **CRITICAL** - Verify script uses valid PSADT v4.1.7 function names |
+| `verify_psadt_functions` | **CRITICAL** - Verify script uses valid PSADT v4.1.8 function names |
 | `generate_intune_detection` | Generate Intune detection rules |
 | `publish_to_intune` | Upload .intunewin package to Microsoft Intune via Graph API |
 
@@ -329,7 +329,7 @@ A complete PSADT package should have this structure:
 ```
 PackageName/
 ├── Deploy-Application.ps1          # Main deployment script (from get_psadt_template)
-├── PSAppDeployToolkit/             # PSADT v4.1.7 module (copied from MCP)
+├── PSAppDeployToolkit/             # PSADT v4.1.8 module (copied from MCP)
 │   ├── PSAppDeployToolkit.psd1
 │   ├── PSAppDeployToolkit.psm1
 │   ├── Config/
@@ -554,7 +554,7 @@ Package complete and published to Intune with logo!
 **Solution:** Report the errors, regenerate the script using `get_psadt_template`
 
 ### "A parameter cannot be found that matches parameter name 'DeploymentStatus'"
-**Cause:** Script uses `Close-ADTSession -DeploymentStatus 'Complete'` or `-DeploymentStatus 'Failed'` which are INVALID parameters in PSADT v4.1.7
+**Cause:** Script uses `Close-ADTSession -DeploymentStatus 'Complete'` or `-DeploymentStatus 'Failed'` which are INVALID parameters in PSADT v4.1.8
 **Solution:** Replace with just `Close-ADTSession` (no parameters). The function does not accept `-DeploymentStatus` or `-ErrorMessage` parameters.
 
 **Wrong:**
@@ -570,7 +570,7 @@ Close-ADTSession
 
 ### "Parameter set cannot be resolved using the specified named parameters" (Show-ADTInstallationWelcome)
 **Cause:** Script uses PSADT v3 parameter names (`-CloseApps`, `-CloseAppsCountdown`) or incompatible parameter combinations (`-PersistPrompt`, `-BlockExecution` with `-CloseProcesses`)
-**Solution:** Use PSADT v4.1.7 parameter names and avoid conflicting parameter combinations.
+**Solution:** Use PSADT v4.1.8 parameter names and avoid conflicting parameter combinations.
 
 **Wrong:**
 ```powershell
@@ -583,7 +583,7 @@ Show-ADTInstallationWelcome -CloseProcesses 'app1,app2' -CloseProcessesCountdown
 ```
 
 ### "Cannot bind argument to parameter 'Path' because it is null"
-**Cause:** Script uses `$ADTSession.FilesDirectory` or `$ADTSession.DirFiles` directly. In PSADT v4.1.7, `$ADTSession` is not a global variable - you must use `Get-ADTSession` function to retrieve session properties.
+**Cause:** Script uses `$ADTSession.FilesDirectory` or `$ADTSession.DirFiles` directly. In PSADT v4.1.8, `$ADTSession` is not a global variable - you must use `Get-ADTSession` function to retrieve session properties.
 **Solution:** Replace `$ADTSession.<Property>` with `(Get-ADTSession).<Property>`
 
 **Wrong:**
@@ -863,7 +863,7 @@ Logo upload failed: Unsupported logo format: .ico. Use PNG or JPEG.
 
 ## Reference
 
-- **PSADT Version:** 4.1.7
+- **PSADT Version:** 4.1.8
 - **Valid Functions:** 135 (all use `ADT` prefix)
 - **Documentation:** https://psappdeploytoolkit.com
 - **MCP Server:** Packager-MCP

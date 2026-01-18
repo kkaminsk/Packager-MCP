@@ -724,7 +724,7 @@ class ValidationService {
           functionName,
           lineNumber,
           lineContent,
-          reason: `Function "${functionName}" is not a valid PSADT v4.1.7 function. Check spelling or consult PSADT documentation.`,
+          reason: `Function "${functionName}" is not a valid PSADT v4.1.8 function. Check spelling or consult PSADT documentation.`,
         });
       }
     }

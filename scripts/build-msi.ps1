@@ -8,6 +8,7 @@
     3. Downloads and bundles Node.js runtime
     4. Harvests directory contents into WiX fragment files
     5. Builds the MSI using dotnet build
+    6. Signs the MSI using Azure Trusted Signing (optional)
 .PARAMETER Version
     Version number for the MSI (e.g., "1.0.0"). Defaults to version from package.json.
 .PARAMETER SkipBuild
@@ -20,12 +21,23 @@
     Node.js version to bundle (e.g., "20.18.1"). Defaults to 20.18.1 LTS.
 .PARAMETER Clean
     Clean build artifacts before building.
+.PARAMETER Sign
+    Sign the MSI using Azure Trusted Signing after build.
+.PARAMETER SigningMetadataPath
+    Path to the Azure Trusted Signing metadata JSON file.
+    Defaults to C:\Temp\tsscat\CodeSigning\metadata-packager-mcp.json
+.PARAMETER SigningDlibPath
+    Path to the Azure Code Signing DLib DLL.
+    Defaults to C:\Temp\tsscat\CodeSigning\Microsoft.Trusted.Signing.Client.1.0.95\bin\x64\Azure.CodeSigning.Dlib.dll
 .EXAMPLE
     .\build-msi.ps1
-    Builds MSI with default settings.
+    Builds MSI with default settings (unsigned).
 .EXAMPLE
     .\build-msi.ps1 -Version "1.0.1" -SkipBuild
     Builds MSI version 1.0.1, skipping npm build.
+.EXAMPLE
+    .\build-msi.ps1 -Sign
+    Builds and signs the MSI using Azure Trusted Signing.
 #>
 [CmdletBinding()]
 param(
@@ -45,7 +57,16 @@ param(
     [string]$NodeVersion = "20.18.1",
 
     [Parameter()]
-    [switch]$Clean
+    [switch]$Clean,
+
+    [Parameter()]
+    [switch]$Sign,
+
+    [Parameter()]
+    [string]$SigningMetadataPath = "C:\Temp\tsscat\CodeSigning\metadata-packager-mcp.json",
+
+    [Parameter()]
+    [string]$SigningDlibPath = "C:\Temp\tsscat\CodeSigning\Microsoft.Trusted.Signing.Client.1.0.95\bin\x64\Azure.CodeSigning.Dlib.dll"
 )
 
 $ErrorActionPreference = 'Stop'
@@ -432,20 +453,101 @@ try {
 }
 
 $MsiPath = Join-Path $OutputDir "Packager-MCP-$Version.msi"
-if (Test-Path $MsiPath) {
-    $MsiSize = [math]::Round((Get-Item $MsiPath).Length / 1MB, 2)
-    Write-Host ""
-    Write-Host "======================================" -ForegroundColor Cyan
-    Write-Host " Build Complete!" -ForegroundColor Cyan
-    Write-Host "======================================" -ForegroundColor Cyan
-    Write-Host ""
-    Write-Host "MSI Package: $MsiPath" -ForegroundColor Green
-    Write-Host "Size: $MsiSize MB" -ForegroundColor Green
-    Write-Host ""
-    Write-Host "Installation commands:" -ForegroundColor Yellow
-    Write-Host "  Interactive: msiexec /i `"$MsiPath`""
-    Write-Host "  Silent:      msiexec /i `"$MsiPath`" /qn"
-    Write-Host ""
-} else {
+if (-not (Test-Path $MsiPath)) {
     throw "MSI file not found at expected location: $MsiPath"
 }
+
+$MsiSize = [math]::Round((Get-Item $MsiPath).Length / 1MB, 2)
+Write-Host "MSI Package created: $MsiPath ($MsiSize MB)" -ForegroundColor Green
+
+# Step 7: Sign MSI (if requested)
+if ($Sign) {
+    Write-Host ""
+    Write-Host "Step 7: Signing MSI with Azure Trusted Signing..." -ForegroundColor Yellow
+
+    # Validate signing prerequisites
+    if (-not (Test-Path $SigningMetadataPath)) {
+        throw "Signing metadata file not found: $SigningMetadataPath`nCreate it based on the template in the documentation."
+    }
+
+    if (-not (Test-Path $SigningDlibPath)) {
+        throw "Azure Code Signing DLib not found: $SigningDlibPath`nDownload Microsoft.Trusted.Signing.Client from NuGet."
+    }
+
+    # Find Windows SDK signtool.exe (requires 10.0.26100.0 or newer for modern signing)
+    $sdkBasePath = "C:\Program Files (x86)\Windows Kits\10\bin"
+    $sdkVersions = Get-ChildItem $sdkBasePath -Directory -ErrorAction SilentlyContinue |
+        Where-Object { $_.Name -match '^\d+\.\d+\.\d+\.\d+$' } |
+        Sort-Object { [version]$_.Name } -Descending
+
+    $signtoolPath = $null
+    foreach ($sdk in $sdkVersions) {
+        $candidate = Join-Path $sdk.FullName "x64\signtool.exe"
+        if (Test-Path $candidate) {
+            # Check version - need 10.0.26100.0 or newer for Azure Trusted Signing
+            $sdkVersion = [version]$sdk.Name
+            if ($sdkVersion -ge [version]"10.0.26100.0") {
+                $signtoolPath = $candidate
+                Write-Host "  Using signtool.exe from SDK $($sdk.Name)" -ForegroundColor Green
+                break
+            }
+        }
+    }
+
+    if (-not $signtoolPath) {
+        throw "Windows SDK 10.0.26100.0 or newer required for Azure Trusted Signing.`nInstall from: https://developer.microsoft.com/en-us/windows/downloads/windows-sdk/"
+    }
+
+    # Sign the MSI
+    Write-Host "  Signing: $MsiPath"
+    $signArgs = @(
+        "sign",
+        "/fd", "SHA256",
+        "/tr", "http://timestamp.acs.microsoft.com",
+        "/td", "SHA256",
+        "/dlib", $SigningDlibPath,
+        "/dmdf", $SigningMetadataPath,
+        $MsiPath
+    )
+
+    Write-Host "  Running: signtool.exe $($signArgs -join ' ')"
+    & $signtoolPath $signArgs
+
+    if ($LASTEXITCODE -ne 0) {
+        throw "Signing failed with exit code $LASTEXITCODE"
+    }
+
+    # Verify signature
+    Write-Host "  Verifying signature..."
+    $sig = Get-AuthenticodeSignature $MsiPath
+    if ($sig.Status -ne 'Valid') {
+        throw "Signature verification failed: $($sig.Status)"
+    }
+
+    Write-Host "  Signature valid: $($sig.SignerCertificate.Subject)" -ForegroundColor Green
+    Write-Host "  Timestamp: $($sig.TimeStamperCertificate.Subject)" -ForegroundColor Green
+    Write-Host "Signing complete." -ForegroundColor Green
+} else {
+    Write-Host ""
+    Write-Host "Step 7: Skipping signing (use -Sign to enable)" -ForegroundColor Yellow
+}
+
+# Final summary
+Write-Host ""
+Write-Host "======================================" -ForegroundColor Cyan
+Write-Host " Build Complete!" -ForegroundColor Cyan
+Write-Host "======================================" -ForegroundColor Cyan
+Write-Host ""
+Write-Host "MSI Package: $MsiPath" -ForegroundColor Green
+Write-Host "Size: $MsiSize MB" -ForegroundColor Green
+
+if ($Sign) {
+    $sig = Get-AuthenticodeSignature $MsiPath
+    Write-Host "Signed by: $($sig.SignerCertificate.Subject)" -ForegroundColor Green
+}
+
+Write-Host ""
+Write-Host "Installation commands:" -ForegroundColor Yellow
+Write-Host "  Interactive: msiexec /i `"$MsiPath`""
+Write-Host "  Silent:      msiexec /i `"$MsiPath`" /qn"
+Write-Host ""

@@ -31,7 +31,7 @@ When you connect this server to Claude CLI (or another MCP-compatible client), C
 
 ## Version Notes
 
-**Packager-MCP v0.8** - Beta. The server provides complete Windows application packaging assistance with PSADT v4.1.7 support.
+**Packager-MCP v0.8** - Beta. The server provides complete Windows application packaging assistance with PSADT v4.1.8 support.
 
 ---
 
@@ -183,7 +183,7 @@ After adding the server to your MCP client, you should see `packager-mcp` in the
 | `get_psadt_template` | Generate PSADT v4 deployment scripts | "Create a PSADT script for 7-Zip" |
 | `validate_package` | Check scripts for errors and best practices | "Validate my deployment script" |
 | `generate_intune_detection` | Create Intune detection rules | "Generate a file detection rule for Notepad++" |
-| `verify_psadt_functions` | Verify PSADT scripts use valid v4.1.7 functions | "Verify my script has correct function names" |
+| `verify_psadt_functions` | Verify PSADT scripts use valid v4.1.8 functions | "Verify my script has correct function names" |
 | `publish_to_intune` | Upload .intunewin packages to Intune | "Publish my package to Intune" |
 
 **Note:** Use `search_winget` to get installer URLs, then download with PowerShell's `Invoke-WebRequest`. The PSADT toolkit is bundled in `dist/knowledge/v4github/` - copy these files to your package directory. The `publish_to_intune` tool requires Azure AD setup - see [Intune Publishing Setup](#intune-publishing-setup-optional).
@@ -391,7 +391,7 @@ Packager-MCP/
 │   │   ├── installers/     # Installer type guides (msi, exe, msix)
 │   │   ├── patterns/       # Packaging patterns (detection, prerequisites, download)
 │   │   ├── reference/      # Silent args (JSON), exit codes
-│   │   └── v4github/       # Static PSADT v4.1.7 toolkit files
+│   │   └── v4github/       # Static PSADT v4.1.8 toolkit files
 │   ├── templates/          # Handlebars templates for PSADT scripts
 │   ├── cache/              # LRU cache implementation
 │   ├── config/             # Configuration loader and schema
@@ -561,7 +561,7 @@ A: Arguments come from Microsoft's Winget repository with confidence levels (ver
 A: Use `search_winget` to get installer URLs and SHA256 hashes, then download with PowerShell's `Invoke-WebRequest`.
 
 **Q: Where do I get the PSADT toolkit files?**
-A: The PSADT v4.1.7 toolkit is bundled in `dist/knowledge/v4github/`. Copy these files to your package directory to create a complete deployment package.
+A: The PSADT v4.1.8 toolkit is bundled in `dist/knowledge/v4github/`. Copy these files to your package directory to create a complete deployment package.
 
 ---
 

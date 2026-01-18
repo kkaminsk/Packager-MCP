@@ -1,11 +1,11 @@
 ---
 title: "MSIX/AppX Packaging Guide"
 id: "kb-installers-msix"
-psadt_target: "4.1.7"
+psadt_target: "4.1.8"
 last_updated: "2025-12-07"
 verified_by: "maintainer"
 source_ref: "ReferenceKnowledge/V4Assets/PSAppDeployToolkit"
-tags: ["msix", "appx", "installers", "guide", "uwp", "v4.1.7"]
+tags: ["msix", "appx", "installers", "guide", "uwp", "v4.1.8"]
 ---
 
 # MSIX/AppX Packaging Guide
@@ -303,10 +303,10 @@ $signature.Status  # Should be "Valid"
 $signature.SignerCertificate.Subject
 ```
 
-## Complete PSADT Example (v4.1.7)
+## Complete PSADT Example (v4.1.8)
 
 ```powershell
-# v4.1.7 MSIX Deployment Example
+# v4.1.8 MSIX Deployment Example
 
 [CmdletBinding()]
 param(
@@ -448,7 +448,7 @@ $ProgressPreference = [System.Management.Automation.ActionPreference]::SilentlyC
 Set-StrictMode -Version 1
 
 try {
-    Import-Module -FullyQualifiedName @{ ModuleName = 'PSAppDeployToolkit'; Guid = '8c3c366b-8606-4576-9f2d-4051144f7ca2'; ModuleVersion = '4.1.7' } -Force
+    Import-Module -FullyQualifiedName @{ ModuleName = 'PSAppDeployToolkit'; Guid = '8c3c366b-8606-4576-9f2d-4051144f7ca2'; ModuleVersion = '4.1.8' } -Force
     $iadtParams = Get-ADTBoundParametersAndDefaultValues -Invocation $MyInvocation
     $adtSession = Remove-ADTHashtableNullOrEmptyValues -Hashtable $adtSession
     $adtSession = Open-ADTSession @adtSession @iadtParams -PassThru

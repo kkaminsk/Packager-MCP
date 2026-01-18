@@ -1,16 +1,16 @@
 ---
 title: "PSADT v4 Function Reference"
 id: "psadt-functions"
-psadt_target: "4.1.7"
+psadt_target: "4.1.8"
 last_updated: "2025-12-07"
 verified_by: "maintainer"
 source_ref: "ReferenceKnowledge/V4Assets/PSAppDeployToolkit/PSAppDeployToolkit.psd1"
-tags: ["psadt", "functions", "reference", "api", "v4.1.7"]
+tags: ["psadt", "functions", "reference", "api", "v4.1.8"]
 ---
 
-# PSADT v4.1.7 Function Reference
+# PSADT v4.1.8 Function Reference
 
-PSADT v4.1.7 exports **135 functions** with the `ADT` prefix. This document covers the most commonly used functions for application deployment.
+PSADT v4.1.8 exports **135 functions** with the `ADT` prefix. This document covers the most commonly used functions for application deployment.
 
 ## Invoke-AppDeployToolkit.ps1
 
@@ -535,9 +535,9 @@ Invoke-ADTCommandWithRetries -Command { Start-ADTProcess -FilePath 'flaky.exe' }
 | 60003 | Defer |
 | 60008 | Module import or session initialization failure |
 
-## Complete Function List (v4.1.7)
+## Complete Function List (v4.1.8)
 
-PSADT v4.1.7 exports 135 functions organized by category:
+PSADT v4.1.8 exports 135 functions organized by category:
 
 ### Session & Module
 - `Initialize-ADTModule`, `Test-ADTModuleInitialized`
@@ -629,7 +629,7 @@ PSADT v4.1.7 exports 135 functions organized by category:
 
 | Property | Value |
 |----------|-------|
-| Version | 4.1.7 |
+| Version | 4.1.8 |
 | GUID | 8c3c366b-8606-4576-9f2d-4051144f7ca2 |
 | PowerShell Required | 5.1.14393.0+ |
 | CLR Version | 4.0.30319.42000 |

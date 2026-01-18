@@ -48,7 +48,7 @@ src/
 │   ├── installers/        # Installer type guides (msi, exe, msix)
 │   ├── patterns/          # Packaging patterns (detection, prerequisites, download)
 │   ├── reference/         # Silent args database (JSON), exit codes
-│   └── v4github/          # Static PSADT v4.1.7 toolkit files
+│   └── v4github/          # Static PSADT v4.1.8 toolkit files
 ├── templates/             # Handlebars templates for PSADT scripts
 ├── cache/                 # LRU cache implementation
 ├── config/                # Configuration loader and schema
@@ -65,7 +65,7 @@ scripts/
     └── ... (12 total functions)
 
 ReferenceKnowledge/        # Source reference materials (not distributed)
-├── V4Assets/              # PSADT v4.1.7 source files
+├── V4Assets/              # PSADT v4.1.8 source files
 ├── functionsdoc.md        # Complete function reference
 ├── V4DOCS.md              # v4 documentation
 └── Examples/              # Example deployments
@@ -80,7 +80,7 @@ ReferenceKnowledge/        # Source reference materials (not distributed)
 | `validate_package` | Check scripts against best practices |
 | `get_silent_install_args` | Retrieve/derive silent install parameters |
 | `generate_intune_detection` | Create Intune detection rules (file/registry/MSI/script) |
-| `verify_psadt_functions` | Verify PSADT script uses valid v4.1.7 function names |
+| `verify_psadt_functions` | Verify PSADT script uses valid v4.1.8 function names |
 | `publish_to_intune` | Upload .intunewin packages to Intune via Microsoft Graph API |
 
 Note: Use `search_winget` to get installer URLs and SHA256 hashes, then download installers using PowerShell's `Invoke-WebRequest`. When using `get_psadt_template` with `output_directory`, the tool automatically copies PSADT toolkit files from `dist/knowledge/v4github/` and creates a complete deployment package.
@@ -142,7 +142,7 @@ Note: Silent install arguments are stored in `src/knowledge/reference/silent-arg
 
 ### PSADT v4
 - Documentation: https://psappdeploytoolkit.com
-- Version: 4.1.7 (135 exported functions)
+- Version: 4.1.8 (135 exported functions)
 - Key session functions: `Open-ADTSession`, `Close-ADTSession`, `Get-ADTSession`
 - Deployment functions: `Install-ADTDeployment`, `Uninstall-ADTDeployment`, `Repair-ADTDeployment`
 - Core functions: `Start-ADTProcess`, `Start-ADTMsiProcess`, `Show-ADTInstallationWelcome`, `Show-ADTInstallationProgress`
@@ -301,6 +301,43 @@ A WiX-based MSI installer is available for enterprise deployment. The installer 
 .\scripts\build-msi.ps1 -SkipNodeDownload           # Use cached Node.js
 .\scripts\build-msi.ps1 -NodeVersion "22.11.0"      # Different Node.js version
 .\scripts\build-msi.ps1 -Clean                      # Clean build
+
+# Build with code signing
+.\scripts\build-msi.ps1 -Sign                       # Sign with Azure Trusted Signing
+```
+
+### Code Signing
+
+The MSI can be signed using Azure Trusted Signing for enterprise distribution.
+
+**Prerequisites:**
+- Windows SDK 10.0.26100.0 or newer (older versions don't support Azure Trusted Signing)
+- Azure Trusted Signing account and certificate profile
+- Microsoft.Trusted.Signing.Client NuGet package
+
+**Signing Configuration:**
+
+| Setting | Default Path |
+|---------|--------------|
+| Metadata File | `C:\Temp\tsscat\CodeSigning\metadata-packager-mcp.json` |
+| DLib Path | `C:\Temp\tsscat\CodeSigning\Microsoft.Trusted.Signing.Client.1.0.95\bin\x64\Azure.CodeSigning.Dlib.dll` |
+| Timestamp Server | `http://timestamp.acs.microsoft.com` |
+
+**Build and Sign:**
+
+```powershell
+# Build and sign in one step
+.\scripts\build-msi.ps1 -Sign
+
+# With custom signing paths
+.\scripts\build-msi.ps1 -Sign -SigningMetadataPath "C:\path\to\metadata.json"
+```
+
+**Verify Signature:**
+
+```powershell
+# Check signature status
+Get-AuthenticodeSignature ".\installer\bin\Packager-MCP-1.0.0.msi"
 ```
 
 ### Installation
@@ -392,7 +429,7 @@ See `installer/README.md` for detailed documentation.
 
 ### The Problem: AI Training Data Contains INCORRECT Function Names
 
-AI models (including you) have been trained on outdated or incorrect PSADT function names. These functions **DO NOT EXIST** in PSADT v4.1.7 and will cause runtime errors:
+AI models (including you) have been trained on outdated or incorrect PSADT function names. These functions **DO NOT EXIST** in PSADT v4.1.8 and will cause runtime errors:
 
 | WRONG (in your training data) | CORRECT (use this) |
 |------------------------------|-------------------|

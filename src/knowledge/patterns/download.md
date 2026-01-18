@@ -1,11 +1,11 @@
 ---
 title: "Installer Download Patterns"
 id: "kb-patterns-download"
-psadt_target: "4.1.7"
+psadt_target: "4.1.8"
 last_updated: "2025-12-09"
 verified_by: "maintainer"
 source_ref: "search_winget tool, Invoke-WebRequest"
-tags: ["download", "patterns", "winget", "installer", "v4.1.7"]
+tags: ["download", "patterns", "winget", "installer", "v4.1.8"]
 ---
 
 # Installer Download Patterns
@@ -185,7 +185,7 @@ Invoke-WebRequest -Uri $Installer.InstallerUrl -OutFile $OutputPath
 
 ## PSADT Toolkit Files
 
-The MCP server includes PSADT v4.1.7 toolkit files in `ReferenceKnowledge/PSAppDeployToolkit_Template_v4/`. The `get_psadt_template` tool can automatically copy these files when you specify `output_directory`.
+The MCP server includes PSADT v4.1.8 toolkit files in `ReferenceKnowledge/PSAppDeployToolkit_Template_v4/`. The `get_psadt_template` tool can automatically copy these files when you specify `output_directory`.
 
 ### Automatic Package Creation
 
@@ -208,7 +208,7 @@ This automatically creates:
 ```
 C:\Packages\7zip\
 ├── PSAppDeployToolkit/
-│   ├── PSAppDeployToolkit.psd1    # Module manifest (v4.1.7)
+│   ├── PSAppDeployToolkit.psd1    # Module manifest (v4.1.8)
 │   ├── PSAppDeployToolkit.psm1    # Module implementation
 │   └── ...
 ├── Config/
@@ -232,7 +232,7 @@ C:\Packages\7zip\
 ### Benefits
 
 - **No network dependency**: Toolkit bundled with MCP server
-- **Version consistency**: Pinned to v4.1.7 for reproducible builds
+- **Version consistency**: Pinned to v4.1.8 for reproducible builds
 - **Instant access**: No download delays or GitHub rate limits
 - **Verified source**: From official PSAppDeployToolkit release
 

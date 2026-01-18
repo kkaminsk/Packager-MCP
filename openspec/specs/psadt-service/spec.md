@@ -77,11 +77,11 @@ The system SHALL return template output with structured metadata in addition to 
 - **THEN** the response SHALL include usage notes specific to the generated template
 
 ### Requirement: PSADT Documentation Resources
-The system SHALL expose PSADT v4.1.7 documentation as MCP resources.
+The system SHALL expose PSADT v4.1.8 documentation as MCP resources.
 
 #### Scenario: Access overview documentation
 - **WHEN** a client requests resource `psadt://docs/overview`
-- **THEN** the system SHALL return PSADT v4.1.7 architecture and concepts documentation
+- **THEN** the system SHALL return PSADT v4.1.8 architecture and concepts documentation
 
 #### Scenario: Access function reference
 - **WHEN** a client requests resource `psadt://docs/functions`
@@ -97,7 +97,7 @@ The system SHALL expose PSADT v4.1.7 documentation as MCP resources.
 
 #### Scenario: Access best practices
 - **WHEN** a client requests resource `psadt://docs/best-practices`
-- **THEN** the system SHALL return recommended patterns and anti-patterns for v4.1.7
+- **THEN** the system SHALL return recommended patterns and anti-patterns for v4.1.8
 
 ### Requirement: Installer Knowledge Base Resources
 The system SHALL expose installer-type-specific guides as MCP resources.
@@ -137,11 +137,11 @@ The system SHALL expose reference data as MCP resources.
 - **THEN** the system SHALL return common installer exit codes and their meanings
 
 ### Requirement: PSADT v4 Compliance
-All generated templates and knowledge documentation SHALL comply with PSADT v4.1.7 module-based architecture.
+All generated templates and knowledge documentation SHALL comply with PSADT v4.1.8 module-based architecture.
 
 #### Scenario: Use module import pattern
 - **WHEN** any template is generated
-- **THEN** the script SHALL use `Import-Module -FullyQualifiedName @{ ModuleName = 'PSAppDeployToolkit'; Guid = '8c3c366b-8606-4576-9f2d-4051144f7ca2'; ModuleVersion = '4.1.7' }` pattern
+- **THEN** the script SHALL use `Import-Module -FullyQualifiedName @{ ModuleName = 'PSAppDeployToolkit'; Guid = '8c3c366b-8606-4576-9f2d-4051144f7ca2'; ModuleVersion = '4.1.8' }` pattern
 
 #### Scenario: Use ADT-prefixed functions
 - **WHEN** any template is generated
@@ -182,6 +182,6 @@ The system SHALL include a static copy of PSADT v4 toolkit files in the `dist/kn
 
 #### Scenario: Toolkit version pinned
 - **WHEN** the static toolkit files are accessed
-- **THEN** the version SHALL be PSADT v4.1.7 with 135 exported functions
+- **THEN** the version SHALL be PSADT v4.1.8 with 135 exported functions
 - **AND** the module GUID SHALL be `8c3c366b-8606-4576-9f2d-4051144f7ca2`
 

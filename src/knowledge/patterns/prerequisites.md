@@ -1,11 +1,11 @@
 ---
 title: "Prerequisites Handling Patterns"
 id: "kb-patterns-prerequisites"
-psadt_target: "4.1.7"
+psadt_target: "4.1.8"
 last_updated: "2025-12-07"
 verified_by: "maintainer"
 source_ref: "ReferenceKnowledge/V4Assets/PSAppDeployToolkit"
-tags: ["prerequisites", "patterns", "dependencies", "runtime", "v4.1.7"]
+tags: ["prerequisites", "patterns", "dependencies", "runtime", "v4.1.8"]
 ---
 
 # Prerequisites Handling Patterns
@@ -370,7 +370,7 @@ function Install-PrerequisiteWithRestart {
     }
 }
 
-# At end of script (in v4.1.7 style)
+# At end of script (in v4.1.8 style)
 if ($script:RestartRequired) {
     Write-ADTLogEntry -Message "One or more prerequisites require a restart"
     Close-ADTSession -ExitCode 3010
@@ -407,7 +407,7 @@ if ($pendingRestart) {
 ## Complete Example
 
 ```powershell
-# v4.1.7 Prerequisites Example - Using function-based structure
+# v4.1.8 Prerequisites Example - Using function-based structure
 
 [CmdletBinding()]
 param(
@@ -520,7 +520,7 @@ $ProgressPreference = [System.Management.Automation.ActionPreference]::SilentlyC
 Set-StrictMode -Version 1
 
 try {
-    Import-Module -FullyQualifiedName @{ ModuleName = 'PSAppDeployToolkit'; Guid = '8c3c366b-8606-4576-9f2d-4051144f7ca2'; ModuleVersion = '4.1.7' } -Force
+    Import-Module -FullyQualifiedName @{ ModuleName = 'PSAppDeployToolkit'; Guid = '8c3c366b-8606-4576-9f2d-4051144f7ca2'; ModuleVersion = '4.1.8' } -Force
     $iadtParams = Get-ADTBoundParametersAndDefaultValues -Invocation $MyInvocation
     $adtSession = Remove-ADTHashtableNullOrEmptyValues -Hashtable $adtSession
     $adtSession = Open-ADTSession @adtSession @iadtParams -PassThru

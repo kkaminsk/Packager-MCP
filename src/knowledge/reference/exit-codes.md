@@ -1,7 +1,7 @@
 ---
 title: "Installer Exit Codes Reference"
 id: "ref-exit-codes"
-psadt_target: "4.1.7"
+psadt_target: "4.1.8"
 last_updated: "2025-12-11"
 verified_by: "maintainer"
 source_ref: "ReferenceKnowledge/V4DOCS.md#exit-codes"
@@ -155,7 +155,7 @@ Understanding exit codes is critical for proper error handling and deployment au
 
 ## Handling Exit Codes in PSADT
 
-### Basic Exit Code Handling (PSADT v4.1.7)
+### Basic Exit Code Handling (PSADT v4.1.8)
 
 ```powershell
 $result = Start-ADTProcess -FilePath 'setup.exe' -ArgumentList '/S' -PassThru
