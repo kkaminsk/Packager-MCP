@@ -270,7 +270,7 @@ export function registerToolHandlers(server) {
         tools: ['search_winget', 'get_silent_install_args'],
     });
     // Register get_psadt_template tool
-    server.tool('get_psadt_template', 'ALWAYS use this tool to generate PSADT v4.1.7 deployment scripts. DO NOT write PSADT scripts manually - they will have incorrect function names. This tool generates correct scripts using Open-ADTSession and Close-ADTSession. Returns a complete deployment script with customization points. If output_directory is specified, creates a complete package with toolkit files.', getPsadtTemplateSchema.shape, async (args) => {
+    server.tool('get_psadt_template', 'ALWAYS use this tool to generate PSADT v4.1.8 deployment scripts. DO NOT write PSADT scripts manually - they will have incorrect function names. This tool generates correct scripts using Open-ADTSession and Close-ADTSession. Returns a complete deployment script with customization points. If output_directory is specified, creates a complete package with toolkit files.', getPsadtTemplateSchema.shape, async (args) => {
         logger.debug('Executing get_psadt_template', { args });
         try {
             const validated = getPsadtTemplateSchema.parse(args);
@@ -566,7 +566,7 @@ export function registerToolHandlers(server) {
         tools: ['generate_intune_detection'],
     });
     // Register verify_psadt_functions tool
-    server.tool('verify_psadt_functions', 'Verify that a PSADT script file uses only valid v4.1.7 function names. Use this after generating a package with get_psadt_template to ensure no invalid function names were introduced. Returns list of valid functions found, any invalid functions with suggested replacements, and parameter issues.', verifyPsadtFunctionsSchema.shape, async (args) => {
+    server.tool('verify_psadt_functions', 'Verify that a PSADT script file uses only valid v4.1.8 function names. Use this after generating a package with get_psadt_template to ensure no invalid function names were introduced. Returns list of valid functions found, any invalid functions with suggested replacements, and parameter issues.', verifyPsadtFunctionsSchema.shape, async (args) => {
         logger.debug('Executing verify_psadt_functions', {
             filePath: args.file_path,
         });

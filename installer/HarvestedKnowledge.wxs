@@ -1,633 +1,726 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
   <Fragment>
     <ComponentGroup Id="KnowledgeComponents" Directory="DistKnowledgeDir">
-      <Component Id="KnowledgeComponents_1" Guid="13F22411-DE45-4D5C-85CE-84C1B49CA5F0">
+      <Component Id="KnowledgeComponents_1" Guid="5DD2F8EA-3A43-42E1-844C-7E10DE21E522">
         <File Id="File_KnowledgeComponents_1" Source="$(var.SourceDir)\dist\knowledge\CHANGELOG.md" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_2" Guid="9590B5A2-160F-42EE-B433-070BB93B0FAD">
+      <Component Id="KnowledgeComponents_2" Guid="729357EC-FB54-4177-856B-E93A12B32FE6">
         <File Id="File_KnowledgeComponents_2" Source="$(var.SourceDir)\dist\knowledge\CONTRIBUTING.md" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_3" Guid="0E43B219-8299-43E1-88E3-1EA69EDA2189">
+      <Component Id="KnowledgeComponents_3" Guid="E4563C94-EE54-4C77-B38E-0737A0E03907">
         <File Id="File_KnowledgeComponents_3" Source="$(var.SourceDir)\dist\knowledge\VERSION" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_4" Guid="506AE3ED-3EB5-42CE-98F5-613F450CE0CA">
+      <Component Id="KnowledgeComponents_4" Guid="D5D7CD23-2130-4477-95C1-08070A3B234A">
         <File Id="File_KnowledgeComponents_4" Source="$(var.SourceDir)\dist\knowledge\installers\exe.md" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_5" Guid="0C3F8722-DD76-4424-A08E-41D20B549A45">
+      <Component Id="KnowledgeComponents_5" Guid="33F90220-090B-42C4-AA58-70A52E28269B">
         <File Id="File_KnowledgeComponents_5" Source="$(var.SourceDir)\dist\knowledge\installers\msi.md" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_6" Guid="B38CD505-5A74-4928-B840-5D12DD700BB2">
+      <Component Id="KnowledgeComponents_6" Guid="C9FA9127-4CAC-411C-A21E-78E8A133241E">
         <File Id="File_KnowledgeComponents_6" Source="$(var.SourceDir)\dist\knowledge\installers\msix.md" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_7" Guid="0D678147-78ED-4046-BD32-E65B268FD802">
+      <Component Id="KnowledgeComponents_7" Guid="6DB4001B-7FC0-4CE3-B99A-0345E97AC72C">
         <File Id="File_KnowledgeComponents_7" Source="$(var.SourceDir)\dist\knowledge\patterns\detection.md" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_8" Guid="8BB723B0-8EC9-4796-8C6F-AFD86A230981">
+      <Component Id="KnowledgeComponents_8" Guid="700C6F6D-2424-40E4-8486-E896A8DAB28C">
         <File Id="File_KnowledgeComponents_8" Source="$(var.SourceDir)\dist\knowledge\patterns\download.md" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_9" Guid="692D1EFF-F43F-4ABB-A572-E70D793EDDA3">
+      <Component Id="KnowledgeComponents_9" Guid="F138C7CF-5133-4615-B5CC-96AC6203CE30">
         <File Id="File_KnowledgeComponents_9" Source="$(var.SourceDir)\dist\knowledge\patterns\prerequisites.md" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_10" Guid="42BBBA8D-0BAB-451A-ACA6-42DC1BA9662E">
+      <Component Id="KnowledgeComponents_10" Guid="A7FB4C5D-78C3-459C-B229-D7180F417944">
         <File Id="File_KnowledgeComponents_10" Source="$(var.SourceDir)\dist\knowledge\psadt\best-practices.md" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_11" Guid="B2E04E59-B5E7-432D-9EB7-14000222BBCF">
+      <Component Id="KnowledgeComponents_11" Guid="6D37BDF3-6C42-4E0C-9E2A-C3BA71444FBA">
         <File Id="File_KnowledgeComponents_11" Source="$(var.SourceDir)\dist\knowledge\psadt\functions.md" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_12" Guid="D44969B8-56C5-4817-AD8A-B2764C38E7CE">
-        <File Id="File_KnowledgeComponents_12" Source="$(var.SourceDir)\dist\knowledge\psadt\migration.md" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_12" Guid="ECF31F9C-8126-4015-A6F4-6717E224B394">
+        <File Id="File_KnowledgeComponents_12" Source="$(var.SourceDir)\dist\knowledge\psadt\overview.md" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_13" Guid="CDAE23DB-EC15-458E-8329-FA2DBFF3E677">
-        <File Id="File_KnowledgeComponents_13" Source="$(var.SourceDir)\dist\knowledge\psadt\overview.md" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_13" Guid="88221E78-BB63-4FD9-BA05-433B4996534D">
+        <File Id="File_KnowledgeComponents_13" Source="$(var.SourceDir)\dist\knowledge\psadt\variables.md" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_14" Guid="4603835A-729C-42AC-AA89-8DC29AACB159">
-        <File Id="File_KnowledgeComponents_14" Source="$(var.SourceDir)\dist\knowledge\psadt\variables.md" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_14" Guid="4D53EFE5-5B2C-4775-80D5-85C2F28FF28A">
+        <File Id="File_KnowledgeComponents_14" Source="$(var.SourceDir)\dist\knowledge\reference\exit-codes.md" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_15" Guid="33945BA5-A4DF-4056-A63C-4C4371616730">
-        <File Id="File_KnowledgeComponents_15" Source="$(var.SourceDir)\dist\knowledge\reference\exit-codes.md" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_15" Guid="78BCA343-91A2-4A14-BB54-35869C29AEEC">
+        <File Id="File_KnowledgeComponents_15" Source="$(var.SourceDir)\dist\knowledge\reference\psadt-functions.json" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_16" Guid="AE6B243F-4D27-42CC-B052-71DD2C4EE62E">
-        <File Id="File_KnowledgeComponents_16" Source="$(var.SourceDir)\dist\knowledge\reference\psadt-functions.json" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_16" Guid="CC9EAD55-7E99-4F5C-BB49-0694A9C60173">
+        <File Id="File_KnowledgeComponents_16" Source="$(var.SourceDir)\dist\knowledge\reference\silent-args.json" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_17" Guid="F2E88C38-21B8-4444-97EB-E72D6E5A5D33">
-        <File Id="File_KnowledgeComponents_17" Source="$(var.SourceDir)\dist\knowledge\reference\silent-args.json" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_17" Guid="2119D12F-8C47-480B-9AA2-320A19E0C6EC">
+        <File Id="File_KnowledgeComponents_17" Source="$(var.SourceDir)\dist\knowledge\v4github\Invoke-AppDeployToolkit.exe" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_18" Guid="0BF2B556-086E-47FD-B0DD-B77128B620E6">
-        <File Id="File_KnowledgeComponents_18" Source="$(var.SourceDir)\dist\knowledge\v4github\Assets\AppIcon.png" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_18" Guid="A42454F8-A333-4C6F-81F5-0F7087844D80">
+        <File Id="File_KnowledgeComponents_18" Source="$(var.SourceDir)\dist\knowledge\v4github\Invoke-AppDeployToolkit.ps1" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_19" Guid="2C3C5DEF-ADDB-436D-A2E6-4B42097BEFBF">
-        <File Id="File_KnowledgeComponents_19" Source="$(var.SourceDir)\dist\knowledge\v4github\Assets\Banner.Classic.png" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_19" Guid="DE159127-BBF8-4E13-A6FF-6B3A8173ACAB">
+        <File Id="File_KnowledgeComponents_19" Source="$(var.SourceDir)\dist\knowledge\v4github\Assets\AppIcon.png" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_20" Guid="07024CDD-8FA1-4C91-9981-866553FA7593">
-        <File Id="File_KnowledgeComponents_20" Source="$(var.SourceDir)\dist\knowledge\v4github\Config\config.psd1" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_20" Guid="179C9A99-DC80-42E0-A116-6E789451EA60">
+        <File Id="File_KnowledgeComponents_20" Source="$(var.SourceDir)\dist\knowledge\v4github\Assets\Banner.Classic.png" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_21" Guid="915DEBCD-FFD5-4F6F-9624-740EC8E72799">
-        <File Id="File_KnowledgeComponents_21" Source="$(var.SourceDir)\dist\knowledge\v4github\Files\Add Setup Files Here.txt" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_21" Guid="AE312361-3C0B-431C-B56C-B996C32F9D8F">
+        <File Id="File_KnowledgeComponents_21" Source="$(var.SourceDir)\dist\knowledge\v4github\Config\config.psd1" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_22" Guid="B52D5F90-B17B-41BE-B84D-B64E9C56345E">
-        <File Id="File_KnowledgeComponents_22" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\!README.txt" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_22" Guid="E9DF50FC-6E36-49AD-9CEC-37F7DF687B77">
+        <File Id="File_KnowledgeComponents_22" Source="$(var.SourceDir)\dist\knowledge\v4github\Files\Add Setup Files Here.txt" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_23" Guid="2647AC76-151E-4A4A-A45F-27F0352CF742">
-        <File Id="File_KnowledgeComponents_23" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\COPYING.Lesser" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_23" Guid="2A47BCFF-769B-48C1-BA37-68D499D9E835">
+        <File Id="File_KnowledgeComponents_23" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\!README.txt" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_24" Guid="E11D26E6-E9A7-4B5D-ADF6-043C7CE402A5">
-        <File Id="File_KnowledgeComponents_24" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\PSAppDeployToolkit.cer" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_24" Guid="DD287B56-113C-4984-BAC3-99F4756ABF85">
+        <File Id="File_KnowledgeComponents_24" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\COPYING.Lesser" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_25" Guid="5E514C4E-3619-4E1A-9D0F-9718367E49A2">
-        <File Id="File_KnowledgeComponents_25" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\PSAppDeployToolkit.psd1" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_25" Guid="19B8B545-4064-46DD-8BF9-B1A6156AB9BE">
+        <File Id="File_KnowledgeComponents_25" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\PSAppDeployToolkit.cer" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_26" Guid="EB2793A7-060A-496E-9D5B-C1754C0D94F9">
-        <File Id="File_KnowledgeComponents_26" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\PSAppDeployToolkit.psm1" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_26" Guid="03B035C1-4353-4E5F-9A93-D8C76BAA7103">
+        <File Id="File_KnowledgeComponents_26" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\PSAppDeployToolkit.psd1" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_27" Guid="A725985D-F360-4246-B72D-4B73416F4392">
-        <File Id="File_KnowledgeComponents_27" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\ADMX\PSAppDeployToolkit.admx" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_27" Guid="5CFD438A-06CD-413F-ACE1-E81C9F7C4FA8">
+        <File Id="File_KnowledgeComponents_27" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\PSAppDeployToolkit.psm1" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_28" Guid="1E94E21D-F15F-4C58-B0FF-682653AA4E58">
-        <File Id="File_KnowledgeComponents_28" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\ADMX\en-US\PSAppDeployToolkit.adml" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_28" Guid="3384DDB6-033C-43D9-93AF-DD56CA529EC8">
+        <File Id="File_KnowledgeComponents_28" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\ADMX\PSAppDeployToolkit.admx" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_29" Guid="BB51B31D-2760-4E22-AF02-4F6AC7D5A4E8">
-        <File Id="File_KnowledgeComponents_29" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Assets\AppIcon.png" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_29" Guid="08AAD0CD-C18E-4A32-91F7-E0386E16D436">
+        <File Id="File_KnowledgeComponents_29" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\ADMX\en-US\PSAppDeployToolkit.adml" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_30" Guid="EC924112-FC8B-4532-A678-7ED021D88070">
-        <File Id="File_KnowledgeComponents_30" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Assets\Banner.Classic.png" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_30" Guid="B71DBCE4-D22E-428E-8ED7-DE2888FCFCA8">
+        <File Id="File_KnowledgeComponents_30" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Assets\AppIcon.png" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_31" Guid="7B74F6B6-8C57-4BE6-88B1-E9EC41D789EC">
-        <File Id="File_KnowledgeComponents_31" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Config\config.psd1" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_31" Guid="DEDE8E51-94EA-466C-AFAB-7DFF0556A182">
+        <File Id="File_KnowledgeComponents_31" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Assets\Banner.Classic.png" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_32" Guid="4C63A49F-6EF5-4D26-9FB3-D1D4B323690B">
-        <File Id="File_KnowledgeComponents_32" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Frontend\v3\Deploy-Application.exe" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_32" Guid="6220D26A-2911-4D46-B4F2-136C1F4251A3">
+        <File Id="File_KnowledgeComponents_32" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Config\config.psd1" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_33" Guid="41E694F1-7CCF-41CD-9E42-ECD47DF3D3CD">
-        <File Id="File_KnowledgeComponents_33" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Frontend\v3\AppDeployToolkit\AppDeployToolkitExtensions.ps1" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_33" Guid="E4EC6ADA-D471-412A-AFD4-00BD05BF4E66">
+        <File Id="File_KnowledgeComponents_33" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Frontend\v3\Deploy-Application.exe" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_34" Guid="0E0FDCB0-46BD-49AD-9E8D-0B3358B618BB">
-        <File Id="File_KnowledgeComponents_34" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Frontend\v3\AppDeployToolkit\AppDeployToolkitMain.ps1" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_34" Guid="381A417A-2ACE-4531-84FA-C843B04A7548">
+        <File Id="File_KnowledgeComponents_34" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Frontend\v3\AppDeployToolkit\AppDeployToolkitExtensions.ps1" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_35" Guid="9D4A1583-D868-44D3-8237-92DC4798019E">
-        <File Id="File_KnowledgeComponents_35" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Frontend\v3\AppDeployToolkit\COPYING.Lesser" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_35" Guid="5DF324AF-704B-4CD8-9A58-9049D90FF09C">
+        <File Id="File_KnowledgeComponents_35" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Frontend\v3\AppDeployToolkit\AppDeployToolkitMain.ps1" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_36" Guid="6F64C679-6840-42F9-A002-E95D937E378A">
-        <File Id="File_KnowledgeComponents_36" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Frontend\v4\Invoke-AppDeployToolkit.exe" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_36" Guid="4606B873-4B35-42DF-AB7A-A96EBBE7278F">
+        <File Id="File_KnowledgeComponents_36" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Frontend\v3\AppDeployToolkit\COPYING.Lesser" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_37" Guid="2118264B-842D-4473-8595-F9BEF9B5DC3B">
-        <File Id="File_KnowledgeComponents_37" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Frontend\v4\Invoke-AppDeployToolkit.ps1" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_37" Guid="4DFA0EC3-6E9B-409C-A7F5-15710BDD2546">
+        <File Id="File_KnowledgeComponents_37" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Frontend\v4\Invoke-AppDeployToolkit.exe" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_38" Guid="6B06F0A9-B1A9-46AA-B23E-3B1E4A058B15">
-        <File Id="File_KnowledgeComponents_38" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Frontend\v4\PSAppDeployToolkit.Extensions\PSAppDeployToolkit.Extensions.psd1" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_38" Guid="7382933E-5D70-41DB-9E3A-E8FE1823EF30">
+        <File Id="File_KnowledgeComponents_38" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Frontend\v4\Invoke-AppDeployToolkit.ps1" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_39" Guid="B118405F-E28C-422C-9E6B-A2122115B312">
-        <File Id="File_KnowledgeComponents_39" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Frontend\v4\PSAppDeployToolkit.Extensions\PSAppDeployToolkit.Extensions.psm1" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_39" Guid="D7C777BC-0521-4EB0-B454-251609077EE8">
+        <File Id="File_KnowledgeComponents_39" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Frontend\v4\PSAppDeployToolkit.Extensions\PSAppDeployToolkit.Extensions.psd1" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_40" Guid="E865EC92-CAD2-4C3B-A38C-D6674701C4AC">
-        <File Id="File_KnowledgeComponents_40" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\iNKORE.UI.WPF.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_40" Guid="20F701FD-E5EF-4C93-85E8-25F02B9F5E37">
+        <File Id="File_KnowledgeComponents_40" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Frontend\v4\PSAppDeployToolkit.Extensions\PSAppDeployToolkit.Extensions.psm1" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_41" Guid="609946DA-0ACF-4DCB-BFF3-0A57FAF8C26C">
-        <File Id="File_KnowledgeComponents_41" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\iNKORE.UI.WPF.Modern.Controls.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_41" Guid="037A115A-9447-43B2-91F4-C508B2CC407E">
+        <File Id="File_KnowledgeComponents_41" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\iNKORE.UI.WPF.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_42" Guid="28D38ECB-6430-43A2-8674-D7E6368956A7">
-        <File Id="File_KnowledgeComponents_42" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\iNKORE.UI.WPF.Modern.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_42" Guid="0BB4261C-B9DA-44D7-8ABF-EF383C3E7B7A">
+        <File Id="File_KnowledgeComponents_42" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\iNKORE.UI.WPF.Modern.Controls.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_43" Guid="B2D23BA1-DE78-4CBB-8C9E-44F3BA9F4AFD">
-        <File Id="File_KnowledgeComponents_43" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\Newtonsoft.Json.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_43" Guid="09FA5016-015D-46E7-8538-542A23F6E2F8">
+        <File Id="File_KnowledgeComponents_43" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\iNKORE.UI.WPF.Modern.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_44" Guid="83E4B0AC-033D-434D-A519-0D13FDA0EB9A">
-        <File Id="File_KnowledgeComponents_44" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\PSADT.ClientServer.Client.exe" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_44" Guid="FB4DE52A-DECA-4518-A95B-6D728A1EAA3D">
+        <File Id="File_KnowledgeComponents_44" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\Newtonsoft.Json.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_45" Guid="86D11671-73DA-4450-BD9F-62F096FBE4C6">
-        <File Id="File_KnowledgeComponents_45" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\PSADT.ClientServer.Client.exe.config" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_45" Guid="22E804E6-E9E7-4837-8C28-419B70A0ADA6">
+        <File Id="File_KnowledgeComponents_45" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\PSADT.ClientServer.Client.exe" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_46" Guid="E04B3A99-83F4-4BBB-847C-E61EE00B9792">
-        <File Id="File_KnowledgeComponents_46" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\PSADT.ClientServer.Client.Launcher.exe" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_46" Guid="50479531-AA24-4525-9631-C0B6B4711E08">
+        <File Id="File_KnowledgeComponents_46" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\PSADT.ClientServer.Client.exe.config" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_47" Guid="D9CEC7D6-F3E5-40AF-B675-81EF75B134D2">
-        <File Id="File_KnowledgeComponents_47" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\PSADT.ClientServer.Client.Launcher.exe.config" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_47" Guid="A8D23160-EAC3-4E81-86EC-0A0E41A6685B">
+        <File Id="File_KnowledgeComponents_47" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\PSADT.ClientServer.Client.Launcher.exe" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_48" Guid="E0DFBF19-D8BE-46CF-A755-1D2A570DD586">
-        <File Id="File_KnowledgeComponents_48" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\PSADT.ClientServer.Client.Launcher.pdb" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_48" Guid="F67AC273-7386-4D5D-B63F-AE1889D235E7">
+        <File Id="File_KnowledgeComponents_48" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\PSADT.ClientServer.Client.Launcher.exe.config" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_49" Guid="FD1CF8D2-D75F-48F3-80F8-0EF1481EBE54">
-        <File Id="File_KnowledgeComponents_49" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\PSADT.ClientServer.Client.pdb" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_49" Guid="ECD8444B-F2A8-4FA2-94D6-B36C493B863F">
+        <File Id="File_KnowledgeComponents_49" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\PSADT.ClientServer.Client.Launcher.pdb" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_50" Guid="10C3BB11-61D3-4272-9665-B51BA69CD68E">
-        <File Id="File_KnowledgeComponents_50" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\PSADT.ClientServer.Server.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_50" Guid="397B3A2F-FA16-470D-975C-1E357181738C">
+        <File Id="File_KnowledgeComponents_50" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\PSADT.ClientServer.Client.pdb" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_51" Guid="D55B4F7B-6892-41B3-A4C1-0A24B2C5CFEC">
-        <File Id="File_KnowledgeComponents_51" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\PSADT.ClientServer.Server.pdb" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_51" Guid="FF134078-D25F-48E0-84C1-0046A535EA92">
+        <File Id="File_KnowledgeComponents_51" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\PSADT.ClientServer.Server.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_52" Guid="85AAEE25-C5C1-49BE-AE63-1D356EB12EF7">
-        <File Id="File_KnowledgeComponents_52" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\PSADT.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_52" Guid="907D624A-5E7E-49C1-BEFA-1EFB7425E2FD">
+        <File Id="File_KnowledgeComponents_52" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\PSADT.ClientServer.Server.pdb" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_53" Guid="01CEF1B0-5211-4F65-B23E-78F9F71787D5">
-        <File Id="File_KnowledgeComponents_53" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\PSADT.pdb" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_53" Guid="381632AD-29C9-4F84-9CB4-B56B0C28C868">
+        <File Id="File_KnowledgeComponents_53" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\PSADT.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_54" Guid="A2A1FBC0-C809-4C52-BBB4-4BD22DB2DE56">
-        <File Id="File_KnowledgeComponents_54" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\PSADT.UserInterface.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_54" Guid="A7F89021-87C3-4981-BFF6-155C9F7674DB">
+        <File Id="File_KnowledgeComponents_54" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\PSADT.pdb" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_55" Guid="81892E83-2E85-4A70-8639-80E3CF9E9AA9">
-        <File Id="File_KnowledgeComponents_55" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\PSADT.UserInterface.pdb" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_55" Guid="260078F5-B785-49AE-9A18-8BC3450185EC">
+        <File Id="File_KnowledgeComponents_55" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\PSADT.UserInterface.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_56" Guid="8F84B5DC-98B3-4F5F-BB7A-66336C7EF7A8">
-        <File Id="File_KnowledgeComponents_56" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\System.Buffers.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_56" Guid="89FE1FCD-2000-4F81-8EB8-660A22B6872F">
+        <File Id="File_KnowledgeComponents_56" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\PSADT.UserInterface.pdb" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_57" Guid="18E09263-4EE6-4366-BDC9-E02EBB05FA07">
-        <File Id="File_KnowledgeComponents_57" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\System.IO.FileSystem.AccessControl.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_57" Guid="25C9D9BC-39F0-4F7A-9E2A-EF70DAEDF28A">
+        <File Id="File_KnowledgeComponents_57" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\System.Buffers.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_58" Guid="32EB9A9F-6E8E-459F-B78A-C710738D5C30">
-        <File Id="File_KnowledgeComponents_58" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\System.Memory.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_58" Guid="2270AA31-ACAC-47CF-BA08-B5897C1A39B3">
+        <File Id="File_KnowledgeComponents_58" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\System.IO.FileSystem.AccessControl.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_59" Guid="1D1C8756-F962-4504-A543-A9DC0B19B16E">
-        <File Id="File_KnowledgeComponents_59" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\System.Numerics.Vectors.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_59" Guid="2E85F7EB-6DFE-42DF-8D46-EF15FE1BCD51">
+        <File Id="File_KnowledgeComponents_59" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\System.Memory.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_60" Guid="56F0A4E0-5644-44A9-94F1-2A8D0A86B5E5">
-        <File Id="File_KnowledgeComponents_60" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\System.Runtime.CompilerServices.Unsafe.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_60" Guid="29477574-3BE8-4D4F-A998-9A6EA9B23261">
+        <File Id="File_KnowledgeComponents_60" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\System.Numerics.Vectors.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_61" Guid="4F30F7BB-A787-4D29-8670-FD27D0EBB7A9">
-        <File Id="File_KnowledgeComponents_61" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\System.Security.AccessControl.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_61" Guid="522CBDC3-B655-4CC6-AA22-9132F55652AD">
+        <File Id="File_KnowledgeComponents_61" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\System.Runtime.CompilerServices.Unsafe.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_62" Guid="22887183-55D3-41DD-B2CD-2EBF730EDB04">
-        <File Id="File_KnowledgeComponents_62" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\System.Security.Permissions.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_62" Guid="DF695B81-F38D-4119-88C7-27A7777D7F46">
+        <File Id="File_KnowledgeComponents_62" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\System.Security.AccessControl.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_63" Guid="453ACE9B-DC90-4683-BE8D-76EA3100B70B">
-        <File Id="File_KnowledgeComponents_63" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\System.Security.Principal.Windows.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_63" Guid="67A6DCF3-3EE4-4115-9773-D083E24E1C08">
+        <File Id="File_KnowledgeComponents_63" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\System.Security.Permissions.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_64" Guid="29686C20-3600-4DBA-9DED-D6AB861549EF">
-        <File Id="File_KnowledgeComponents_64" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\af-ZA\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_64" Guid="290E4B49-87B3-40B2-B0C1-C2F5022917D8">
+        <File Id="File_KnowledgeComponents_64" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\System.Security.Principal.Windows.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_65" Guid="AEF15F72-63CB-470D-8EA0-B52A1FD05E09">
-        <File Id="File_KnowledgeComponents_65" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\am-ET\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_65" Guid="5C4DFB22-12D7-40A0-9C50-F4A5B188FC23">
+        <File Id="File_KnowledgeComponents_65" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\af-ZA\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_66" Guid="39DDE836-08C2-4FA8-903D-A7420E1F8D93">
-        <File Id="File_KnowledgeComponents_66" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\ar-SA\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_66" Guid="07C4DC4C-7EFD-460C-BECF-586E34600D44">
+        <File Id="File_KnowledgeComponents_66" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\am-ET\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_67" Guid="F21DF7C9-AE82-4F92-A4D5-EB7C07153821">
-        <File Id="File_KnowledgeComponents_67" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\as-IN\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_67" Guid="7BF91C6E-6C83-4067-AF17-08E3E362F1B5">
+        <File Id="File_KnowledgeComponents_67" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\ar-SA\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_68" Guid="ECC44555-BA63-452D-A023-4E051843DE19">
-        <File Id="File_KnowledgeComponents_68" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\az-Latn-AZ\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_68" Guid="B50AD315-C092-4ACC-81CB-5CEFC4EAC9C3">
+        <File Id="File_KnowledgeComponents_68" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\as-IN\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_69" Guid="8979E354-C4FE-4FD8-8501-475BC2A03985">
-        <File Id="File_KnowledgeComponents_69" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\be-BY\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_69" Guid="EFB18056-56D0-42F4-9CEA-7D9839E94744">
+        <File Id="File_KnowledgeComponents_69" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\az-Latn-AZ\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_70" Guid="9C96E499-CF3E-41DF-87A1-0A3BB24F99FD">
-        <File Id="File_KnowledgeComponents_70" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\bg-BG\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_70" Guid="9BDED5A9-43AC-4FF6-A9D5-F29D36BC59AF">
+        <File Id="File_KnowledgeComponents_70" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\be-BY\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_71" Guid="88ADC52A-52DD-4B0D-B3B1-7DC7B67B44A6">
-        <File Id="File_KnowledgeComponents_71" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\bn-BD\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_71" Guid="BE1270B3-811C-4694-98A5-CCDC16F666D3">
+        <File Id="File_KnowledgeComponents_71" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\bg-BG\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_72" Guid="A45E1478-A903-4F0C-A863-97520F04906B">
-        <File Id="File_KnowledgeComponents_72" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\bn-IN\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_72" Guid="DE9D9565-5FF9-4A90-ABED-5CE5FBA9052C">
+        <File Id="File_KnowledgeComponents_72" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\bn-BD\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_73" Guid="6C545BD9-D908-4C3B-AAD6-9A258F296B8F">
-        <File Id="File_KnowledgeComponents_73" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\bs-Latn-BA\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_73" Guid="F35CEB07-0DD0-4085-97DF-7ADEF132B690">
+        <File Id="File_KnowledgeComponents_73" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\bn-IN\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_74" Guid="C85F852C-D348-4ACF-9044-0546B3021396">
-        <File Id="File_KnowledgeComponents_74" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\ca-ES\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_74" Guid="9ACEDAAA-B5EA-4C89-A325-7EB72767A273">
+        <File Id="File_KnowledgeComponents_74" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\bs-Latn-BA\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_75" Guid="6214361D-F174-4CB4-84EC-2FC753DD865F">
-        <File Id="File_KnowledgeComponents_75" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\ca-Es-VALENCIA\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_75" Guid="A9A551A3-77B4-466E-BF5F-3EEBB23D5F5C">
+        <File Id="File_KnowledgeComponents_75" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\ca-ES\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_76" Guid="3A3F7DCA-7D7A-40E7-84EB-0C8903AD7C1B">
-        <File Id="File_KnowledgeComponents_76" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\cs\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_76" Guid="F70BF820-772C-4548-8BF1-F3C6F9E7B6F8">
+        <File Id="File_KnowledgeComponents_76" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\ca-Es-VALENCIA\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_77" Guid="7D14B8BD-826A-49A7-982D-7AAB936B621F">
-        <File Id="File_KnowledgeComponents_77" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\cs-CZ\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_77" Guid="B8AA5020-5AFE-4378-A0DA-6E1EB32F8D26">
+        <File Id="File_KnowledgeComponents_77" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\cs\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_78" Guid="029E14E3-9EDB-43EB-8A4C-8F85B08A4784">
-        <File Id="File_KnowledgeComponents_78" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\cs-CZ\iNKORE.UI.WPF.Modern.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_78" Guid="BFFED1A6-7B17-4D13-8F25-B9D961FB8E96">
+        <File Id="File_KnowledgeComponents_78" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\cs-CZ\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_79" Guid="4BC13C8E-D6D7-48D6-9991-40674DE95423">
-        <File Id="File_KnowledgeComponents_79" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\cy-GB\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_79" Guid="958FCBA1-A4D5-48D4-AFBC-65138228414D">
+        <File Id="File_KnowledgeComponents_79" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\cs-CZ\iNKORE.UI.WPF.Modern.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_80" Guid="C58F3A3C-CEF8-478B-B5BD-F9782E141853">
-        <File Id="File_KnowledgeComponents_80" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\da-DK\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_80" Guid="E7F37D5A-34DB-4CC4-A271-FDDBF462ADDB">
+        <File Id="File_KnowledgeComponents_80" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\cy-GB\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_81" Guid="A20CAB83-C099-4BB8-908D-56FD3B9F835B">
-        <File Id="File_KnowledgeComponents_81" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\de\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_81" Guid="12341815-F6D6-4990-AB52-16793A198DA0">
+        <File Id="File_KnowledgeComponents_81" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\da-DK\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_82" Guid="452482E2-BCEC-407D-B4F4-74E58240CAFF">
-        <File Id="File_KnowledgeComponents_82" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\de-DE\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_82" Guid="D6FDC124-A4BA-41E5-A587-E086F1DE0CA1">
+        <File Id="File_KnowledgeComponents_82" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\de\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_83" Guid="6EB4D518-D51A-4472-918C-378D80D2F253">
-        <File Id="File_KnowledgeComponents_83" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\de-DE\iNKORE.UI.WPF.Modern.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_83" Guid="74092D94-207C-49FF-8E12-4D088B50D227">
+        <File Id="File_KnowledgeComponents_83" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\de-DE\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_84" Guid="84985126-290F-4D19-82B0-026332DB66F0">
-        <File Id="File_KnowledgeComponents_84" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\el-GR\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_84" Guid="86B59E08-CC5D-4F92-B1FB-AFAA6E3A89B7">
+        <File Id="File_KnowledgeComponents_84" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\de-DE\iNKORE.UI.WPF.Modern.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_85" Guid="323E02A1-4FEA-4800-90D3-30DB709C800F">
-        <File Id="File_KnowledgeComponents_85" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\en-GB\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_85" Guid="87281649-97DD-4DE7-A21E-432FB48BE52D">
+        <File Id="File_KnowledgeComponents_85" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\el-GR\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_86" Guid="079EC7AB-76ED-43C7-AF64-E0481BD32467">
-        <File Id="File_KnowledgeComponents_86" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\es\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_86" Guid="E125C619-C049-49ED-A46B-1BACC266D6A5">
+        <File Id="File_KnowledgeComponents_86" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\en-GB\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_87" Guid="9DCF7C1F-538E-4D59-B404-0765B06E3CA6">
-        <File Id="File_KnowledgeComponents_87" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\es-ES\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_87" Guid="E98AFCC4-AA33-4AE3-B384-D97274159D65">
+        <File Id="File_KnowledgeComponents_87" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\es\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_88" Guid="D06C3F03-7146-4B90-AB60-E33ACF28601A">
-        <File Id="File_KnowledgeComponents_88" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\es-ES\iNKORE.UI.WPF.Modern.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_88" Guid="306F1C24-2B89-4F3E-9B77-B121C95D90D5">
+        <File Id="File_KnowledgeComponents_88" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\es-ES\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_89" Guid="8EE22C90-9D3D-4525-BC6C-77D8FF3C2435">
-        <File Id="File_KnowledgeComponents_89" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\es-MX\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_89" Guid="B3010EDD-20DB-497B-AEA5-D97F7EC179DE">
+        <File Id="File_KnowledgeComponents_89" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\es-ES\iNKORE.UI.WPF.Modern.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_90" Guid="44C19725-0E99-4F7C-9798-EB414FC07A64">
-        <File Id="File_KnowledgeComponents_90" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\es-MX\iNKORE.UI.WPF.Modern.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_90" Guid="87190967-93D4-45DB-AFF1-7176A62FE283">
+        <File Id="File_KnowledgeComponents_90" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\es-MX\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_91" Guid="947A14B4-0F8C-4981-AC97-714A729DCD1C">
-        <File Id="File_KnowledgeComponents_91" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\et-EE\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_91" Guid="52250F9D-65C0-44C7-8AA7-F502CB8BFFB9">
+        <File Id="File_KnowledgeComponents_91" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\es-MX\iNKORE.UI.WPF.Modern.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_92" Guid="9BF9179B-3054-4551-8DA5-E52FDFD1BD8E">
-        <File Id="File_KnowledgeComponents_92" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\eu-ES\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_92" Guid="75C25081-A22F-4E1E-BB9D-AAE22D6055C9">
+        <File Id="File_KnowledgeComponents_92" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\et-EE\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_93" Guid="B7628B1F-A3DC-402B-A60E-2121BB49B6DF">
-        <File Id="File_KnowledgeComponents_93" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\fa\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_93" Guid="5EABC9E1-4378-4598-9C70-1EB3060B823B">
+        <File Id="File_KnowledgeComponents_93" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\eu-ES\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_94" Guid="7D632DFC-49A9-4179-B076-04AA06AB98E4">
-        <File Id="File_KnowledgeComponents_94" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\fa-IR\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_94" Guid="E925AFAA-4ACE-4147-9157-AF794D358EF3">
+        <File Id="File_KnowledgeComponents_94" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\fa\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_95" Guid="039D49B0-F1C5-47CE-BCFD-72E50D63CDC7">
-        <File Id="File_KnowledgeComponents_95" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\fa-IR\iNKORE.UI.WPF.Modern.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_95" Guid="8859B0B7-E7AC-4B0D-82EC-5F126C8CE069">
+        <File Id="File_KnowledgeComponents_95" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\fa-IR\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_96" Guid="A4B44606-8357-46B5-BA61-EFA40C3F9BDF">
-        <File Id="File_KnowledgeComponents_96" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\fi-FI\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_96" Guid="C713F32E-878D-4AE6-B3F4-5B33E338DD4E">
+        <File Id="File_KnowledgeComponents_96" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\fa-IR\iNKORE.UI.WPF.Modern.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_97" Guid="A822DDF8-32A5-45A9-ACC1-48753BCF6362">
-        <File Id="File_KnowledgeComponents_97" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\fil-PH\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_97" Guid="F48ADE23-D52F-43AD-ACC1-F821EC6173ED">
+        <File Id="File_KnowledgeComponents_97" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\fi-FI\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_98" Guid="AAAAE93E-1671-4638-B50C-6FFFEFDC1892">
-        <File Id="File_KnowledgeComponents_98" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\fr\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_98" Guid="D9E7A527-4FF2-454A-85C1-667B8C2AE1A2">
+        <File Id="File_KnowledgeComponents_98" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\fil-PH\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_99" Guid="00365CA8-C1DE-42C6-AD87-9558E65E76DB">
-        <File Id="File_KnowledgeComponents_99" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\fr-CA\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_99" Guid="C8BA258B-E246-4714-9CEF-845D8DDA5B12">
+        <File Id="File_KnowledgeComponents_99" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\fr\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_100" Guid="10B8831E-D605-4114-B4E2-1CE573C1534C">
-        <File Id="File_KnowledgeComponents_100" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\fr-CA\iNKORE.UI.WPF.Modern.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_100" Guid="D1BF3196-861A-4E30-88ED-1ED0AC0FFAE7">
+        <File Id="File_KnowledgeComponents_100" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\fr-CA\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_101" Guid="389A519A-E8EA-497C-9949-21B36BF7366D">
-        <File Id="File_KnowledgeComponents_101" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\fr-FR\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_101" Guid="BA1F6079-87A3-47C8-96D2-566B21CF2329">
+        <File Id="File_KnowledgeComponents_101" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\fr-CA\iNKORE.UI.WPF.Modern.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_102" Guid="81307581-DB3A-4D10-8310-CA9C8CCD8ECB">
-        <File Id="File_KnowledgeComponents_102" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\fr-FR\iNKORE.UI.WPF.Modern.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_102" Guid="CF1A315D-AB81-499A-B0DA-73C3EA73B280">
+        <File Id="File_KnowledgeComponents_102" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\fr-FR\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_103" Guid="410BB956-3AB8-4714-B21A-9A57E8828605">
-        <File Id="File_KnowledgeComponents_103" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\ga-IE\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_103" Guid="5F12595A-810E-402D-8D88-FBA5A3709B9E">
+        <File Id="File_KnowledgeComponents_103" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\fr-FR\iNKORE.UI.WPF.Modern.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_104" Guid="56C2F84E-4C2C-4A3B-AC13-982F6B8BDC62">
-        <File Id="File_KnowledgeComponents_104" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\gd-gb\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_104" Guid="C77023BF-9DC2-45F7-89D2-A95C3C60A03F">
+        <File Id="File_KnowledgeComponents_104" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\ga-IE\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_105" Guid="653D840F-0CAC-4257-AD3A-55FC66C32C76">
-        <File Id="File_KnowledgeComponents_105" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\gl-ES\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_105" Guid="CF782C58-708F-4257-AC5A-5D9CAACC46C4">
+        <File Id="File_KnowledgeComponents_105" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\gd-gb\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_106" Guid="B950BA5F-DE7D-4052-8D33-92BCAF299DDF">
-        <File Id="File_KnowledgeComponents_106" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\gu-IN\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_106" Guid="BB5AD32F-0BDF-47D9-B0B5-F9523F83CD61">
+        <File Id="File_KnowledgeComponents_106" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\gl-ES\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_107" Guid="6B32CEA3-673F-4484-A978-071CD010E614">
-        <File Id="File_KnowledgeComponents_107" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\ha-Latn-NG\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_107" Guid="1934C98F-B5DA-4195-9F50-C6FAF87619B3">
+        <File Id="File_KnowledgeComponents_107" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\gu-IN\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_108" Guid="32F7D7DC-6B44-4B99-AC65-169D6F07BE43">
-        <File Id="File_KnowledgeComponents_108" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\he-IL\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_108" Guid="12FB66B5-AC34-4652-BC2E-811EF0EFB330">
+        <File Id="File_KnowledgeComponents_108" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\ha-Latn-NG\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_109" Guid="1A0A6FCC-26EE-4487-9561-F93096569AF6">
-        <File Id="File_KnowledgeComponents_109" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\hi-IN\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_109" Guid="EB8E5992-8074-4D6B-9982-4920EB6B0216">
+        <File Id="File_KnowledgeComponents_109" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\he-IL\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_110" Guid="931082F8-9880-4488-8127-2D56EAC10AEB">
-        <File Id="File_KnowledgeComponents_110" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\hr-HR\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_110" Guid="A1D7DD93-2C7F-4821-9013-04773EE4BD7B">
+        <File Id="File_KnowledgeComponents_110" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\hi-IN\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_111" Guid="AE72438B-5FD0-4C11-B323-A0A216BB6493">
-        <File Id="File_KnowledgeComponents_111" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\hu-HU\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_111" Guid="1C4467D6-19B8-4FC9-8AAA-6AABC12BA9DE">
+        <File Id="File_KnowledgeComponents_111" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\hr-HR\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_112" Guid="0E1DAF4F-719C-439E-B903-975FA1194617">
-        <File Id="File_KnowledgeComponents_112" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\hy-AM\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_112" Guid="41776E52-9EA2-4B75-9B54-B43F6FFB392A">
+        <File Id="File_KnowledgeComponents_112" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\hu-HU\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_113" Guid="93D4E049-212B-4E45-9A22-C8E4EBC1092A">
-        <File Id="File_KnowledgeComponents_113" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\id-ID\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_113" Guid="95DF000E-CCAB-4910-82BD-00DE19F3CB22">
+        <File Id="File_KnowledgeComponents_113" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\hy-AM\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_114" Guid="6D069D66-05C5-4276-916C-F5FD1D0A7904">
-        <File Id="File_KnowledgeComponents_114" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\is-IS\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_114" Guid="498BD427-BC7E-475B-8B63-877D099BC477">
+        <File Id="File_KnowledgeComponents_114" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\id-ID\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_115" Guid="666FC2AD-7979-4B2B-8DE3-2C0B31519E03">
-        <File Id="File_KnowledgeComponents_115" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\it\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_115" Guid="A2D81F1C-62BC-4A6E-9F5D-4C82A45172ED">
+        <File Id="File_KnowledgeComponents_115" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\is-IS\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_116" Guid="285E662E-D64F-4FEA-934C-BD77118E910A">
-        <File Id="File_KnowledgeComponents_116" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\it-IT\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_116" Guid="FDA7EF0F-1B1F-4809-B5E0-21E60EDA7503">
+        <File Id="File_KnowledgeComponents_116" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\it\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_117" Guid="E6748466-F3DC-469B-943C-968FC09DECE1">
-        <File Id="File_KnowledgeComponents_117" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\it-IT\iNKORE.UI.WPF.Modern.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_117" Guid="C04428BA-DC76-4667-A556-25897ADEB16E">
+        <File Id="File_KnowledgeComponents_117" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\it-IT\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_118" Guid="F4383968-1DC0-45E6-BC8B-7C2678255089">
-        <File Id="File_KnowledgeComponents_118" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\ja\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_118" Guid="587D016A-5B59-4991-9856-90CD021BADB2">
+        <File Id="File_KnowledgeComponents_118" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\it-IT\iNKORE.UI.WPF.Modern.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_119" Guid="ED61130B-DC5C-44D1-90FF-37CB52929D38">
-        <File Id="File_KnowledgeComponents_119" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\ja-JP\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_119" Guid="09122B49-8FAF-49DE-A097-0F30B3DC9F1E">
+        <File Id="File_KnowledgeComponents_119" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\ja\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_120" Guid="7A852637-3521-49FE-9FB8-9FB5DD216F87">
-        <File Id="File_KnowledgeComponents_120" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\ja-JP\iNKORE.UI.WPF.Modern.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_120" Guid="20F82E2E-93D6-4402-84C2-664F9429F956">
+        <File Id="File_KnowledgeComponents_120" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\ja-JP\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_121" Guid="971F5468-2150-4D77-BE32-C720EE64B15C">
-        <File Id="File_KnowledgeComponents_121" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\ka-GE\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_121" Guid="9F1A6FCA-01E3-4E49-A6B3-E6BC27084578">
+        <File Id="File_KnowledgeComponents_121" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\ja-JP\iNKORE.UI.WPF.Modern.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_122" Guid="E87204E6-5B86-46AD-B767-9F8F0791CEC4">
-        <File Id="File_KnowledgeComponents_122" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\kk-KZ\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_122" Guid="3F588893-960A-4A16-A274-46FB04EF8652">
+        <File Id="File_KnowledgeComponents_122" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\ka-GE\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_123" Guid="B0110586-F2DF-4426-9DFB-88BC5DF9077C">
-        <File Id="File_KnowledgeComponents_123" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\km-KH\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_123" Guid="7988F239-506F-4655-9414-75345A99404B">
+        <File Id="File_KnowledgeComponents_123" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\kk-KZ\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_124" Guid="470514F9-CF20-4015-A8F1-0107031E2E55">
-        <File Id="File_KnowledgeComponents_124" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\kn-IN\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_124" Guid="7F4C077C-49D0-4115-80F7-5E7A19EF8B94">
+        <File Id="File_KnowledgeComponents_124" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\km-KH\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_125" Guid="E3F1FF17-E6FC-4B9F-B90E-87B0035810A7">
-        <File Id="File_KnowledgeComponents_125" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\ko\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_125" Guid="98A57CCC-5BF1-405B-AB54-943BDD307CBC">
+        <File Id="File_KnowledgeComponents_125" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\kn-IN\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_126" Guid="1E62E465-C626-4625-BD4C-C139FE1559A0">
-        <File Id="File_KnowledgeComponents_126" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\ko-KR\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_126" Guid="D4F1217B-7C49-46B8-8732-5B3871A39996">
+        <File Id="File_KnowledgeComponents_126" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\ko\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_127" Guid="9DC75575-FA1C-4B34-955B-5A86F95F03F4">
-        <File Id="File_KnowledgeComponents_127" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\ko-KR\iNKORE.UI.WPF.Modern.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_127" Guid="A357E579-4983-4028-8B8B-2F2A5A4209FF">
+        <File Id="File_KnowledgeComponents_127" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\ko-KR\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_128" Guid="5CCDB4C9-5B3F-4672-8D74-F235C7C86787">
-        <File Id="File_KnowledgeComponents_128" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\kok-IN\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_128" Guid="FAF19344-C659-40BF-AA90-2FCF7CAED1CA">
+        <File Id="File_KnowledgeComponents_128" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\ko-KR\iNKORE.UI.WPF.Modern.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_129" Guid="163FB65A-9146-4A20-B3D1-F8236F17732C">
-        <File Id="File_KnowledgeComponents_129" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\lb-LU\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_129" Guid="0C716B15-6734-42CC-80B6-08A90C91F2A0">
+        <File Id="File_KnowledgeComponents_129" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\kok-IN\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_130" Guid="C17B12E2-3ADC-4850-A93C-D2B6E51C0F2F">
-        <File Id="File_KnowledgeComponents_130" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\lo-LA\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_130" Guid="E3636B2A-83A9-46E0-825A-D67EEB3DBA18">
+        <File Id="File_KnowledgeComponents_130" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\lb-LU\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_131" Guid="3726B514-D802-405D-A72B-BB363629391C">
-        <File Id="File_KnowledgeComponents_131" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\lt-LT\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_131" Guid="A2F986F2-83D8-4E4D-85D9-30F6C7ACECD4">
+        <File Id="File_KnowledgeComponents_131" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\lo-LA\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_132" Guid="82BA619C-92C6-4702-8BA3-65D73EA5538A">
-        <File Id="File_KnowledgeComponents_132" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\lv-LV\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_132" Guid="D2D5735F-1FCB-4E6E-9D5E-DD3767D94ACE">
+        <File Id="File_KnowledgeComponents_132" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\lt-LT\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_133" Guid="785BCFA8-6D66-4AD7-9642-937DB8B29C41">
-        <File Id="File_KnowledgeComponents_133" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\mi-NZ\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_133" Guid="2BE24BF0-FF1B-4240-B802-311FC9D84256">
+        <File Id="File_KnowledgeComponents_133" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\lv-LV\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_134" Guid="503F8781-8C58-44E5-BD6D-4809C3A7775C">
-        <File Id="File_KnowledgeComponents_134" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\mk-MK\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_134" Guid="4BF02769-26F2-4D44-8A0D-26790F9594D9">
+        <File Id="File_KnowledgeComponents_134" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\mi-NZ\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_135" Guid="50A4293A-0DA1-4CC0-9004-F62077BBE394">
-        <File Id="File_KnowledgeComponents_135" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\ml-IN\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_135" Guid="0A938EAA-E307-4876-9321-6B4247F1693F">
+        <File Id="File_KnowledgeComponents_135" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\mk-MK\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_136" Guid="5FEAE6BA-99DA-4E7E-8643-2D8428C4A5D6">
-        <File Id="File_KnowledgeComponents_136" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\mr-IN\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_136" Guid="642477FD-3329-498A-A98B-D902B037C308">
+        <File Id="File_KnowledgeComponents_136" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\ml-IN\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_137" Guid="503579FC-B247-4B56-A727-A6B6D63615C1">
-        <File Id="File_KnowledgeComponents_137" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\ms-MY\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_137" Guid="5774139B-0B19-4E15-B638-A5518D3820FD">
+        <File Id="File_KnowledgeComponents_137" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\mr-IN\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_138" Guid="6D543D07-0A40-47C7-85D7-A4693AB6C62A">
-        <File Id="File_KnowledgeComponents_138" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\mt-MT\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_138" Guid="7BFD279C-C4AD-4DFE-9135-FEFEA9C4853C">
+        <File Id="File_KnowledgeComponents_138" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\ms-MY\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_139" Guid="FFC8420B-A87F-4F09-ACC0-D26BBC68B2F1">
-        <File Id="File_KnowledgeComponents_139" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\nb-NO\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_139" Guid="8BF745BE-2F9F-4081-83D6-6B6FD00488CB">
+        <File Id="File_KnowledgeComponents_139" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\mt-MT\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_140" Guid="D452C2F7-6598-4D9D-AF19-22335A471A11">
-        <File Id="File_KnowledgeComponents_140" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\ne-NP\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_140" Guid="EE691B05-D35A-4C0D-98C8-8C0BB49B35E0">
+        <File Id="File_KnowledgeComponents_140" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\nb-NO\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_141" Guid="E3C0D5EC-59E5-4A3C-B0D7-1DDB9FFCC393">
-        <File Id="File_KnowledgeComponents_141" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\nl-NL\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_141" Guid="3A4C3762-7F06-46C1-920C-4C746D0BBC2A">
+        <File Id="File_KnowledgeComponents_141" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\ne-NP\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_142" Guid="AA8D2C8F-DE52-4C54-B01F-9F03E9AFF575">
-        <File Id="File_KnowledgeComponents_142" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\nn-NO\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_142" Guid="C3B3DD4F-B414-4189-9C18-9BAF3C637F94">
+        <File Id="File_KnowledgeComponents_142" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\nl-NL\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_143" Guid="8EF8AE5D-9390-499B-A1E7-39AE440BDF29">
-        <File Id="File_KnowledgeComponents_143" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\or-IN\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_143" Guid="8AF3703C-023D-430A-9F07-E4EF959BA8F6">
+        <File Id="File_KnowledgeComponents_143" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\nn-NO\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_144" Guid="62D561D6-0221-47D9-8E86-4A20A74C211F">
-        <File Id="File_KnowledgeComponents_144" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\pa-IN\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_144" Guid="A7E60DC1-7639-4DDB-ABE5-3F5B78CFECB8">
+        <File Id="File_KnowledgeComponents_144" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\or-IN\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_145" Guid="E6DB0EDF-73FE-4B45-82DD-2DEE163F7AAD">
-        <File Id="File_KnowledgeComponents_145" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\pl\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_145" Guid="6B29982B-F241-48F1-B7EB-41A53CD24C4B">
+        <File Id="File_KnowledgeComponents_145" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\pa-IN\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_146" Guid="56FB6946-EC9A-41AC-B106-98E34047F2B8">
-        <File Id="File_KnowledgeComponents_146" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\pl-PL\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_146" Guid="0B00E376-D2B1-40E6-91C7-FC195AAFDD52">
+        <File Id="File_KnowledgeComponents_146" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\pl\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_147" Guid="126B0179-327F-4469-855D-EF07EF65B800">
-        <File Id="File_KnowledgeComponents_147" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\pl-PL\iNKORE.UI.WPF.Modern.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_147" Guid="125BC3D0-63B4-41BB-8997-38E6A9FAF67B">
+        <File Id="File_KnowledgeComponents_147" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\pl-PL\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_148" Guid="7899A889-1CD4-440F-9C51-275EDDDCA8E7">
-        <File Id="File_KnowledgeComponents_148" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\pt-BR\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_148" Guid="6D6B7BA9-69D3-45F8-A863-7A6B27B924EA">
+        <File Id="File_KnowledgeComponents_148" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\pl-PL\iNKORE.UI.WPF.Modern.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_149" Guid="E5C001E7-2E0C-4D66-8A73-59C7BA6CE317">
-        <File Id="File_KnowledgeComponents_149" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\pt-BR\iNKORE.UI.WPF.Modern.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_149" Guid="C395AB83-097A-431C-87E9-B7593A7C4416">
+        <File Id="File_KnowledgeComponents_149" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\pt-BR\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_150" Guid="5461FD8F-4D4A-4D40-85EC-7753D85ECCB1">
-        <File Id="File_KnowledgeComponents_150" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\pt-PT\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_150" Guid="979016E1-294D-4E8B-912E-67EE8CB2CF5C">
+        <File Id="File_KnowledgeComponents_150" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\pt-BR\iNKORE.UI.WPF.Modern.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_151" Guid="5EEBDDEE-781D-4415-ACE4-D55D4ED7622D">
-        <File Id="File_KnowledgeComponents_151" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\pt-PT\iNKORE.UI.WPF.Modern.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_151" Guid="D329236D-4DC5-4D87-9BD9-C001C87C8038">
+        <File Id="File_KnowledgeComponents_151" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\pt-PT\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_152" Guid="F16F5C6C-F9B1-42BF-B45E-84FBC74F25CE">
-        <File Id="File_KnowledgeComponents_152" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\quz-PE\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_152" Guid="1F819812-98B0-490D-850D-BE368FC02B04">
+        <File Id="File_KnowledgeComponents_152" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\pt-PT\iNKORE.UI.WPF.Modern.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_153" Guid="1BC5BA80-52D2-4339-B487-6208F2C14D3E">
-        <File Id="File_KnowledgeComponents_153" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\ro-RO\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_153" Guid="F73C4340-05F4-41F2-A4A1-D032C03C2D33">
+        <File Id="File_KnowledgeComponents_153" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\quz-PE\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_154" Guid="ECB9B720-1563-483E-A7AE-CDFBADCA9738">
-        <File Id="File_KnowledgeComponents_154" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\ru\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_154" Guid="2F9FE4C0-39B2-4008-AA7D-D4A4D103F2F5">
+        <File Id="File_KnowledgeComponents_154" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\ro-RO\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_155" Guid="FA345D23-F633-4075-B371-0B1F9EC20BF0">
-        <File Id="File_KnowledgeComponents_155" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\ru-RU\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_155" Guid="6646A170-E9EB-4762-925F-987098BA64C2">
+        <File Id="File_KnowledgeComponents_155" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\ru\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_156" Guid="275EE30D-5359-4E24-A72F-FE8A4D122191">
-        <File Id="File_KnowledgeComponents_156" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\ru-RU\iNKORE.UI.WPF.Modern.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_156" Guid="DD9E2EE1-024B-46EE-B133-C46F3479AEAB">
+        <File Id="File_KnowledgeComponents_156" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\ru-RU\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_157" Guid="2E2E817B-2F71-4597-A9EB-E48B5B76D0DA">
-        <File Id="File_KnowledgeComponents_157" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\sk-SK\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_157" Guid="C753485C-0EAE-43DC-92DB-7FBF147FF550">
+        <File Id="File_KnowledgeComponents_157" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\ru-RU\iNKORE.UI.WPF.Modern.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_158" Guid="70069EA2-F9AE-4020-8612-44F1070A3703">
-        <File Id="File_KnowledgeComponents_158" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\sl-SI\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_158" Guid="6B2D098A-5BF4-4EB2-AF4A-E00F2CB0B2B2">
+        <File Id="File_KnowledgeComponents_158" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\sk-SK\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_159" Guid="19F0A396-6780-490E-BFCB-115FE6F12B43">
-        <File Id="File_KnowledgeComponents_159" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\sq-AL\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_159" Guid="E360CADD-96CB-4468-B742-C8CC40CFD1A7">
+        <File Id="File_KnowledgeComponents_159" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\sl-SI\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_160" Guid="0035D26A-FDEB-4E3B-AF6E-B30D155A777A">
-        <File Id="File_KnowledgeComponents_160" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\sr-Cyrl-BA\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_160" Guid="D0D7368E-ACFC-4696-B2AB-09FCCABCB87C">
+        <File Id="File_KnowledgeComponents_160" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\sq-AL\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_161" Guid="4F7054A1-7AA6-4BC2-82E4-198436BCC84E">
-        <File Id="File_KnowledgeComponents_161" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\sr-Cyrl-RS\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_161" Guid="091C51A2-43C6-4710-B2EC-FDD7472CD8C9">
+        <File Id="File_KnowledgeComponents_161" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\sr-Cyrl-BA\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_162" Guid="46CD8AB0-EA82-439A-896E-0B61B48A7530">
-        <File Id="File_KnowledgeComponents_162" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\sr-Latn-RS\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_162" Guid="9B24729C-2618-4955-BDBA-BC161429D886">
+        <File Id="File_KnowledgeComponents_162" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\sr-Cyrl-RS\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_163" Guid="1A8DBE5B-0E45-4560-9412-7F4DBC8A003F">
-        <File Id="File_KnowledgeComponents_163" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\sv-SE\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_163" Guid="8FFB2077-3748-4456-9193-0085F214EE3B">
+        <File Id="File_KnowledgeComponents_163" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\sr-Latn-RS\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_164" Guid="6719B6C6-B4CE-4F1C-B39E-4583E6CF6FBA">
-        <File Id="File_KnowledgeComponents_164" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\sw-KE\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_164" Guid="4029560C-6923-4A91-BFCA-DAF02FBCC5B6">
+        <File Id="File_KnowledgeComponents_164" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\sv-SE\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_165" Guid="70F081A2-4AE9-4A2F-8C57-82CCE0D20956">
-        <File Id="File_KnowledgeComponents_165" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\ta-IN\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_165" Guid="13B3A0AD-EE2A-4BB2-BE2B-7F8F3E733F3B">
+        <File Id="File_KnowledgeComponents_165" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\sw-KE\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_166" Guid="CFAA6C76-AEAE-49B2-94CB-F755E338D5D0">
-        <File Id="File_KnowledgeComponents_166" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\te-IN\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_166" Guid="939B1102-A89C-47F4-AFB7-FA6239389DAF">
+        <File Id="File_KnowledgeComponents_166" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\ta-IN\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_167" Guid="E120CAFD-6FBD-4AEF-B663-82AF3216BDF4">
-        <File Id="File_KnowledgeComponents_167" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\th-TH\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_167" Guid="2F1F02E9-C5E3-4230-B142-A7B289EF2566">
+        <File Id="File_KnowledgeComponents_167" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\te-IN\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_168" Guid="B622C1E8-2449-4B2B-8B5A-B1AC690AD0E4">
-        <File Id="File_KnowledgeComponents_168" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\tr\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_168" Guid="DD8D1672-17AE-4CEB-84E4-94CA754CCBDE">
+        <File Id="File_KnowledgeComponents_168" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\th-TH\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_169" Guid="6B08C44A-6481-4138-B095-BB6EC8E63F21">
-        <File Id="File_KnowledgeComponents_169" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\tr-TR\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_169" Guid="FEFD74FB-004D-4D4B-85E4-1B836C253D51">
+        <File Id="File_KnowledgeComponents_169" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\tr\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_170" Guid="3006F97E-015C-4E92-A790-EC1D411EBD83">
-        <File Id="File_KnowledgeComponents_170" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\tr-TR\iNKORE.UI.WPF.Modern.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_170" Guid="D9D3A247-56D4-4306-937D-461A71C92699">
+        <File Id="File_KnowledgeComponents_170" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\tr-TR\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_171" Guid="58363117-8D3C-493F-8AF7-8B728A3AA9DA">
-        <File Id="File_KnowledgeComponents_171" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\tt-RU\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_171" Guid="6C96E14E-661C-44CB-8F89-EE52B399EAAE">
+        <File Id="File_KnowledgeComponents_171" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\tr-TR\iNKORE.UI.WPF.Modern.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_172" Guid="650D908C-D5C7-4CF6-9345-79D0CA15FD52">
-        <File Id="File_KnowledgeComponents_172" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\ug-CN\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_172" Guid="15127D31-6FD9-4DB8-ACDF-F548BA23F84E">
+        <File Id="File_KnowledgeComponents_172" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\tt-RU\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_173" Guid="3C03EA89-D01E-4C4F-A713-188A6E146DD8">
-        <File Id="File_KnowledgeComponents_173" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\uk-UA\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_173" Guid="D9F0E117-49E8-4A5F-8CBA-649C1440E50F">
+        <File Id="File_KnowledgeComponents_173" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\ug-CN\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_174" Guid="FDB0C3AD-19D8-4FDD-92A5-722526A6CC15">
-        <File Id="File_KnowledgeComponents_174" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\ur-PK\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_174" Guid="9F546573-B4A0-4A5C-9E9D-0EFE6B2E5A68">
+        <File Id="File_KnowledgeComponents_174" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\uk-UA\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_175" Guid="8DE3F0D8-7100-4B92-9403-4B624B8C0B2A">
-        <File Id="File_KnowledgeComponents_175" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\uz-Latn-UZ\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_175" Guid="8AB94912-0FF3-40EA-8039-94D95DF663B8">
+        <File Id="File_KnowledgeComponents_175" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\ur-PK\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_176" Guid="87DC08BA-11FB-47EE-BE3C-78054D916358">
-        <File Id="File_KnowledgeComponents_176" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\vi-VN\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_176" Guid="019EED4F-7249-43B5-83B3-E1732930974D">
+        <File Id="File_KnowledgeComponents_176" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\uz-Latn-UZ\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_177" Guid="F2589BA8-59A9-4B23-A0CF-6962197A9CDB">
-        <File Id="File_KnowledgeComponents_177" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\zh-CN\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_177" Guid="FE52891C-A780-44F6-8CC8-719803F194A7">
+        <File Id="File_KnowledgeComponents_177" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\vi-VN\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_178" Guid="BB6009FB-52D2-41FD-9884-9E2345E3BC64">
-        <File Id="File_KnowledgeComponents_178" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\zh-CN\iNKORE.UI.WPF.Modern.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_178" Guid="A08EE9C0-6F54-4CF8-9DA9-CD9370B78B4A">
+        <File Id="File_KnowledgeComponents_178" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\zh-CN\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_179" Guid="288233AD-E3C3-4CBE-B8EC-46F286BA3EC3">
-        <File Id="File_KnowledgeComponents_179" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\zh-Hans\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_179" Guid="20A5BDC1-51BD-4BD5-ABBD-1EF95AF63E27">
+        <File Id="File_KnowledgeComponents_179" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\zh-CN\iNKORE.UI.WPF.Modern.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_180" Guid="A003CF73-0063-4E7A-80F1-38BDA5C3EEB6">
-        <File Id="File_KnowledgeComponents_180" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\zh-Hant\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_180" Guid="81F80052-767E-4975-8FAD-A16D9D00BC41">
+        <File Id="File_KnowledgeComponents_180" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\zh-Hans\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_181" Guid="BBA37380-7EAF-486A-8E25-D6C115BD27AC">
-        <File Id="File_KnowledgeComponents_181" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\zh-TW\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_181" Guid="0969FF8A-383D-4F16-96A6-22F9D439898E">
+        <File Id="File_KnowledgeComponents_181" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\zh-Hant\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_182" Guid="ACABE295-DD1F-47A7-AA9A-893B37CE39A6">
-        <File Id="File_KnowledgeComponents_182" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\zh-TW\iNKORE.UI.WPF.Modern.resources.dll" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_182" Guid="D3B2827A-7F1B-48DD-983F-ACF546245D04">
+        <File Id="File_KnowledgeComponents_182" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\zh-TW\iNKORE.UI.WPF.Modern.Controls.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_183" Guid="387D4819-4631-4C7A-9218-3E6660F2F30F">
-        <File Id="File_KnowledgeComponents_183" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Strings\strings.psd1" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_183" Guid="8B5D6E2B-8571-49DB-8D1C-18D1296B207D">
+        <File Id="File_KnowledgeComponents_183" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\lib\zh-TW\iNKORE.UI.WPF.Modern.resources.dll" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_184" Guid="6CFA157E-CFF0-4901-884F-743A03A94012">
-        <File Id="File_KnowledgeComponents_184" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Strings\ar\strings.psd1" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_184" Guid="369B7574-F453-4D04-A4D4-CF342233984C">
+        <File Id="File_KnowledgeComponents_184" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Strings\strings.psd1" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_185" Guid="9E7047DA-71D6-4416-8CB4-66B9827B477C">
-        <File Id="File_KnowledgeComponents_185" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Strings\bg\strings.psd1" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_185" Guid="439D3FA9-0564-4CDA-B6EC-AC5DEA918F18">
+        <File Id="File_KnowledgeComponents_185" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Strings\ar\strings.psd1" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_186" Guid="801ACE7B-CC87-4C6D-A661-51AB7211E535">
-        <File Id="File_KnowledgeComponents_186" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Strings\cs\strings.psd1" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_186" Guid="91199A4E-45F7-41A2-8C64-A37CA731C7AB">
+        <File Id="File_KnowledgeComponents_186" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Strings\bg\strings.psd1" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_187" Guid="FDA7C736-81BF-4628-8422-BF3D07B9AB22">
-        <File Id="File_KnowledgeComponents_187" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Strings\da\strings.psd1" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_187" Guid="091C0EB3-4123-4170-BF2F-4F36D522BC18">
+        <File Id="File_KnowledgeComponents_187" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Strings\cs\strings.psd1" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_188" Guid="CFE145C7-7AE7-40B2-9F28-7E4F36D06BD4">
-        <File Id="File_KnowledgeComponents_188" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Strings\de\strings.psd1" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_188" Guid="71AB38A3-0091-40C9-B5B5-217AC6DF3EA3">
+        <File Id="File_KnowledgeComponents_188" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Strings\da\strings.psd1" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_189" Guid="98E910B2-0B09-4E52-AF5C-413B5398F25C">
-        <File Id="File_KnowledgeComponents_189" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Strings\el\strings.psd1" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_189" Guid="8EEF2725-1BA8-4757-9242-757CBFCC6C9B">
+        <File Id="File_KnowledgeComponents_189" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Strings\de\strings.psd1" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_190" Guid="F2A99707-18A6-4A20-AA3C-41EA0448CB2D">
-        <File Id="File_KnowledgeComponents_190" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Strings\es\strings.psd1" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_190" Guid="BDA1BA6E-E5D6-4019-8CF9-3F9DE1C93C7F">
+        <File Id="File_KnowledgeComponents_190" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Strings\el\strings.psd1" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_191" Guid="8EE27710-F53A-49BD-8757-E0CAAC5AAAAB">
-        <File Id="File_KnowledgeComponents_191" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Strings\fi\strings.psd1" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_191" Guid="ADB084EA-C7FF-4938-9170-D8E2B18B84B3">
+        <File Id="File_KnowledgeComponents_191" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Strings\es\strings.psd1" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_192" Guid="10257E76-7A23-44A8-B405-6DCC28FE8D35">
-        <File Id="File_KnowledgeComponents_192" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Strings\fr\strings.psd1" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_192" Guid="B7B62154-BC26-4BF0-8B90-D43EF4978AA7">
+        <File Id="File_KnowledgeComponents_192" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Strings\fi\strings.psd1" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_193" Guid="E43A8C07-E2E6-4AB2-A417-26C797D0F092">
-        <File Id="File_KnowledgeComponents_193" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Strings\he\strings.psd1" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_193" Guid="D4E18F6C-8674-4689-917C-0FEFBFC740F0">
+        <File Id="File_KnowledgeComponents_193" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Strings\fr\strings.psd1" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_194" Guid="786818D5-43D0-4063-9F4C-86B4D09064F0">
-        <File Id="File_KnowledgeComponents_194" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Strings\hu\strings.psd1" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_194" Guid="4AE68F1F-9E26-4D82-B8A8-648E8ABF4D6D">
+        <File Id="File_KnowledgeComponents_194" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Strings\he\strings.psd1" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_195" Guid="CE52523A-F828-4855-9D03-FCB960B057F0">
-        <File Id="File_KnowledgeComponents_195" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Strings\it\strings.psd1" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_195" Guid="B3A8325A-65F4-4345-AF63-F98CB4C8D443">
+        <File Id="File_KnowledgeComponents_195" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Strings\hu\strings.psd1" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_196" Guid="8B862B4D-26C5-4B0B-86C3-F252E2F314EC">
-        <File Id="File_KnowledgeComponents_196" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Strings\ja\strings.psd1" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_196" Guid="09996ADD-84B7-475E-840E-F867393828C1">
+        <File Id="File_KnowledgeComponents_196" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Strings\it\strings.psd1" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_197" Guid="808232C6-7F5B-4257-A3D8-9CFE6475E23F">
-        <File Id="File_KnowledgeComponents_197" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Strings\ko\strings.psd1" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_197" Guid="C80E5580-1EA8-486E-8B46-B4EA2409099B">
+        <File Id="File_KnowledgeComponents_197" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Strings\ja\strings.psd1" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_198" Guid="B83572FA-A67D-4699-A1DF-014F10201C22">
-        <File Id="File_KnowledgeComponents_198" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Strings\lv\strings.psd1" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_198" Guid="3D15C817-573A-438A-B59E-2B246EC1C419">
+        <File Id="File_KnowledgeComponents_198" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Strings\ko\strings.psd1" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_199" Guid="0AE09F8B-A9A0-4E34-8D6B-AE04A5C98F23">
-        <File Id="File_KnowledgeComponents_199" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Strings\nb\strings.psd1" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_199" Guid="E941AC0E-8ECF-4D0D-89D3-175D098E8B7F">
+        <File Id="File_KnowledgeComponents_199" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Strings\lv\strings.psd1" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_200" Guid="32A57E50-E6FD-4E1A-A0B8-99868363B58E">
-        <File Id="File_KnowledgeComponents_200" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Strings\nl\strings.psd1" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_200" Guid="92F61655-F4DC-48FE-9039-B15E015DA4C2">
+        <File Id="File_KnowledgeComponents_200" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Strings\nb\strings.psd1" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_201" Guid="A1E76F80-542D-4204-BFD6-F4DEC1FA176D">
-        <File Id="File_KnowledgeComponents_201" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Strings\pl\strings.psd1" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_201" Guid="35993BB4-2941-4520-A118-2B9DB33B01AC">
+        <File Id="File_KnowledgeComponents_201" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Strings\nl\strings.psd1" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_202" Guid="50D85F50-6F8D-437B-B219-77D5AA149D5D">
-        <File Id="File_KnowledgeComponents_202" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Strings\pt\strings.psd1" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_202" Guid="A7A957A1-3605-4F05-82BD-589B6D3669C2">
+        <File Id="File_KnowledgeComponents_202" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Strings\pl\strings.psd1" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_203" Guid="D046B650-15CE-4BCA-955B-1C0E7E99FA83">
-        <File Id="File_KnowledgeComponents_203" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Strings\pt-BR\strings.psd1" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_203" Guid="6B30DAC3-BDF3-4AB2-92E2-72711B228E1E">
+        <File Id="File_KnowledgeComponents_203" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Strings\pt\strings.psd1" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_204" Guid="D0BC8D72-C545-427B-9B21-E50DC110BFFA">
-        <File Id="File_KnowledgeComponents_204" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Strings\ru\strings.psd1" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_204" Guid="AC8EB568-088C-421C-B789-416A8012CFA9">
+        <File Id="File_KnowledgeComponents_204" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Strings\pt-BR\strings.psd1" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_205" Guid="3949389E-DD31-4972-B0A6-2F911F0BB49A">
-        <File Id="File_KnowledgeComponents_205" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Strings\sk\strings.psd1" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_205" Guid="6C4FC91E-8E8D-4663-806A-B63AED01D538">
+        <File Id="File_KnowledgeComponents_205" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Strings\ru\strings.psd1" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_206" Guid="B9F9BD96-C331-4262-AD00-CD393FDC1FFB">
-        <File Id="File_KnowledgeComponents_206" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Strings\sv\strings.psd1" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_206" Guid="3D11725F-9024-477D-AE5A-51954A743268">
+        <File Id="File_KnowledgeComponents_206" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Strings\sk\strings.psd1" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_207" Guid="F72C0D25-F506-409B-AB92-4D327B5FA7A0">
-        <File Id="File_KnowledgeComponents_207" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Strings\tr\strings.psd1" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_207" Guid="CA1FCB7B-2312-40F5-9447-9F3473EE5D97">
+        <File Id="File_KnowledgeComponents_207" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Strings\sv\strings.psd1" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_208" Guid="7D52966F-5BA1-4704-A9EE-DA251EB7D972">
-        <File Id="File_KnowledgeComponents_208" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Strings\zh-CN\strings.psd1" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_208" Guid="EE138D66-4A3C-4842-8577-E6199E82DC34">
+        <File Id="File_KnowledgeComponents_208" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Strings\tr\strings.psd1" KeyPath="yes" />
       </Component>
-      <Component Id="KnowledgeComponents_209" Guid="2741B2BB-BE18-4415-8B17-9424329ACD2B">
-        <File Id="File_KnowledgeComponents_209" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Strings\zh-HK\strings.psd1" KeyPath="yes" />
+      <Component Id="KnowledgeComponents_209" Guid="79B80A19-F53C-45B0-9026-3F9703CE8395">
+        <File Id="File_KnowledgeComponents_209" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Strings\zh-CN\strings.psd1" KeyPath="yes" />
+      </Component>
+      <Component Id="KnowledgeComponents_210" Guid="7B61CB34-623B-4935-9814-584947E80DA1">
+        <File Id="File_KnowledgeComponents_210" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit\Strings\zh-HK\strings.psd1" KeyPath="yes" />
+      </Component>
+      <Component Id="KnowledgeComponents_211" Guid="FC8B99A0-0C7B-46D6-9A88-AD2D5E4A237F">
+        <File Id="File_KnowledgeComponents_211" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit.Extensions\PSAppDeployToolkit.Extensions.psd1" KeyPath="yes" />
+      </Component>
+      <Component Id="KnowledgeComponents_212" Guid="F6A5C7EE-E999-4AE3-A479-3224C70AABD7">
+        <File Id="File_KnowledgeComponents_212" Source="$(var.SourceDir)\dist\knowledge\v4github\PSAppDeployToolkit.Extensions\PSAppDeployToolkit.Extensions.psm1" KeyPath="yes" />
+      </Component>
+      <Component Id="KnowledgeComponents_213" Guid="026E4D99-1391-424C-91FF-060D4FE3BF6D">
+        <File Id="File_KnowledgeComponents_213" Source="$(var.SourceDir)\dist\knowledge\v4github\Strings\strings.psd1" KeyPath="yes" />
+      </Component>
+      <Component Id="KnowledgeComponents_214" Guid="BEBB4EAB-CC56-4FB6-8657-E8745EE7BDA0">
+        <File Id="File_KnowledgeComponents_214" Source="$(var.SourceDir)\dist\knowledge\v4github\Strings\ar\strings.psd1" KeyPath="yes" />
+      </Component>
+      <Component Id="KnowledgeComponents_215" Guid="ABED3A73-4342-4309-B717-67FC66AFD601">
+        <File Id="File_KnowledgeComponents_215" Source="$(var.SourceDir)\dist\knowledge\v4github\Strings\bg\strings.psd1" KeyPath="yes" />
+      </Component>
+      <Component Id="KnowledgeComponents_216" Guid="05E5DE33-8448-4533-95C6-B7A981EC621E">
+        <File Id="File_KnowledgeComponents_216" Source="$(var.SourceDir)\dist\knowledge\v4github\Strings\cs\strings.psd1" KeyPath="yes" />
+      </Component>
+      <Component Id="KnowledgeComponents_217" Guid="7EB2352C-817C-419D-AF7A-8E970ECB30D8">
+        <File Id="File_KnowledgeComponents_217" Source="$(var.SourceDir)\dist\knowledge\v4github\Strings\da\strings.psd1" KeyPath="yes" />
+      </Component>
+      <Component Id="KnowledgeComponents_218" Guid="7B4734A4-E345-486D-A070-DE8DB444984C">
+        <File Id="File_KnowledgeComponents_218" Source="$(var.SourceDir)\dist\knowledge\v4github\Strings\de\strings.psd1" KeyPath="yes" />
+      </Component>
+      <Component Id="KnowledgeComponents_219" Guid="937574F1-1111-44EE-A46E-9F4EF1C133DE">
+        <File Id="File_KnowledgeComponents_219" Source="$(var.SourceDir)\dist\knowledge\v4github\Strings\el\strings.psd1" KeyPath="yes" />
+      </Component>
+      <Component Id="KnowledgeComponents_220" Guid="F9D0883F-E11A-4337-B8EA-20C6F43C0508">
+        <File Id="File_KnowledgeComponents_220" Source="$(var.SourceDir)\dist\knowledge\v4github\Strings\es\strings.psd1" KeyPath="yes" />
+      </Component>
+      <Component Id="KnowledgeComponents_221" Guid="EC071A13-9C9C-4687-BCF3-109FD1C085AD">
+        <File Id="File_KnowledgeComponents_221" Source="$(var.SourceDir)\dist\knowledge\v4github\Strings\fi\strings.psd1" KeyPath="yes" />
+      </Component>
+      <Component Id="KnowledgeComponents_222" Guid="21275F0B-359F-43C6-88ED-2AFA86893D8C">
+        <File Id="File_KnowledgeComponents_222" Source="$(var.SourceDir)\dist\knowledge\v4github\Strings\fr\strings.psd1" KeyPath="yes" />
+      </Component>
+      <Component Id="KnowledgeComponents_223" Guid="6B016A05-3BD2-4DCF-96DB-A95346FFFDF7">
+        <File Id="File_KnowledgeComponents_223" Source="$(var.SourceDir)\dist\knowledge\v4github\Strings\he\strings.psd1" KeyPath="yes" />
+      </Component>
+      <Component Id="KnowledgeComponents_224" Guid="E87C36D4-1ADD-45AA-8CEF-EA6FBBED3BC9">
+        <File Id="File_KnowledgeComponents_224" Source="$(var.SourceDir)\dist\knowledge\v4github\Strings\hu\strings.psd1" KeyPath="yes" />
+      </Component>
+      <Component Id="KnowledgeComponents_225" Guid="7021EF2C-0C45-473E-B9C2-66335F7C2E9D">
+        <File Id="File_KnowledgeComponents_225" Source="$(var.SourceDir)\dist\knowledge\v4github\Strings\it\strings.psd1" KeyPath="yes" />
+      </Component>
+      <Component Id="KnowledgeComponents_226" Guid="E6621DC2-6870-4EC6-81A2-DC8FDFFEC7F1">
+        <File Id="File_KnowledgeComponents_226" Source="$(var.SourceDir)\dist\knowledge\v4github\Strings\ja\strings.psd1" KeyPath="yes" />
+      </Component>
+      <Component Id="KnowledgeComponents_227" Guid="AD13C08E-1F0F-4F8F-9A37-E9877097944A">
+        <File Id="File_KnowledgeComponents_227" Source="$(var.SourceDir)\dist\knowledge\v4github\Strings\ko\strings.psd1" KeyPath="yes" />
+      </Component>
+      <Component Id="KnowledgeComponents_228" Guid="EDC28675-14A6-4C44-A8FF-A4C4963A6CAD">
+        <File Id="File_KnowledgeComponents_228" Source="$(var.SourceDir)\dist\knowledge\v4github\Strings\lv\strings.psd1" KeyPath="yes" />
+      </Component>
+      <Component Id="KnowledgeComponents_229" Guid="F631A34C-5595-49F1-848B-D5E274DCEF30">
+        <File Id="File_KnowledgeComponents_229" Source="$(var.SourceDir)\dist\knowledge\v4github\Strings\nb\strings.psd1" KeyPath="yes" />
+      </Component>
+      <Component Id="KnowledgeComponents_230" Guid="958057F2-2F31-41D3-9A81-DD9CF430A6FF">
+        <File Id="File_KnowledgeComponents_230" Source="$(var.SourceDir)\dist\knowledge\v4github\Strings\nl\strings.psd1" KeyPath="yes" />
+      </Component>
+      <Component Id="KnowledgeComponents_231" Guid="EC4340F4-494E-44FC-A705-3FAD1DCE6F0E">
+        <File Id="File_KnowledgeComponents_231" Source="$(var.SourceDir)\dist\knowledge\v4github\Strings\pl\strings.psd1" KeyPath="yes" />
+      </Component>
+      <Component Id="KnowledgeComponents_232" Guid="171DFFF5-BFF7-415B-8CE3-3FDB61BF239A">
+        <File Id="File_KnowledgeComponents_232" Source="$(var.SourceDir)\dist\knowledge\v4github\Strings\pt\strings.psd1" KeyPath="yes" />
+      </Component>
+      <Component Id="KnowledgeComponents_233" Guid="4DF6A781-7D7C-48BF-9604-9985F763EBF6">
+        <File Id="File_KnowledgeComponents_233" Source="$(var.SourceDir)\dist\knowledge\v4github\Strings\pt-BR\strings.psd1" KeyPath="yes" />
+      </Component>
+      <Component Id="KnowledgeComponents_234" Guid="1E17CD28-24D6-4351-AE2E-7829EB542A0A">
+        <File Id="File_KnowledgeComponents_234" Source="$(var.SourceDir)\dist\knowledge\v4github\Strings\ru\strings.psd1" KeyPath="yes" />
+      </Component>
+      <Component Id="KnowledgeComponents_235" Guid="B2B4331E-58BE-4B02-86B4-694E95E4C472">
+        <File Id="File_KnowledgeComponents_235" Source="$(var.SourceDir)\dist\knowledge\v4github\Strings\sk\strings.psd1" KeyPath="yes" />
+      </Component>
+      <Component Id="KnowledgeComponents_236" Guid="982C69E4-1E2C-4FD5-8356-94B9814796FC">
+        <File Id="File_KnowledgeComponents_236" Source="$(var.SourceDir)\dist\knowledge\v4github\Strings\sv\strings.psd1" KeyPath="yes" />
+      </Component>
+      <Component Id="KnowledgeComponents_237" Guid="2A66F84A-12C6-4FFE-9683-850627A66C2B">
+        <File Id="File_KnowledgeComponents_237" Source="$(var.SourceDir)\dist\knowledge\v4github\Strings\tr\strings.psd1" KeyPath="yes" />
+      </Component>
+      <Component Id="KnowledgeComponents_238" Guid="87EAB516-1DAE-47A5-A212-38569E918574">
+        <File Id="File_KnowledgeComponents_238" Source="$(var.SourceDir)\dist\knowledge\v4github\Strings\zh-CN\strings.psd1" KeyPath="yes" />
+      </Component>
+      <Component Id="KnowledgeComponents_239" Guid="A1CCE96F-C0F9-4C4B-9079-F1CE84FC3251">
+        <File Id="File_KnowledgeComponents_239" Source="$(var.SourceDir)\dist\knowledge\v4github\Strings\zh-HK\strings.psd1" KeyPath="yes" />
+      </Component>
+      <Component Id="KnowledgeComponents_240" Guid="BEF0B97B-39A1-4F80-B5C5-CFDE171BC488">
+        <File Id="File_KnowledgeComponents_240" Source="$(var.SourceDir)\dist\knowledge\v4github\SupportFiles\Add Supporting Files Here.txt" KeyPath="yes" />
       </Component>
     </ComponentGroup>
   </Fragment>

@@ -39,7 +39,10 @@
       "Bash(grep:*)",
       "Bash(powershell.exe:*)",
       "Bash(powershell:*)",
-      "Bash(cmd /c \"cd /d C:\\\\Users\\\\W365CA\\\\Documents\\\\GitHub\\\\Packager-MCP\\\\installer && dotnet build -c Debug\")"
+      "Bash(cmd /c \"cd /d C:\\\\Users\\\\W365CA\\\\Documents\\\\GitHub\\\\Packager-MCP\\\\installer && dotnet build -c Debug\")",
+      "Bash(npm install:*)",
+      "Bash(az account show:*)",
+      "Bash(az login:*)"
     ],
     "deny": [],
     "ask": []

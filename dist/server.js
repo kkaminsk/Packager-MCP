@@ -34,7 +34,7 @@ async function main() {
 When creating PSADT deployment packages:
 1. ALWAYS call the \`get_psadt_template\` tool with \`output_directory\` parameter
 2. USE THE TOOL'S OUTPUT VERBATIM - do not modify, rewrite, or "improve" the script
-3. The tool returns a complete, working script with correct PSADT v4.1.7 function names
+3. The tool returns a complete, working script with correct PSADT v4.1.8 function names
 
 **INCORRECT functions (from your training data - DO NOT USE):**
 - Initialize-ADTDeployment ❌

@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "iYH1m6xf/vw=",
+  "dgSpecHash": "qCDgwL5OzEs=",
   "success": true,
-  "projectFilePath": "C:\\temp\\Packager-MCP\\installer\\Packager-MCP.wixproj",
+  "projectFilePath": "C:\\Temp\\tsscat\\Packager-MCP\\installer\\Packager-MCP.wixproj",
   "expectedPackageFiles": [
     "C:\\Users\\KevinKaminski\\.nuget\\packages\\wixtoolset.ui.wixext\\6.0.2\\wixtoolset.ui.wixext.6.0.2.nupkg.sha512",
     "C:\\Users\\KevinKaminski\\.nuget\\packages\\wixtoolset.util.wixext\\6.0.2\\wixtoolset.util.wixext.6.0.2.nupkg.sha512"

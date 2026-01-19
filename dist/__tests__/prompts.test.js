@@ -57,7 +57,7 @@ vi.mock('../services/psadt.js', () => ({
                 metadata: {
                     complexity: 'standard',
                     installerType: 'exe',
-                    psadtVersion: '4.1.7',
+                    psadtVersion: '4.1.8',
                     generatedAt: '2024-01-01T00:00:00.000Z',
                     templateVersion: '1.0.0',
                 },

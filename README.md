@@ -85,7 +85,7 @@ msiexec /i "Packager-MCP-1.0.0.msi" /qn /norestart /l*v "C:\temp\packager-mcp-in
 
 2. Configure Claude CLI:
    ```bash
-   claude mcp add packager-mcp -s user -- node "C:\Program Files\Packager-MCP\dist\server.js"
+   claude mcp add packager-mcp -s user -e GITHUB_TOKEN=ghp_your_token_here -- node "C:/path/to/Packager-MCP/dist/server.js"
    ```
 
 **Uninstall:**

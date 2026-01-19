@@ -62,13 +62,12 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\temp\\Packager-MCP\\installer\\Packager-MCP.wixproj",
-      "projectName": "Packager-MCP-1.0.0",
-      "projectPath": "C:\\temp\\Packager-MCP\\installer\\Packager-MCP.wixproj",
+      "projectUniqueName": "C:\\Temp\\tsscat\\Packager-MCP\\installer\\Packager-MCP.wixproj",
+      "projectName": "Packager-MCP-",
+      "projectPath": "C:\\Temp\\tsscat\\Packager-MCP\\installer\\Packager-MCP.wixproj",
       "packagesPath": "C:\\Users\\KevinKaminski\\.nuget\\packages\\",
-      "outputPath": "C:\\temp\\Packager-MCP\\installer\\obj\\",
+      "outputPath": "C:\\Temp\\tsscat\\Packager-MCP\\installer\\obj\\",
       "projectStyle": "PackageReference",
-      "UsingMicrosoftNETSdk": false,
       "configFilePaths": [
         "C:\\Users\\KevinKaminski\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
@@ -76,7 +75,7 @@
         "native"
       ],
       "sources": {
-        "https://api.nuget.org/v3/index.json": {}
+        "https://www.nuget.org/api/v2": {}
       },
       "frameworks": {
         "native": {
