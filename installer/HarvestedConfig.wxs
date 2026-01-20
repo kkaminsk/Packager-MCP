@@ -2,52 +2,52 @@
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
   <Fragment>
     <ComponentGroup Id="ConfigComponents" Directory="DistConfigDir">
-      <Component Id="ConfigComponents_1" Guid="56464FC0-7018-4113-977C-656516F13DC8">
+      <Component Id="ConfigComponents_1" Guid="4C95D139-E31B-4D00-95D2-B642A58ACBF2">
         <File Id="File_ConfigComponents_1" Source="$(var.SourceDir)\dist\config\index.d.ts" KeyPath="yes" />
       </Component>
-      <Component Id="ConfigComponents_2" Guid="FC84ACB0-DB21-4E1B-9B31-586170E40730">
+      <Component Id="ConfigComponents_2" Guid="D7504FC0-9FF0-4E35-8856-86DCAE9CE1DA">
         <File Id="File_ConfigComponents_2" Source="$(var.SourceDir)\dist\config\index.d.ts.map" KeyPath="yes" />
       </Component>
-      <Component Id="ConfigComponents_3" Guid="819201EE-EDB9-4584-A126-DE467524E02E">
+      <Component Id="ConfigComponents_3" Guid="3169B3FB-6DA4-46F9-B995-2E65A3F60983">
         <File Id="File_ConfigComponents_3" Source="$(var.SourceDir)\dist\config\index.js" KeyPath="yes" />
       </Component>
-      <Component Id="ConfigComponents_4" Guid="372F7765-4E2D-4462-8113-E0C76700244E">
+      <Component Id="ConfigComponents_4" Guid="7F02E087-5A8E-4478-83C4-E9EA54F23D47">
         <File Id="File_ConfigComponents_4" Source="$(var.SourceDir)\dist\config\index.js.map" KeyPath="yes" />
       </Component>
-      <Component Id="ConfigComponents_5" Guid="62A68893-5AF7-4344-BC53-55F9855006B2">
+      <Component Id="ConfigComponents_5" Guid="7BE8B02C-4DEC-47B8-8BDB-1024AF9D1E7A">
         <File Id="File_ConfigComponents_5" Source="$(var.SourceDir)\dist\config\intune-config.d.ts" KeyPath="yes" />
       </Component>
-      <Component Id="ConfigComponents_6" Guid="90AF23EF-8524-4AAD-A680-B16E760B1424">
+      <Component Id="ConfigComponents_6" Guid="83CF508F-2C8B-4985-A395-7E891B1DC9F3">
         <File Id="File_ConfigComponents_6" Source="$(var.SourceDir)\dist\config\intune-config.d.ts.map" KeyPath="yes" />
       </Component>
-      <Component Id="ConfigComponents_7" Guid="826B7B80-5200-429B-BED4-D97CBA0671D6">
+      <Component Id="ConfigComponents_7" Guid="CFD18541-1816-4683-9499-EE3E5612433C">
         <File Id="File_ConfigComponents_7" Source="$(var.SourceDir)\dist\config\intune-config.js" KeyPath="yes" />
       </Component>
-      <Component Id="ConfigComponents_8" Guid="B78198E8-9984-4EC4-8B28-B9CCD90F6B8F">
+      <Component Id="ConfigComponents_8" Guid="0CDCD968-1B80-448D-B20F-2E927D5B356C">
         <File Id="File_ConfigComponents_8" Source="$(var.SourceDir)\dist\config\intune-config.js.map" KeyPath="yes" />
       </Component>
-      <Component Id="ConfigComponents_9" Guid="245921CB-728A-4CD8-8955-8BF9C0EF4879">
+      <Component Id="ConfigComponents_9" Guid="C9AA38E4-0D9A-4E7F-BC39-2D29FC2A10C5">
         <File Id="File_ConfigComponents_9" Source="$(var.SourceDir)\dist\config\loader.d.ts" KeyPath="yes" />
       </Component>
-      <Component Id="ConfigComponents_10" Guid="CC02D8E3-7732-4247-8227-E928C6EF395B">
+      <Component Id="ConfigComponents_10" Guid="D34AEB23-7417-47BE-8C23-B879F2319165">
         <File Id="File_ConfigComponents_10" Source="$(var.SourceDir)\dist\config\loader.d.ts.map" KeyPath="yes" />
       </Component>
-      <Component Id="ConfigComponents_11" Guid="E931A344-FEA3-4341-BDDC-39AA2A009048">
+      <Component Id="ConfigComponents_11" Guid="B0776616-1CA0-4792-9E36-5DC20C01C3E3">
         <File Id="File_ConfigComponents_11" Source="$(var.SourceDir)\dist\config\loader.js" KeyPath="yes" />
       </Component>
-      <Component Id="ConfigComponents_12" Guid="16E7B28A-571C-46EF-96FF-16B9FAED906C">
+      <Component Id="ConfigComponents_12" Guid="789C7CF5-3174-4652-8CB1-E15E77FC5E78">
         <File Id="File_ConfigComponents_12" Source="$(var.SourceDir)\dist\config\loader.js.map" KeyPath="yes" />
       </Component>
-      <Component Id="ConfigComponents_13" Guid="AC8E4633-F2E7-4053-81E9-969AD9CD7D4C">
+      <Component Id="ConfigComponents_13" Guid="BFCA043D-4C20-45FF-9538-65F5B434883A">
         <File Id="File_ConfigComponents_13" Source="$(var.SourceDir)\dist\config\schema.d.ts" KeyPath="yes" />
       </Component>
-      <Component Id="ConfigComponents_14" Guid="4D324061-F034-462B-8429-CB66DE5B2DBB">
+      <Component Id="ConfigComponents_14" Guid="6B985B73-6F3C-4C8F-87DD-404C2097E4DC">
         <File Id="File_ConfigComponents_14" Source="$(var.SourceDir)\dist\config\schema.d.ts.map" KeyPath="yes" />
       </Component>
-      <Component Id="ConfigComponents_15" Guid="5163C636-0637-4EE0-A0F4-9F250300552B">
+      <Component Id="ConfigComponents_15" Guid="192913C9-8AF1-4458-84B6-2616B0CBAA76">
         <File Id="File_ConfigComponents_15" Source="$(var.SourceDir)\dist\config\schema.js" KeyPath="yes" />
       </Component>
-      <Component Id="ConfigComponents_16" Guid="568786FB-4AE6-4A02-9FB8-030BADB64163">
+      <Component Id="ConfigComponents_16" Guid="633CA5AB-5E18-4976-8073-15D6EB7B8F26">
         <File Id="File_ConfigComponents_16" Source="$(var.SourceDir)\dist\config\schema.js.map" KeyPath="yes" />
       </Component>
     </ComponentGroup>

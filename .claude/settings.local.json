@@ -42,7 +42,9 @@
       "Bash(cmd /c \"cd /d C:\\\\Users\\\\W365CA\\\\Documents\\\\GitHub\\\\Packager-MCP\\\\installer && dotnet build -c Debug\")",
       "Bash(npm install:*)",
       "Bash(az account show:*)",
-      "Bash(az login:*)"
+      "Bash(az login:*)",
+      "Bash(Get-Content \"C:\\\\Users\\\\KevinKaminski\\\\.claude\\\\projects\\\\C--Temp-tsscat-Packager-MCP\\\\6e59700c-0d6b-4908-87f3-228daa4cd0d1\\\\tool-results\\\\toolu_0124uCxefVTwfWRM8SCdWt6R.txt\")",
+      "Bash(Select-Object -Last 30)"
     ],
     "deny": [],
     "ask": []

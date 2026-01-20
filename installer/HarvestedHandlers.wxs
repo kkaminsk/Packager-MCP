@@ -2,52 +2,52 @@
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
   <Fragment>
     <ComponentGroup Id="HandlersComponents" Directory="DistHandlersDir">
-      <Component Id="HandlersComponents_1" Guid="FE5BC473-7CB6-47EC-B942-5270B4594E3C">
+      <Component Id="HandlersComponents_1" Guid="FFD4439E-A66F-4F1D-B957-81F59FD95D55">
         <File Id="File_HandlersComponents_1" Source="$(var.SourceDir)\dist\handlers\index.d.ts" KeyPath="yes" />
       </Component>
-      <Component Id="HandlersComponents_2" Guid="CE1922D3-193D-4D39-8558-FB06CD775C1A">
+      <Component Id="HandlersComponents_2" Guid="861101A4-E09E-437E-B0F4-E58E5238F53E">
         <File Id="File_HandlersComponents_2" Source="$(var.SourceDir)\dist\handlers\index.d.ts.map" KeyPath="yes" />
       </Component>
-      <Component Id="HandlersComponents_3" Guid="A2F7EA9E-DAC5-4AD9-BEEF-15C9DF626EA4">
+      <Component Id="HandlersComponents_3" Guid="C3EDDB4A-932B-41CD-8396-A84B56ADAC33">
         <File Id="File_HandlersComponents_3" Source="$(var.SourceDir)\dist\handlers\index.js" KeyPath="yes" />
       </Component>
-      <Component Id="HandlersComponents_4" Guid="EBA2FF0B-0282-48CA-B7A6-5CC0A48AB0B9">
+      <Component Id="HandlersComponents_4" Guid="FAD4F5F3-1104-49C6-868A-014E2AD58237">
         <File Id="File_HandlersComponents_4" Source="$(var.SourceDir)\dist\handlers\index.js.map" KeyPath="yes" />
       </Component>
-      <Component Id="HandlersComponents_5" Guid="CB4C859B-CD97-496C-A12B-D27347B36633">
+      <Component Id="HandlersComponents_5" Guid="1380629B-B904-4D01-ADE0-637207C9BF36">
         <File Id="File_HandlersComponents_5" Source="$(var.SourceDir)\dist\handlers\prompts.d.ts" KeyPath="yes" />
       </Component>
-      <Component Id="HandlersComponents_6" Guid="B3E374B4-550E-4D14-8F2F-70A09BBDB6ED">
+      <Component Id="HandlersComponents_6" Guid="C13229EF-11BB-48EA-BCF7-1E96328B59FB">
         <File Id="File_HandlersComponents_6" Source="$(var.SourceDir)\dist\handlers\prompts.d.ts.map" KeyPath="yes" />
       </Component>
-      <Component Id="HandlersComponents_7" Guid="D5F7F4A7-4F56-49A4-98B3-FDD86CA0BDCB">
+      <Component Id="HandlersComponents_7" Guid="A54406D5-67FD-4849-A7DD-E70334A49C70">
         <File Id="File_HandlersComponents_7" Source="$(var.SourceDir)\dist\handlers\prompts.js" KeyPath="yes" />
       </Component>
-      <Component Id="HandlersComponents_8" Guid="F7DE6307-643D-4D0F-819D-B44397B974CE">
+      <Component Id="HandlersComponents_8" Guid="6FFC6816-280D-4A48-BFF1-E20CA70F61DD">
         <File Id="File_HandlersComponents_8" Source="$(var.SourceDir)\dist\handlers\prompts.js.map" KeyPath="yes" />
       </Component>
-      <Component Id="HandlersComponents_9" Guid="00AF0D2B-D0D2-47CD-A6D1-5BF3DC51D510">
+      <Component Id="HandlersComponents_9" Guid="69308816-079F-439D-81AB-190D7C986DDF">
         <File Id="File_HandlersComponents_9" Source="$(var.SourceDir)\dist\handlers\resources.d.ts" KeyPath="yes" />
       </Component>
-      <Component Id="HandlersComponents_10" Guid="C6BD985A-3216-4E0B-AD90-CA1EBE183669">
+      <Component Id="HandlersComponents_10" Guid="637A8D0F-6F50-4B14-BAFD-9388A0016773">
         <File Id="File_HandlersComponents_10" Source="$(var.SourceDir)\dist\handlers\resources.d.ts.map" KeyPath="yes" />
       </Component>
-      <Component Id="HandlersComponents_11" Guid="4B5A8CB4-5F65-4247-B1A7-880CED988B64">
+      <Component Id="HandlersComponents_11" Guid="EEA61324-7B99-410A-8D9E-0E57E1E6962C">
         <File Id="File_HandlersComponents_11" Source="$(var.SourceDir)\dist\handlers\resources.js" KeyPath="yes" />
       </Component>
-      <Component Id="HandlersComponents_12" Guid="A916407B-5271-43A2-BB11-FD4CA7D13A3B">
+      <Component Id="HandlersComponents_12" Guid="037F5FD0-4749-4224-A8E2-511DEAD16398">
         <File Id="File_HandlersComponents_12" Source="$(var.SourceDir)\dist\handlers\resources.js.map" KeyPath="yes" />
       </Component>
-      <Component Id="HandlersComponents_13" Guid="3F1496C8-42A4-449A-B4F0-3E435F914917">
+      <Component Id="HandlersComponents_13" Guid="3C0D79FD-BB7D-46D7-ADAE-85234930995E">
         <File Id="File_HandlersComponents_13" Source="$(var.SourceDir)\dist\handlers\tools.d.ts" KeyPath="yes" />
       </Component>
-      <Component Id="HandlersComponents_14" Guid="978CB571-2B53-4B0B-AB3B-8A6769DE0CA1">
+      <Component Id="HandlersComponents_14" Guid="F8077D9C-EE18-4AA6-A025-9FF2E46E65E1">
         <File Id="File_HandlersComponents_14" Source="$(var.SourceDir)\dist\handlers\tools.d.ts.map" KeyPath="yes" />
       </Component>
-      <Component Id="HandlersComponents_15" Guid="503E6F84-CB2B-4984-A207-C5F9F3860387">
+      <Component Id="HandlersComponents_15" Guid="C70D0D03-BBD7-44AE-AD7B-73BA524957EB">
         <File Id="File_HandlersComponents_15" Source="$(var.SourceDir)\dist\handlers\tools.js" KeyPath="yes" />
       </Component>
-      <Component Id="HandlersComponents_16" Guid="A2F79280-062C-4D5A-9DFE-6081A161A291">
+      <Component Id="HandlersComponents_16" Guid="803CFDD2-3418-45B7-9E7E-EBBE360F22DA">
         <File Id="File_HandlersComponents_16" Source="$(var.SourceDir)\dist\handlers\tools.js.map" KeyPath="yes" />
       </Component>
     </ComponentGroup>

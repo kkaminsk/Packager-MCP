@@ -92,6 +92,13 @@
       <Directory Id="ApplicationProgramsFolder" Name="Packager-MCP" />
     </StandardDirectory>
 
+    <!-- Project Folder at C:\Temp\Packager-MCP -->
+    <Property Id="PROJECTFOLDER" Value="C:\Temp\Packager-MCP" />
+    <StandardDirectory Id="CommonAppDataFolder">
+      <Directory Id="ProjectFolder" Name="Packager-MCP-Project" />
+    </StandardDirectory>
+    <SetDirectory Id="ProjectFolder" Value="[PROJECTFOLDER]" Sequence="first" />
+
     <!-- Feature Definitions -->
     <Feature Id="ProductFeature" Title="Packager-MCP" Description="MCP server for Windows application packaging" Level="1" Display="expand">
       <Feature Id="CoreFeature" Title="MCP Server" Description="Core MCP server files (required)" Level="1" AllowAbsent="no">
@@ -118,6 +125,10 @@
 
       <Feature Id="ShortcutsFeature" Title="Start Menu Shortcuts" Description="Add shortcuts to Start Menu" Level="1" AllowAbsent="yes">
         <ComponentGroupRef Id="ShortcutComponents" />
+      </Feature>
+
+      <Feature Id="ProjectFolderFeature" Title="Project Folder" Description="Create C:\Temp\Packager-MCP working folder with CLAUDE.md" Level="1" AllowAbsent="yes">
+        <ComponentGroupRef Id="ProjectFolderComponents" />
       </Feature>
     </Feature>
 
@@ -185,8 +196,17 @@
         <Shortcut Id="ReadmeShortcut" Name="Packager-MCP Readme"
                   Description="Configuration instructions for Packager-MCP"
                   Target="[INSTALLFOLDER]Readme.txt" WorkingDirectory="INSTALLFOLDER" />
+        <Shortcut Id="ProjectFolderShortcut" Name="Packager-MCP Project Folder"
+                  Description="Open the Packager-MCP project working folder"
+                  Target="[ProjectFolder]" WorkingDirectory="ProjectFolder" />
         <RemoveFolder Id="RemoveApplicationProgramsFolder" On="uninstall" />
         <RegistryValue Root="HKCU" Key="Software\Packager-MCP" Name="StartMenuShortcuts" Type="integer" Value="1" KeyPath="yes" />
+      </Component>
+    </ComponentGroup>
+
+    <ComponentGroup Id="ProjectFolderComponents" Directory="ProjectFolder">
+      <Component Id="ProjectFolderClaudeMd">
+        <File Id="ClaudeMdFile" Source="$(var.SourceDir)\Packaging_Files\Claude_NewPackage.md" Name="CLAUDE.md" KeyPath="yes" />
       </Component>
     </ComponentGroup>
   </Fragment>
