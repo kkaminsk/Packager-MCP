@@ -2,40 +2,40 @@
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
   <Fragment>
     <ComponentGroup Id="UtilsComponents" Directory="DistUtilsDir">
-      <Component Id="UtilsComponents_1" Guid="E68AD624-8578-4486-82BD-6D25C6CCAF96">
+      <Component Id="UtilsComponents_1" Guid="1BAE0335-9192-4960-80B4-D7DD8D19F393">
         <File Id="File_UtilsComponents_1" Source="$(var.SourceDir)\dist\utils\errors.d.ts" KeyPath="yes" />
       </Component>
-      <Component Id="UtilsComponents_2" Guid="B6F552F1-C51C-42E1-8336-E319772431A7">
+      <Component Id="UtilsComponents_2" Guid="9C6C4060-DAB0-4174-9E3D-576568484F59">
         <File Id="File_UtilsComponents_2" Source="$(var.SourceDir)\dist\utils\errors.d.ts.map" KeyPath="yes" />
       </Component>
-      <Component Id="UtilsComponents_3" Guid="D5419766-7E6F-4866-BA6E-21C1B6246651">
+      <Component Id="UtilsComponents_3" Guid="7F0EBCD3-BA41-4EB2-8CA8-635B6070F66C">
         <File Id="File_UtilsComponents_3" Source="$(var.SourceDir)\dist\utils\errors.js" KeyPath="yes" />
       </Component>
-      <Component Id="UtilsComponents_4" Guid="7CA2939F-52A1-4FFA-9AD1-10840F59127E">
+      <Component Id="UtilsComponents_4" Guid="6CEDD8FB-F0C9-4D1E-8642-773CD349B1A5">
         <File Id="File_UtilsComponents_4" Source="$(var.SourceDir)\dist\utils\errors.js.map" KeyPath="yes" />
       </Component>
-      <Component Id="UtilsComponents_5" Guid="6A8D8B34-ED18-4086-9218-38A2EBC41E39">
+      <Component Id="UtilsComponents_5" Guid="EB4B9F7F-5D6B-42DA-A018-2D7A6B4750F7">
         <File Id="File_UtilsComponents_5" Source="$(var.SourceDir)\dist\utils\index.d.ts" KeyPath="yes" />
       </Component>
-      <Component Id="UtilsComponents_6" Guid="09383CB7-136E-4FC8-AF8E-707C646E1CF4">
+      <Component Id="UtilsComponents_6" Guid="811D5F4D-0550-4C3B-A6EE-6DDBC7EBDCF9">
         <File Id="File_UtilsComponents_6" Source="$(var.SourceDir)\dist\utils\index.d.ts.map" KeyPath="yes" />
       </Component>
-      <Component Id="UtilsComponents_7" Guid="EA69A937-9B1B-450B-B95D-97D6F7DEA980">
+      <Component Id="UtilsComponents_7" Guid="CE5681BE-DF0C-4C16-BD44-D65D201EDBCA">
         <File Id="File_UtilsComponents_7" Source="$(var.SourceDir)\dist\utils\index.js" KeyPath="yes" />
       </Component>
-      <Component Id="UtilsComponents_8" Guid="18C7E82E-D1C1-41A2-A3F3-AA87FFE01BAF">
+      <Component Id="UtilsComponents_8" Guid="0BBB2A48-9F41-4993-870E-7496B95393E0">
         <File Id="File_UtilsComponents_8" Source="$(var.SourceDir)\dist\utils\index.js.map" KeyPath="yes" />
       </Component>
-      <Component Id="UtilsComponents_9" Guid="87B24B93-C079-4E9F-9E2A-A4AA167695C1">
+      <Component Id="UtilsComponents_9" Guid="D4BC0448-F274-4639-963B-AAADDCC95755">
         <File Id="File_UtilsComponents_9" Source="$(var.SourceDir)\dist\utils\logger.d.ts" KeyPath="yes" />
       </Component>
-      <Component Id="UtilsComponents_10" Guid="8470F34F-D3E7-4486-B996-95C818E51188">
+      <Component Id="UtilsComponents_10" Guid="5072F2FE-09E2-40C2-A353-AFFF906E2700">
         <File Id="File_UtilsComponents_10" Source="$(var.SourceDir)\dist\utils\logger.d.ts.map" KeyPath="yes" />
       </Component>
-      <Component Id="UtilsComponents_11" Guid="0FA6B4F4-2B34-4786-851E-C9AC63BBB2DD">
+      <Component Id="UtilsComponents_11" Guid="1679AA15-F1CC-47A7-BD87-7EB67ECBB5A5">
         <File Id="File_UtilsComponents_11" Source="$(var.SourceDir)\dist\utils\logger.js" KeyPath="yes" />
       </Component>
-      <Component Id="UtilsComponents_12" Guid="99182BA7-0C52-4FCB-81A2-CB044B80B52F">
+      <Component Id="UtilsComponents_12" Guid="2A0677AC-D8EF-47DD-80E0-4AD7FDF75956">
         <File Id="File_UtilsComponents_12" Source="$(var.SourceDir)\dist\utils\logger.js.map" KeyPath="yes" />
       </Component>
     </ComponentGroup>
