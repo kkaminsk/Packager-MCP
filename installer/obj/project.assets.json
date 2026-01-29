@@ -68,6 +68,7 @@
       "packagesPath": "C:\\Users\\KevinKaminski\\.nuget\\packages\\",
       "outputPath": "C:\\Temp\\tsscat\\Packager-MCP\\installer\\obj\\",
       "projectStyle": "PackageReference",
+      "UsingMicrosoftNETSdk": false,
       "configFilePaths": [
         "C:\\Users\\KevinKaminski\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],

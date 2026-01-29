@@ -54,7 +54,7 @@ param(
     [switch]$SkipNodeDownload,
 
     [Parameter()]
-    [string]$NodeVersion = "20.18.1",
+    [string]$NodeVersion = "20.20.0",
 
     [Parameter()]
     [switch]$Clean,
@@ -81,6 +81,7 @@ $NodeBundleDir = Join-Path $InstallerDir 'nodejs-bundle'
 # Get checksums from: https://nodejs.org/dist/vX.Y.Z/SHASUMS256.txt
 $NodeChecksums = @{
     "20.18.1" = "56e5aacdeee7168871721b75819ccacf2367de8761b78eaceacdecd41e04ca03"
+    "20.20.0" = "32f24e1405b113d4e01ad2585c92024df673b6156ef6f43a5469a75bf52c0a5a"
     "22.11.0" = "2c8d66c8f83de91178ec26eb73f74c1be54dce2c06e3b7a4e0d1e51d2e6a88f7"
 }
 

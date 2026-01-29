@@ -44,7 +44,12 @@
       "Bash(az account show:*)",
       "Bash(az login:*)",
       "Bash(Get-Content \"C:\\\\Users\\\\KevinKaminski\\\\.claude\\\\projects\\\\C--Temp-tsscat-Packager-MCP\\\\6e59700c-0d6b-4908-87f3-228daa4cd0d1\\\\tool-results\\\\toolu_0124uCxefVTwfWRM8SCdWt6R.txt\")",
-      "Bash(Select-Object -Last 30)"
+      "Bash(Select-Object -Last 30)",
+      "Bash(npm outdated:*)",
+      "Bash(node --version:*)",
+      "Bash(npm:*)",
+      "Bash(dotnet list:*)",
+      "Bash(timeout 5 node:*)"
     ],
     "deny": [],
     "ask": []

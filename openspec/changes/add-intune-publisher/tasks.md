@@ -56,7 +56,7 @@
 - [x] 7.1 Update CLAUDE.md with new tool documentation
 - [x] 7.2 Add environment variable documentation
 - [x] 7.3 Add service principal setup guide
-- [ ] 7.4 Update README if needed
+- [x] 7.4 Update README if needed (verified: already documented)
 
 ## Notes
 

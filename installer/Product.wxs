@@ -143,9 +143,6 @@
       <Component Id="ReadmeFile">
         <File Source="$(var.SourceDir)\README.md" />
       </Component>
-      <Component Id="ReadmeTxtFile">
-        <File Source="$(var.SourceDir)\Readme.txt" />
-      </Component>
     </ComponentGroup>
 
     <ComponentGroup Id="DistRootComponents" Directory="DistDir">
@@ -193,9 +190,6 @@
         <Shortcut Id="ExamplesShortcut" Name="Packager-MCP Examples"
                   Description="Open Packager-MCP example files"
                   Target="[ExamplesDir]" WorkingDirectory="ExamplesDir" />
-        <Shortcut Id="ReadmeShortcut" Name="Packager-MCP Readme"
-                  Description="Configuration instructions for Packager-MCP"
-                  Target="[INSTALLFOLDER]Readme.txt" WorkingDirectory="INSTALLFOLDER" />
         <Shortcut Id="ProjectFolderShortcut" Name="Packager-MCP Project Folder"
                   Description="Open the Packager-MCP project working folder"
                   Target="[ProjectFolder]" WorkingDirectory="ProjectFolder" />

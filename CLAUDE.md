@@ -153,6 +153,23 @@ Note: Silent install arguments are stored in `src/knowledge/reference/silent-arg
 - Integration tests for MCP protocol compliance
 - Test with multiple MCP clients (Claude CLI, Claude Desktop)
 
+## Technical Debt
+
+See `technicaldebt.md` for tracking of dependencies and components.
+
+**Status (as of 2026-01-21):** All critical items resolved.
+
+| Component | Status |
+|-----------|--------|
+| Security vulnerabilities | Fixed (npm audit clean) |
+| npm packages | Current (@modelcontextprotocol/sdk 1.25.3, zod 4.3.5) |
+| Dockerfile | Updated to Node.js 24 LTS |
+| MSI Node.js | Updated to 20.20.0 |
+| GitHub Actions | Updated (action-gh-release@v2) |
+| Package structure | Fixed (@types/adm-zip in devDependencies) |
+
+**Up-to-date:** PSADT 4.1.8, WiX 6.0.2, TypeScript 5.9.3
+
 ## Docker Deployment
 
 The server supports containerized deployment via Docker. See `DOCKER.md` for full details.
