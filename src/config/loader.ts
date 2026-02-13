@@ -82,6 +82,7 @@ export class ConfigLoader {
         rateLimitRetries: validated.github.rateLimitRetries,
       },
       transport: transportConfig,
+      security: validated.security ?? undefined,
     };
   }
 
@@ -116,6 +117,7 @@ export class ConfigLoader {
       port,
       host: envHost ?? validated.transport.host,
       sessionTimeoutMs: validated.transport.sessionTimeoutMs,
+      corsOrigin: validated.transport.corsOrigin,
     };
   }
 }

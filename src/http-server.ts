@@ -28,8 +28,10 @@ export interface HttpServerOptions {
 export async function createHttpServer(options: HttpServerOptions): Promise<Server> {
   const { config, serverVersion, mcpServer } = options;
 
+  const corsOrigin = config.corsOrigin ?? 'http://localhost';
+
   const httpServer = createServer((req, res) => {
-    handleRequest(req, res, mcpServer, serverVersion).catch((error) => {
+    handleRequest(req, res, mcpServer, serverVersion, corsOrigin).catch((error) => {
       logger().error('Unhandled request error', { error: error instanceof Error ? error.message : String(error) });
       if (!res.headersSent) {
         res.writeHead(500, { 'Content-Type': 'application/json' });
@@ -62,12 +64,13 @@ async function handleRequest(
   req: IncomingMessage,
   res: ServerResponse,
   mcpServer: McpServer,
-  serverVersion: string
+  serverVersion: string,
+  corsOrigin: string
 ): Promise<void> {
   const url = new URL(req.url ?? '/', `http://${req.headers.host}`);
 
-  // CORS headers for browser-based clients
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  // CORS headers for browser-based clients (configurable origin)
+  res.setHeader('Access-Control-Allow-Origin', corsOrigin);
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, mcp-session-id');
 

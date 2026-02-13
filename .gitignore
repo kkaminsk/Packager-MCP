@@ -12,14 +12,18 @@ packager-mcp.yaml
 packager-mcp.yml
 config.yaml
 config.yml
+
+# Certificates and keys - never commit these
+*.pem
+*.pfx
+*.p12
+*.key
+
+# IDE and tool settings
+.claude/settings.local.json
 nul
-/TEST_WinRAR_Package4
+
+# Test output directories
 /Test
-.claude/settings.local.json
-.claude/settings.local.json
 /testing
-packager-mcp.pem
-packager-mcp.pfx
-.claude/settings.local.json
-.claude/settings.local.json
-.claude/settings.local.json
+/TEST_*

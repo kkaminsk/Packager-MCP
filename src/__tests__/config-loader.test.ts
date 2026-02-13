@@ -97,13 +97,10 @@ describe('loadConfig helper', () => {
 
 describe('Transport Configuration', () => {
   afterEach(() => {
+    vi.unstubAllEnvs();
     if (existsSync(TEST_CONFIG_PATH)) {
       unlinkSync(TEST_CONFIG_PATH);
     }
-    // Clean up environment variables
-    delete process.env.TRANSPORT_TYPE;
-    delete process.env.TRANSPORT_PORT;
-    delete process.env.TRANSPORT_HOST;
   });
 
   it('should return default transport config', () => {
@@ -152,7 +149,7 @@ transport:
   type: stdio
 `;
     writeFileSync(TEST_CONFIG_PATH, yamlContent);
-    process.env.TRANSPORT_TYPE = 'http';
+    vi.stubEnv('TRANSPORT_TYPE', 'http');
 
     const loader = new ConfigLoader();
     const config = loader.load(TEST_CONFIG_PATH);
@@ -161,25 +158,35 @@ transport:
   });
 
   it('should override transport port with TRANSPORT_PORT env var', () => {
-    process.env.TRANSPORT_PORT = '3000';
+    const yamlContent = `
+transport:
+  type: stdio
+`;
+    writeFileSync(TEST_CONFIG_PATH, yamlContent);
+    vi.stubEnv('TRANSPORT_PORT', '3000');
 
     const loader = new ConfigLoader();
-    const config = loader.load();
+    const config = loader.load(TEST_CONFIG_PATH);
 
     expect(config.transport.port).toBe(3000);
   });
 
   it('should override transport host with TRANSPORT_HOST env var', () => {
-    process.env.TRANSPORT_HOST = '0.0.0.0';
+    const yamlContent = `
+transport:
+  type: stdio
+`;
+    writeFileSync(TEST_CONFIG_PATH, yamlContent);
+    vi.stubEnv('TRANSPORT_HOST', '0.0.0.0');
 
     const loader = new ConfigLoader();
-    const config = loader.load();
+    const config = loader.load(TEST_CONFIG_PATH);
 
     expect(config.transport.host).toBe('0.0.0.0');
   });
 
   it('should ignore invalid TRANSPORT_TYPE values', () => {
-    process.env.TRANSPORT_TYPE = 'invalid';
+    vi.stubEnv('TRANSPORT_TYPE', 'invalid');
 
     const loader = new ConfigLoader();
     const config = loader.load();
@@ -188,7 +195,7 @@ transport:
   });
 
   it('should ignore invalid TRANSPORT_PORT values', () => {
-    process.env.TRANSPORT_PORT = 'not-a-number';
+    vi.stubEnv('TRANSPORT_PORT', 'not-a-number');
 
     const loader = new ConfigLoader();
     const config = loader.load();
@@ -197,7 +204,7 @@ transport:
   });
 
   it('should reject port numbers out of range', () => {
-    process.env.TRANSPORT_PORT = '70000';
+    vi.stubEnv('TRANSPORT_PORT', '70000');
 
     const loader = new ConfigLoader();
     const config = loader.load();
@@ -206,7 +213,7 @@ transport:
   });
 
   it('should reject negative port numbers', () => {
-    process.env.TRANSPORT_PORT = '-1';
+    vi.stubEnv('TRANSPORT_PORT', '-1');
 
     const loader = new ConfigLoader();
     const config = loader.load();

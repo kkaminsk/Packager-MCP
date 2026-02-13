@@ -1,5 +1,7 @@
 # Packager-MCP - GitHub Copilot CLI
 
+> **Note:** The canonical AI agent instructions are in `AGENTS.md`. This file provides Copilot-specific context.
+
 An MCP (Model Context Protocol) server that transforms GitHub Copilot CLI into an expert Windows application packaging assistant for Microsoft Intune.
 
 ## Installation

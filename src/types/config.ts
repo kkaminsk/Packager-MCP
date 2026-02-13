@@ -32,6 +32,13 @@ export interface TransportConfig {
   host: string;
   /** Session timeout in milliseconds (default: 30 minutes) */
   sessionTimeoutMs: number;
+  /** CORS allowed origin (default: 'http://localhost') */
+  corsOrigin: string;
+}
+
+export interface SecurityConfig {
+  /** Allowed output directories for tool file operations */
+  allowedOutputDirs?: string[];
 }
 
 export interface ServerConfig {
@@ -42,6 +49,7 @@ export interface ServerConfig {
   github: GithubConfig;
   psadt?: PsadtConfig;
   transport: TransportConfig;
+  security?: SecurityConfig;
 }
 
 export const DEFAULT_CONFIG: ServerConfig = {
@@ -65,5 +73,6 @@ export const DEFAULT_CONFIG: ServerConfig = {
     port: 8081,
     host: '127.0.0.1',
     sessionTimeoutMs: 30 * 60 * 1000, // 30 minutes
+    corsOrigin: 'http://localhost',
   },
 };

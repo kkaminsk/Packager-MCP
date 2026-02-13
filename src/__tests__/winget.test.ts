@@ -23,7 +23,7 @@ vi.mock('../config/loader.js', () => ({
     version: '1.0.0',
     cache: cacheConfig,
     logging: { level: 'error', format: 'json' },
-    github: { rateLimitRetries: 3 },
+    github: { rateLimitRetries: 0 },
   }),
   getConfigLoader: () => ({
     load: () => ({}),
@@ -32,7 +32,7 @@ vi.mock('../config/loader.js', () => ({
       version: '1.0.0',
       cache: cacheConfig,
       logging: { level: 'error', format: 'json' },
-      github: { rateLimitRetries: 3 },
+      github: { rateLimitRetries: 0 },
     }),
   }),
 }));

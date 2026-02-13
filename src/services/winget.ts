@@ -6,6 +6,7 @@ import { getCacheManager, type LruCache } from '../cache/lru-cache.js';
 import { getLogger, type Logger } from '../utils/logger.js';
 import { GithubApiError } from '../utils/errors.js';
 import { loadConfig } from '../config/loader.js';
+import { fetchWithRetry } from '../utils/retry.js';
 import type {
   WingetManifest,
   WingetSearchResult,
@@ -85,6 +86,7 @@ export class WingetService {
   private manifestCache: LruCache<WingetManifest>;
   private silentArgsDb: SilentArgsDatabase;
   private githubToken?: string;
+  private rateLimitRetries: number;
 
   constructor() {
     this.logger = getLogger().child({ service: 'winget' });
@@ -95,6 +97,7 @@ export class WingetService {
 
     const config = loadConfig();
     this.githubToken = config.github.token ?? process.env.GITHUB_TOKEN;
+    this.rateLimitRetries = config.github.rateLimitRetries;
   }
 
   private loadSilentArgsDatabase(): SilentArgsDatabase {
@@ -111,7 +114,8 @@ export class WingetService {
   }
 
   async searchPackages(input: SearchWingetInput): Promise<SearchWingetOutput> {
-    const cacheKey = `search:${input.query}:${input.exactMatch ?? false}:${input.includeVersions ?? false}:${input.limit ?? 10}`;
+    const normalizedQuery = input.query.toLowerCase().trim();
+    const cacheKey = `search:${normalizedQuery}:${input.exactMatch ?? false}:${input.includeVersions ?? false}:${input.limit ?? 10}`;
 
     const cached = this.searchCache.get(cacheKey);
     if (cached) {
@@ -589,7 +593,9 @@ export class WingetService {
 
     this.logger.debug('Fetching from GitHub', { url });
 
-    const response = await fetch(url, { headers });
+    const response = await fetchWithRetry(url, { headers }, {
+      maxRetries: this.rateLimitRetries,
+    });
 
     if (response.status === 403) {
       const remaining = response.headers.get('X-RateLimit-Remaining');

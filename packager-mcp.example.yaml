@@ -40,3 +40,13 @@ transport:
   host: 127.0.0.1
   # Session timeout in milliseconds (30 minutes)
   sessionTimeoutMs: 1800000
+  # CORS allowed origin for HTTP transport (default: http://localhost)
+  # Use "*" to allow all origins (not recommended for production)
+  corsOrigin: http://localhost
+
+# Security settings (optional)
+# security:
+#   # Restrict output directories for tool file operations
+#   allowedOutputDirs:
+#     - C:\Packages
+#     - D:\IntunePackages

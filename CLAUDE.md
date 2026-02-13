@@ -1,5 +1,7 @@
 # Packager-MCP
 
+> **Note:** The canonical AI agent instructions are in `AGENTS.md`. This file provides Claude-specific context.
+
 An MCP (Model Context Protocol) server that transforms Claude CLI and compatible AI tools into expert Windows application packaging assistants for Microsoft Intune.
 
 ## Project Overview

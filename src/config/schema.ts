@@ -23,11 +23,16 @@ export const psadtConfigSchema = z.object({
   defaultVersion: z.string().default('latest'),
 });
 
+export const securityConfigSchema = z.object({
+  allowedOutputDirs: z.array(z.string()).optional(),
+});
+
 export const transportConfigSchema = z.object({
   type: z.enum(['stdio', 'http', 'both']).default('stdio'),
   port: z.number().min(1).max(65535).default(8081),
   host: z.string().default('127.0.0.1'),
   sessionTimeoutMs: z.number().min(0).default(30 * 60 * 1000),
+  corsOrigin: z.string().default('http://localhost'),
 });
 
 const defaultCacheConfig = {
@@ -56,6 +61,7 @@ const defaultTransportConfig = {
   port: 8081,
   host: '127.0.0.1',
   sessionTimeoutMs: 30 * 60 * 1000,
+  corsOrigin: 'http://localhost',
 };
 
 export const serverConfigSchema = z.object({
@@ -66,6 +72,7 @@ export const serverConfigSchema = z.object({
   github: githubConfigSchema.default(defaultGithubConfig),
   psadt: psadtConfigSchema.optional().default(defaultPsadtConfig),
   transport: transportConfigSchema.default(defaultTransportConfig),
+  security: securityConfigSchema.optional(),
 });
 
 export type ServerConfigInput = z.input<typeof serverConfigSchema>;

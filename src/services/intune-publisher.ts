@@ -1,5 +1,7 @@
 // Intune Win32 app publishing service via Microsoft Graph API
 
+import { existsSync, statSync, readFileSync } from 'node:fs';
+import { basename, extname } from 'node:path';
 import { getLogger } from '../utils/logger.js';
 import { getGraphAuthService } from './graph-auth.js';
 import type {
@@ -27,6 +29,15 @@ const DEFAULT_UNINSTALL_COMMAND = 'Deploy-Application.exe -DeploymentType Uninst
 
 /** Chunk size for file uploads (4 MB) */
 const UPLOAD_CHUNK_SIZE = 4 * 1024 * 1024;
+
+/** Timeout for waiting on Azure Storage URI (ms) */
+const AZURE_STORAGE_URI_TIMEOUT_MS = 60_000;
+
+/** Timeout for waiting on file commit (ms) */
+const COMMIT_TIMEOUT_MS = 120_000;
+
+/** Polling interval for status checks (ms) */
+const POLL_INTERVAL_MS = 2_000;
 
 /** Category mapping keywords */
 const CATEGORY_KEYWORDS: Record<IntuneAppCategory, string[]> = {
@@ -86,7 +97,6 @@ class IntunePublisherService {
       const metadata = await this.readIntunewinMetadata(input.intunewinPath);
 
       // Step 4: Determine app metadata
-      const { basename } = await import('node:path');
       const fileName = basename(input.intunewinPath);
       const appName = input.appName || metadata.name || 'Unknown Application';
       const appVersion = input.appVersion || metadata.version || '1.0.0';
@@ -195,9 +205,6 @@ class IntunePublisherService {
     error?: string;
     suggestions?: string[];
   }> {
-    const { existsSync, statSync } = await import('node:fs');
-    const { extname } = await import('node:path');
-
     // Check file exists
     if (!existsSync(input.intunewinPath)) {
       return {
@@ -261,8 +268,6 @@ class IntunePublisherService {
     encryptionInfo?: FileEncryptionInfo;
     unencryptedContentSize?: number;
   }> {
-    const { basename } = await import('node:path');
-    const { readFileSync } = await import('node:fs');
     const fileName = basename(filePath, '.intunewin');
 
     logger.debug('Reading intunewin metadata', { filePath, fileName });
@@ -500,7 +505,6 @@ class IntunePublisherService {
     metadata: { encryptionInfo?: FileEncryptionInfo; unencryptedContentSize?: number },
     onProgress?: (bytesUploaded: number, totalBytes: number) => void
   ): Promise<void> {
-    const { basename } = await import('node:path');
     const AdmZip = (await import('adm-zip')).default;
 
     // Extract the encrypted content from inside the .intunewin ZIP
@@ -580,29 +584,24 @@ class IntunePublisherService {
     const fileId = fileEntry.id;
 
     // Step 3: Wait for Azure Storage URI
-    let azureStorageUri: string | null = null;
-    for (let i = 0; i < 30; i++) {
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      const fileStatusResponse = await fetch(
-        `${GRAPH_BASE_URL}/deviceAppManagement/mobileApps/${appId}/microsoft.graph.win32LobApp/contentVersions/${contentVersionId}/files/${fileId}`,
-        {
-          headers: { 'Authorization': `Bearer ${accessToken}` },
+    const azureStorageUri = await this.pollUntil<string>(
+      async () => {
+        const fileStatusResponse = await fetch(
+          `${GRAPH_BASE_URL}/deviceAppManagement/mobileApps/${appId}/microsoft.graph.win32LobApp/contentVersions/${contentVersionId}/files/${fileId}`,
+          { headers: { 'Authorization': `Bearer ${accessToken}` } }
+        );
+        if (fileStatusResponse.ok) {
+          const fileStatus = await fileStatusResponse.json() as { azureStorageUri?: string; uploadState: string };
+          if (fileStatus.azureStorageUri) {
+            return fileStatus.azureStorageUri;
+          }
         }
-      );
-
-      if (fileStatusResponse.ok) {
-        const fileStatus = await fileStatusResponse.json() as { azureStorageUri?: string; uploadState: string };
-        if (fileStatus.azureStorageUri) {
-          azureStorageUri = fileStatus.azureStorageUri;
-          break;
-        }
-      }
-    }
-
-    if (!azureStorageUri) {
-      throw new Error('Timed out waiting for Azure Storage URI');
-    }
+        return undefined;
+      },
+      AZURE_STORAGE_URI_TIMEOUT_MS,
+      POLL_INTERVAL_MS,
+      'Azure Storage URI'
+    );
 
     // Step 4: Upload file chunks to Azure Storage
     // fileContent is already extracted from the ZIP above
@@ -672,25 +671,26 @@ class IntunePublisherService {
     }
 
     // Step 7: Wait for processing and update app with content version
-    for (let i = 0; i < 60; i++) {
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      const fileStatusResponse = await fetch(
-        `${GRAPH_BASE_URL}/deviceAppManagement/mobileApps/${appId}/microsoft.graph.win32LobApp/contentVersions/${contentVersionId}/files/${fileId}`,
-        {
-          headers: { 'Authorization': `Bearer ${accessToken}` },
+    await this.pollUntil<true>(
+      async () => {
+        const fileStatusResponse = await fetch(
+          `${GRAPH_BASE_URL}/deviceAppManagement/mobileApps/${appId}/microsoft.graph.win32LobApp/contentVersions/${contentVersionId}/files/${fileId}`,
+          { headers: { 'Authorization': `Bearer ${accessToken}` } }
+        );
+        if (fileStatusResponse.ok) {
+          const fileStatus = await fileStatusResponse.json() as { uploadState: string };
+          if (fileStatus.uploadState === 'commitFileSuccess') {
+            return true;
+          } else if (fileStatus.uploadState === 'commitFileFailed') {
+            throw new Error('File commit failed in Intune');
+          }
         }
-      );
-
-      if (fileStatusResponse.ok) {
-        const fileStatus = await fileStatusResponse.json() as { uploadState: string };
-        if (fileStatus.uploadState === 'commitFileSuccess') {
-          break;
-        } else if (fileStatus.uploadState === 'commitFileFailed') {
-          throw new Error('File commit failed in Intune');
-        }
-      }
-    }
+        return undefined;
+      },
+      COMMIT_TIMEOUT_MS,
+      POLL_INTERVAL_MS,
+      'file commit'
+    );
 
     // Step 8: Set committed content version on app
     const updateAppResponse = await fetch(
@@ -772,9 +772,6 @@ class IntunePublisherService {
     appId: string,
     logoPath: string
   ): Promise<void> {
-    const { readFileSync, existsSync } = await import('node:fs');
-    const { extname } = await import('node:path');
-
     if (!existsSync(logoPath)) {
       throw new Error(`Logo file not found: ${logoPath}`);
     }
@@ -880,6 +877,27 @@ class IntunePublisherService {
     }
 
     return suggestions;
+  }
+
+  /**
+   * Poll an async function until it returns a non-undefined value or timeout is reached.
+   */
+  private async pollUntil<T>(
+    fn: () => Promise<T | undefined>,
+    timeoutMs: number,
+    intervalMs: number,
+    operationName: string
+  ): Promise<T> {
+    const start = Date.now();
+    while (Date.now() - start < timeoutMs) {
+      await new Promise(resolve => setTimeout(resolve, intervalMs));
+      const result = await fn();
+      if (result !== undefined) {
+        return result;
+      }
+    }
+    const elapsed = Math.round((Date.now() - start) / 1000);
+    throw new Error(`Timed out waiting for ${operationName} after ${elapsed}s`);
   }
 
   /**
